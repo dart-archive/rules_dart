@@ -1,14 +1,14 @@
 import 'dart:io';
 import 'package:examples.goodbye_lib/goodbye.dart';
 
-main() async {
+main(List<String> args) async {
   var runfilesDir = Platform.environment['RUNFILES'];
-  var scriptPath = [runfilesDir, 'examples', 'dart', 'hello_bin', 'hello_bin']
+  var scriptPath = [runfilesDir, 'io_bazel_rules_dart', 'examples', 'hello_bin', 'hello_bin']
       .join(Platform.pathSeparator);
 
   print('Script runfiles: $runfilesDir');
   print('Running: $scriptPath...');
-  var p = await Process.run(scriptPath, []);
+  var p = await Process.run(scriptPath, args);
   print('----------');
   stdout.write(p.stdout);
   print('----------');
