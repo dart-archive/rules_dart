@@ -23,7 +23,8 @@ def _dart_vm_binary_impl(ctx):
   dart_ctx = make_dart_context(ctx.label,
                                srcs=ctx.files.srcs,
                                data=ctx.files.data,
-                               deps=ctx.attr.deps)
+                               deps=ctx.attr.deps,
+                               pub_pkg_name=ctx.attr.pub_pkg_name)
 
   if ctx.attr.snapshot:
     # Build snapshot
@@ -93,6 +94,7 @@ _dart_vm_binary_attrs = {
     "data": attr.label_list(allow_files=True, cfg="data"),
     "deps": attr.label_list(providers=["dart"]),
     "snapshot": attr.bool(default=True),
+    "pub_pkg_name": attr.string(default=""),
     "_dart_vm": attr.label(
         allow_files=True,
         single_file=True,
@@ -160,7 +162,8 @@ def _dart_vm_snapshot_impl(ctx):
   dart_ctx = make_dart_context(ctx.label,
                                srcs=ctx.files.srcs,
                                data=ctx.files.data,
-                               deps=ctx.attr.deps)
+                               deps=ctx.attr.deps,
+                               pub_pkg_name=ctx.attr.pub_pkg_name)
   vm_snapshot_action(
       ctx=ctx,
       dart_ctx=dart_ctx,
@@ -184,7 +187,8 @@ def _dart_vm_test_impl(ctx):
   dart_ctx = make_dart_context(ctx.label,
                                srcs=ctx.files.srcs,
                                data=ctx.files.data,
-                               deps=ctx.attr.deps)
+                               deps=ctx.attr.deps,
+                               pub_pkg_name=ctx.attr.pub_pkg_name)
 
   # Emit package spec.
   package_spec = ctx.new_file(ctx.label.name + ".packages")

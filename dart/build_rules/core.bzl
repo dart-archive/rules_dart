@@ -25,7 +25,8 @@ def _dart_library_impl(ctx):
   dart_ctx = make_dart_context(ctx.label,
                                srcs=ctx.files.srcs,
                                data=ctx.files.data,
-                               deps=ctx.attr.deps)
+                               deps=ctx.attr.deps,
+                               pub_pkg_name=ctx.attr.pub_pkg_name)
 
   return struct(
       dart=dart_ctx,
@@ -36,7 +37,8 @@ dart_library_attrs = {
     "srcs": attr.label_list(allow_files=True, mandatory=True),
     "data": attr.label_list(allow_files=True, cfg="data"),
     "deps": attr.label_list(providers=["dart"]),
-    "license_files": attr.label_list(allow_files=True)
+    "license_files": attr.label_list(allow_files=True),
+    "pub_pkg_name": attr.string(default=""),
 }
 
 
