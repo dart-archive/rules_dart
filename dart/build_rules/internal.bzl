@@ -153,6 +153,7 @@ def _merge_dart_context(dart_ctx1, dart_ctx2):
       srcs=dart_ctx1.srcs + dart_ctx2.srcs,
       data=dart_ctx1.data + dart_ctx2.data,
       deps=dart_ctx1.deps + dart_ctx2.deps,
+      strong_summary=dart_ctx1.strong_summary,
       transitive_deps=dart_ctx1.transitive_deps + dart_ctx2.transitive_deps,
   )
 
@@ -296,3 +297,5 @@ def compute_layout(srcs):
   return output_files
 
 dart_filetypes = [".dart"]
+
+api_summary_extension = "api.ds"

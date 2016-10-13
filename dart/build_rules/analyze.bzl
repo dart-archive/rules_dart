@@ -199,14 +199,14 @@ def analyze_action(ctx, dart_ctx, summary=None,
     mode = "spec"
 
   ctx.action(
-      inputs=inputs,
-      outputs=outputs,
-      executable=executable,
-      arguments=analyzer_args,
-      progress_message="%s Dart library %s (%s mode)" % (verb, ctx, mode),
-      mnemonic=mnemonic,
-      execution_requirements=execution_requirements,
-      input_manifests=input_manifests,
+    inputs=inputs,
+    outputs=outputs,
+    executable=executable,
+    arguments=analyzer_args,
+    progress_message="%s Dart library %s (%s mode)" % (verb, ctx, mode),
+    mnemonic=mnemonic,
+    execution_requirements=execution_requirements,
+    input_manifests=input_manifests,
   )
 
 def summary_action(ctx, dart_ctx):

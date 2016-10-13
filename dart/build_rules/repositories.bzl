@@ -42,6 +42,11 @@ filegroup(
 )
 
 filegroup(
+  name = "dev_compiler",
+  srcs = ["dart-sdk/bin/dartdevc"],
+)
+
+filegroup(
   name = "pub",
   srcs = ["dart-sdk/bin/pub"],
 )
@@ -60,8 +65,8 @@ filegroup(
 def dart_repositories():
   native.new_http_archive(
       name = "dart_linux_x86_64",
-      url = "https://storage.googleapis.com/dart-archive/channels/stable/release/1.19.1/sdk/dartsdk-linux-x64-release.zip",
-      sha256 = "de3634a5572b805172aa3544214a5b1ecf3d16a20956cd5cac3781863cbfdb0a",
+      url = "https://storage.googleapis.com/dart-archive/channels/dev/release/1.20.0-dev.10.3/sdk/dartsdk-linux-x64-release.zip",
+      sha256 = "dcbf41b5ea0f577aff098ed5d1dc62cc744be1311ce70e522eeccd7f2db9c282",
       build_file_content = _DART_SDK_BUILD_FILE,
   )
 
