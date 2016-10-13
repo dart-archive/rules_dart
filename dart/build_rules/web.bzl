@@ -14,9 +14,7 @@
 
 """Dart rules targeting web clients."""
 
-
 load(":internal.bzl", "collect_files", "layout_action", "make_dart_context", "package_spec_action")
-
 
 def dart2js_action(ctx, dart_ctx, script_file,
                    checked, csp, dump_info, minify, preserve_uris,
@@ -80,7 +78,6 @@ def dart2js_action(ctx, dart_ctx, script_file,
       mnemonic="Dart2jsCompile",
   )
 
-
 def _dart_web_application_impl(ctx):
   """Implements the dart_web_application build rule."""
   dart_ctx = make_dart_context(ctx.label,
@@ -119,38 +116,48 @@ def _dart_web_application_impl(ctx):
   # TODO(cbracken) aggregate, inject licenses
   return struct()
 
-
 _dart_web_application_attrs = {
     "script_file": attr.label(
-        allow_files=True, single_file=True, mandatory=True),
-    "srcs": attr.label_list(allow_files=True, mandatory=True),
-    "data": attr.label_list(allow_files=True, cfg="data"),
-    "deps": attr.label_list(providers=["dart"]),
-    "deferred_lib_count": attr.int(default=0),
+        allow_files = True,
+        single_file = True,
+        mandatory = True,
+    ),
+    "srcs": attr.label_list(
+        allow_files = True,
+        mandatory = True,
+    ),
+    "data": attr.label_list(
+        allow_files = True,
+        cfg = "data",
+    ),
+    "deps": attr.label_list(providers = ["dart"]),
+    "deferred_lib_count": attr.int(default = 0),
     # compiler flags
-    "checked": attr.bool(default=False),
-    "csp": attr.bool(default=False),
-    "dump_info": attr.bool(default=False),
-    "minify": attr.bool(default=True),
-    "preserve_uris": attr.bool(default=False),
+    "checked": attr.bool(default = False),
+    "csp": attr.bool(default = False),
+    "dump_info": attr.bool(default = False),
+    "minify": attr.bool(default = True),
+    "preserve_uris": attr.bool(default = False),
     # tools
     "_dart2js": attr.label(
-        allow_files=True,
-        single_file=True,
-        executable=True,
-        cfg="host",
-        default=Label("//dart/build_rules/ext:dart2js")),
+        allow_files = True,
+        single_file = True,
+        executable = True,
+        cfg = "host",
+        default = Label("//dart/build_rules/ext:dart2js"),
+    ),
     "_dart2js_support": attr.label(
-        allow_files=True,
-        default=Label("//dart/build_rules/ext:dart2js_support")),
+        allow_files = True,
+        default = Label("//dart/build_rules/ext:dart2js_support"),
+    ),
     "_dart2js_helper": attr.label(
-        allow_files=True,
-        single_file=True,
-        executable=True,
-        cfg="host",
-        default=Label("//dart/build_rules/tools:dart2js_helper")),
+        allow_files = True,
+        single_file = True,
+        executable = True,
+        cfg = "host",
+        default = Label("//dart/build_rules/tools:dart2js_helper"),
+    ),
 }
-
 
 def _dart_web_application_outputs(dump_info, deferred_lib_count):
   """Returns the expected output map for dart_web_application."""
@@ -166,9 +173,8 @@ def _dart_web_application_outputs(dump_info, deferred_lib_count):
     outputs["part_sourcemap%s" % i] = "%%{name}.js_%s.part.js.map" % i
   return outputs
 
-
 dart_web_application = rule(
-    implementation=_dart_web_application_impl,
-    attrs=_dart_web_application_attrs,
-    outputs=_dart_web_application_outputs,
+    attrs = _dart_web_application_attrs,
+    outputs = _dart_web_application_outputs,
+    implementation = _dart_web_application_impl,
 )

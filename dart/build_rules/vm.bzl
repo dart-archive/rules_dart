@@ -14,9 +14,7 @@
 
 """Dart rules targeting the Dart VM."""
 
-
 load(":internal.bzl", "collect_files", "layout_action", "make_dart_context", "package_spec_action")
-
 
 def _dart_vm_binary_impl(ctx):
   """Implements the dart_vm_binary() rule."""
@@ -83,35 +81,42 @@ def _dart_vm_binary_impl(ctx):
       runfiles=runfiles,
   )
 
-
 _dart_vm_binary_attrs = {
     "script_file": attr.label(
-        allow_files=True, single_file=True, mandatory=True),
+        allow_files = True,
+        single_file = True,
+        mandatory = True,
+    ),
     "script_args": attr.string_list(),
     "vm_flags": attr.string_list(),
-    "srcs": attr.label_list(allow_files=True, mandatory=True),
-    "data": attr.label_list(allow_files=True, cfg="data"),
-    "deps": attr.label_list(providers=["dart"]),
-    "snapshot": attr.bool(default=True),
+    "srcs": attr.label_list(
+        allow_files = True,
+        mandatory = True,
+    ),
+    "data": attr.label_list(
+        allow_files = True,
+        cfg = "data",
+    ),
+    "deps": attr.label_list(providers = ["dart"]),
+    "snapshot": attr.bool(default = True),
     "_dart_vm": attr.label(
-        allow_files=True,
-        single_file=True,
-        executable=True,
-        cfg="host",
-        default=Label("//dart/build_rules/ext:dart_vm"),
+        allow_files = True,
+        single_file = True,
+        executable = True,
+        cfg = "host",
+        default = Label("//dart/build_rules/ext:dart_vm"),
     ),
     "_entrypoint_template": attr.label(
-        single_file=True,
-        default=Label("//dart/build_rules/templates:dart_vm_binary")),
+        single_file = True,
+        default = Label("//dart/build_rules/templates:dart_vm_binary"),
+    ),
 }
 
-
 dart_vm_binary = rule(
-    implementation=_dart_vm_binary_impl,
-    attrs=_dart_vm_binary_attrs,
-    executable=True,
+    attrs = _dart_vm_binary_attrs,
+    executable = True,
+    implementation = _dart_vm_binary_impl,
 )
-
 
 def vm_snapshot_action(ctx, dart_ctx, output, vm_flags, script_file, script_args):
   """Emits a Dart VM snapshot."""
@@ -154,7 +159,6 @@ def vm_snapshot_action(ctx, dart_ctx, output, vm_flags, script_file, script_args
       mnemonic="DartVMSnapshot",
   )
 
-
 def _dart_vm_snapshot_impl(ctx):
   """Implements the dart_vm_snapshot build rule."""
   dart_ctx = make_dart_context(ctx.label,
@@ -171,13 +175,11 @@ def _dart_vm_snapshot_impl(ctx):
   )
   return struct()
 
-
 dart_vm_snapshot = rule(
-    implementation=_dart_vm_snapshot_impl,
-    attrs=_dart_vm_binary_attrs,
-    outputs={"snapshot": "%{name}.snapshot"},
+    attrs = _dart_vm_binary_attrs,
+    outputs = {"snapshot": "%{name}.snapshot"},
+    implementation = _dart_vm_snapshot_impl,
 )
-
 
 def _dart_vm_test_impl(ctx):
   """Implements the dart_vm_test() rule."""
@@ -231,27 +233,37 @@ def _dart_vm_test_impl(ctx):
 
 _dart_vm_test_attrs = {
     "script_file": attr.label(
-        allow_files=True, single_file=True, mandatory=True),
+        allow_files = True,
+        single_file = True,
+        mandatory = True,
+    ),
     "script_args": attr.string_list(),
     "vm_flags": attr.string_list(),
-    "srcs": attr.label_list(allow_files=True, mandatory=True),
-    "data": attr.label_list(allow_files=True, cfg="data"),
-    "deps": attr.label_list(providers=["dart"]),
+    "srcs": attr.label_list(
+        allow_files = True,
+        mandatory = True,
+    ),
+    "data": attr.label_list(
+        allow_files = True,
+        cfg = "data",
+    ),
+    "deps": attr.label_list(providers = ["dart"]),
     "_dart_vm": attr.label(
-        allow_files=True,
-        single_file=True,
-        executable=True,
-        cfg="host",
-        default=Label("//dart/build_rules/ext:dart_vm")),
+        allow_files = True,
+        single_file = True,
+        executable = True,
+        cfg = "host",
+        default = Label("//dart/build_rules/ext:dart_vm"),
+    ),
     "_entrypoint_template": attr.label(
-        single_file=True,
-        default=Label("//dart/build_rules/templates:dart_vm_test_template")),
+        single_file = True,
+        default = Label("//dart/build_rules/templates:dart_vm_test_template"),
+    ),
 }
 
-
 dart_vm_test = rule(
-    implementation=_dart_vm_test_impl,
-    attrs=_dart_vm_test_attrs,
-    executable=True,
-    test=True,
+    attrs = _dart_vm_test_attrs,
+    executable = True,
+    test = True,
+    implementation = _dart_vm_test_impl,
 )

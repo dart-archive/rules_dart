@@ -254,26 +254,32 @@ def _code_gen_impl(ctx):
 
   return struct(files=set(outs))
 
-_dart_code_gen = rule(implementation=_code_gen_impl,
-                        attrs={
-                            "deps": attr.label_list(allow_files=True),
-                            "deps_filter": attr.string_list(),
-                            "forced_deps": attr.label_list(allow_files=True),
-                            "generator": attr.label(cfg="host",
-                                                    executable=True),
-                            "generator_args": attr.string_list(),
-                            "in_extension": attr.string(default=".dart"),
-                            "log_out_breaks_caching": attr.output(),
-                            "mnemonic": attr.string(),
-                            "omit_transitive_deps": attr.bool(default=False),
-                            "out_extensions": attr.string_list(mandatory=True),
-                            "srcs": attr.label_list(allow_files=True,
-                                                    mandatory=True),
-                            "supports_worker": attr.bool(default=False),
-                            "log_level": attr.string(default="warning"),
-                        },
-                        outputs=_compute_outs,
-                        output_to_genfiles=True,)
+_dart_code_gen = rule(
+    attrs = {
+        "deps": attr.label_list(allow_files = True),
+        "deps_filter": attr.string_list(),
+        "forced_deps": attr.label_list(allow_files = True),
+        "generator": attr.label(
+            cfg = "host",
+            executable = True,
+        ),
+        "generator_args": attr.string_list(),
+        "in_extension": attr.string(default = ".dart"),
+        "log_out_breaks_caching": attr.output(),
+        "mnemonic": attr.string(),
+        "omit_transitive_deps": attr.bool(default = False),
+        "out_extensions": attr.string_list(mandatory = True),
+        "srcs": attr.label_list(
+            allow_files = True,
+            mandatory = True,
+        ),
+        "supports_worker": attr.bool(default = False),
+        "log_level": attr.string(default = "warning"),
+    },
+    output_to_genfiles = True,
+    outputs = _compute_outs,
+    implementation = _code_gen_impl,
+)
 
 def dart_code_gen(**kwargs):
   _dart_code_gen(log_level="warning", **kwargs)

@@ -14,13 +14,17 @@
 
 """Repositories for Dart."""
 
-
 _DART_SDK_BUILD_FILE = """
 package(default_visibility = [ "//visibility:public" ])
 
 filegroup(
   name = "dart_vm",
   srcs = ["dart-sdk/bin/dart"],
+)
+
+filegroup(
+  name = "analyzer",
+  srcs = ["dart-sdk/bin/dartanalyzer"],
 )
 
 filegroup(
@@ -50,8 +54,8 @@ filegroup(
       "dart-sdk/bin/snapshots/pub.dart.snapshot",
   ]),
 )
-"""
 
+"""
 
 def dart_repositories():
   native.new_http_archive(

@@ -21,9 +21,7 @@ a mechanism for enforcing limitied visibility of Skylark rules. This code makes
 no gurantees of API stability and is intended solely for use by the Dart rules.
 """
 
-
 _third_party_prefix = "third_party/dart/"
-
 
 def assert_third_party_licenses(ctx):
   """Asserts license attr on non-testonly third-party packages."""
@@ -33,7 +31,6 @@ def assert_third_party_licenses(ctx):
     fail("%s lacks license_files attribute, " % ctx.label +
          "required for all non-testonly third-party Dart library rules")
 
-
 def collect_files(dart_ctx):
   srcs = set(dart_ctx.srcs)
   data = set(dart_ctx.data)
@@ -41,7 +38,6 @@ def collect_files(dart_ctx):
     srcs += d.dart.srcs
     data += d.dart.data
   return (srcs, data)
-
 
 def _collect_transitive_deps(deps):
   """Collects transitive closure of deps.
@@ -57,7 +53,6 @@ def _collect_transitive_deps(deps):
     transitive_deps += dep.dart.transitive_deps
     transitive_deps["%s" % dep.dart.label] = dep
   return transitive_deps
-
 
 def _label_to_dart_package_name(label):
   """Returns the Dart package name for the specified label.
@@ -92,7 +87,6 @@ def _label_to_dart_package_name(label):
     fail("Dart package paths may not contain '.': " + label.package)
   return package_name.replace("/", ".")
 
-
 def _new_dart_context(label,
                       package,
                       lib_root,
@@ -110,13 +104,13 @@ def _new_dart_context(label,
       transitive_deps=dict(transitive_deps or {}),
   )
 
-
 def make_dart_context(label,
                       package=None,
                       lib_root=None,
                       srcs=None,
                       data=None,
-                      deps=None):
+                      deps=None,
+                      strong_summary=None):
   if not package:
     package = _label_to_dart_package_name(label)
 
@@ -137,9 +131,9 @@ def make_dart_context(label,
       srcs=srcs,
       data=data,
       deps=deps,
+      strong_summary=strong_summary,
       transitive_deps=transitive_deps,
   )
-
 
 def _merge_dart_context(dart_ctx1, dart_ctx2):
   """Merges two dart contexts whose package and lib_root must be identical."""
@@ -162,7 +156,6 @@ def _merge_dart_context(dart_ctx1, dart_ctx2):
       transitive_deps=dart_ctx1.transitive_deps + dart_ctx2.transitive_deps,
   )
 
-
 def _collect_dart_context(dart_ctx, transitive=True, include_self=True):
   """Collects and returns dart contexts."""
   # Collect direct or transitive deps.
@@ -183,7 +176,6 @@ def _collect_dart_context(dart_ctx, transitive=True, include_self=True):
       dc = _merge_dart_context(ctx_map[dc.package], dc)
     ctx_map[dc.package] = dc
   return ctx_map
-
 
 def package_spec_action(ctx, dart_ctx, output):
   """Creates an action that generates a Dart package spec.
@@ -214,11 +206,9 @@ def package_spec_action(ctx, dart_ctx, output):
       content=content,
   )
 
-
 def _relative_path(from_dir, to_path):
   """Returns the relative path from a directory to a path via the repo root."""
   return "../" * (from_dir.count("/") + 1) + to_path
-
 
 def layout_action(ctx, srcs, output_dir):
   """Generates a flattened directory of sources.
@@ -267,3 +257,42 @@ def layout_action(ctx, srcs, output_dir):
       mnemonic="DartLayout",
   )
   return output_files
+
+# Check if `srcs` contains at least some dart files
+def has_dart_sources(srcs):
+  for n in srcs:
+    if n.path.endswith(".dart"):
+      return True
+  return False
+
+def filter_files(filetypes, files):
+  """Filters a list of files based on a list of strings."""
+  filtered_files = []
+  for file_to_filter in files:
+    for filetype in filetypes:
+      if str(file_to_filter).endswith(filetype):
+        filtered_files.append(file_to_filter)
+        break
+
+  return filtered_files
+
+def make_package_uri(dart_ctx, short_path, prefix=""):
+  if short_path.startswith(dart_ctx.lib_root):
+    return "package:%s/%s" % (
+        dart_ctx.package, short_path[len(dart_ctx.lib_root):])
+  else:
+    return "file:///%s%s" % (prefix, short_path)
+
+def compute_layout(srcs):
+  """Computes a dict mapping short_path to file.
+
+  This is similar to the dict returned by layout_action, except that
+  the files in the dict are the original files rather than symbolic
+  links.
+  """
+  output_files = {}
+  for src_file in srcs:
+    output_files[src_file.short_path] = src_file
+  return output_files
+
+dart_filetypes = [".dart"]
