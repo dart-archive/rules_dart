@@ -52,10 +52,38 @@ def pub_repositories():
   )
 
   pub_repository(
+      name = "charcode",
+      output = ".",
+      package = "charcode",
+      version = "1.1.0",
+  )
+
+  pub_repository(
       name = "collection",
       output = ".",
       package = "collection",
       version = "1.9.1",
+  )
+
+  pub_repository(
+      name = "convert",
+      output = ".",
+      package = "convert",
+      version = "2.0.1",
+  )
+
+  pub_repository(
+      name = "http_parser",
+      output = ".",
+      package = "http_parser",
+      version = "3.0.3",
+  )
+
+  pub_repository(
+      name = "mime",
+      output = ".",
+      package = "mime",
+      version = "0.9.3",
   )
 
   pub_repository(
@@ -64,3 +92,53 @@ def pub_repositories():
       package = "path",
       version = "1.4.0",
   )
+
+  pub_repository(
+      name = "shelf",
+      output = ".",
+      package = "shelf",
+      version = "0.6.5+3",
+  )
+
+  pub_repository(
+      name = "shelf_static",
+      output = ".",
+      package = "shelf_static",
+      version = "0.2.4",
+  )
+
+  pub_repository(
+      name = "source_span",
+      output = ".",
+      package = "source_span",
+      version = "1.2.3",
+  )
+
+  pub_repository(
+      name = "stack_trace",
+      output = ".",
+      package = "stack_trace",
+      version = "1.6.8",
+  )
+
+  pub_repository(
+      name = "stream_channel",
+      output = ".",
+      package = "stream_channel",
+      version = "1.5.0",
+  )
+
+  pub_repository(
+      name = "string_scanner",
+      output = ".",
+      package = "string_scanner",
+      version = "1.0.0",
+  )
+
+  pub_repository(
+      name = "typed_data",
+      output = ".",
+      package = "typed_data",
+      version = "1.1.3",
+  )
+

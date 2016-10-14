@@ -7,8 +7,7 @@ dart_vm_binary(
     ],
     script_file = "bin/server.dart",
     deps = [
-        "//vendor/async",
-        "//vendor/collection",
-        "//vendor/path",
+        "//vendor/shelf",
+        "//vendor/shelf_static",
     ],
 )

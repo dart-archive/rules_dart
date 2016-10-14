@@ -1,4 +1,4 @@
-name: f
+name: rules_dart_tools
 
 dependencies:
   shelf_static:
