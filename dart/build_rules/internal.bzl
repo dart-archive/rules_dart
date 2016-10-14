@@ -287,6 +287,8 @@ def filter_files(filetypes, files):
   return filtered_files
 
 def make_package_uri(dart_ctx, short_path, prefix=""):
+  if short_path.startswith("../"):
+    short_path = short_path.replace("../","")
   if short_path.startswith(dart_ctx.lib_root):
     return "package:%s/%s" % (
         dart_ctx.package, short_path[len(dart_ctx.lib_root):])
