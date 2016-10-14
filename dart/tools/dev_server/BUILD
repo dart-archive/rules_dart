@@ -1,11 +1,11 @@
-load("//dart/build_rules:vm.bzl", "dart_vm_binary")
+load("//dart/build_rules:core.bzl", "dart_library")
+package(default_visibility = ["//visibility:public"])
 
-dart_vm_binary(
+dart_library(
     name = "server",
     srcs = [
         "bin/server.dart",
     ],
-    script_file = "bin/server.dart",
     deps = [
         "//vendor/shelf",
         "//vendor/shelf_static",

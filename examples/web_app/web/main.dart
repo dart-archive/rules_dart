@@ -5,7 +5,8 @@ import 'generated.dart';
 
 void main() {
   print(sayHello('Julio'));
-  print(sayGoodbyeDeferred('Julio'));
+  // TODO: Restore once ddc supports deferred libs
+  // print(sayGoodbyeDeferred('Julio'));
   print(generatedFunc());
   print(add(3, 2));
   querySelector('#output').text = 'Your Dart app is running.';

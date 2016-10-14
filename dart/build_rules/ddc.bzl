@@ -208,7 +208,8 @@ def _dart_ddc_bundle_impl(ctx):
          "Please file a bug on Chrome -> Dart -> Devtools")
 
   # TODO: Do we need to prefix with workspace root?
-  ddc_runtime_output_prefix = "%s/%s%s" % (
+  ddc_runtime_output_prefix = "%s/%s/%s%s" % (
+      ctx.workspace_name,
       ctx.label.package,
       _output_dir(ctx.attr.output_dir, ctx.attr.output_html),
       ddc_runtime_prefix)

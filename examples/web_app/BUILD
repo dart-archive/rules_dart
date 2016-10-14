@@ -1,6 +1,7 @@
 load("//dart/build_rules:core.bzl", "dart_library")
 load("//dart/build_rules:ddc.bzl", "dart_ddc_bundle")
 load("//dart/build_rules:web.bzl", "dart_web_application")
+load("//dart/build_rules:dev_server.bzl", "dev_server")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -28,13 +29,34 @@ dart_ddc_bundle(
     entry_library = "web/main.dart",
     entry_module = ":web_app",
     input_html = "web/index.html",
+    output_dir = "web",
+)
+
+# To run, do the following:
+#
+#   - open up a terminal
+#   - run `bazel build examples/web_app:ddc_dev_server`
+#   - run `bazel-bin/examples/web_app/ddc_dev_server` to start the server
+#   - load http://localhost:8080/io_bazel_rules_dart/examples/web_app/web/ddc_bundle.html
+#     in chrome
+#
+# Rerun `bazel build examples/web_app:ddc_dev_server` in a different terminal
+# whenever you make a change to see the updates!
+dev_server(
+    name = "ddc_dev_server",
+    # TODO: propagate css/html from web_app target.
+    data = glob([
+      "web/*.css",
+      "web/*.html",
+    ]) + [
+      ":ddc_bundle",
+    ],
 )
 
 dart_web_application(
     name = "js_debug",
     srcs = [],
     script_file = "web/main.dart",
-    deferred_lib_count = 1,
     checked = True,
     minify = False,
     dump_info = True,
@@ -45,7 +67,6 @@ dart_web_application(
     name = "js_release",
     srcs = [],
     script_file = "web/main.dart",
-    deferred_lib_count = 1,
     deps = [
         ":web_app",
         "//examples/hello_lib",

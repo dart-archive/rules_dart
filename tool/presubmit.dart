@@ -107,9 +107,9 @@ void testRunVmBinary() {
 void testBuildDartWebBinary() {
   print('Building some dart_web_binaries...');
   var result = bazel(['build', 'examples/web_app:all']);
-  if (!result.stderr.contains('Found 4 targets')) {
+  if (!result.stderr.contains('Found 7 targets')) {
     print(
-        'Error: `bazel build examples/hello_bin:all` did not find 4 targets:');
+        'Error: `bazel build examples/web_app:all` did not find 7 targets:');
     print(indent(result.stderr));
     exit(1);
   }
