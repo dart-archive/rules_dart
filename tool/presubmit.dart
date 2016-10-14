@@ -20,7 +20,7 @@ main() {
 
 void testBuildLibraryAndTests() {
   print('Building a library and some tests...');
-  var result = bazel(['build','examples/hello_lib:all']);
+  var result = bazel(['build', 'examples/hello_lib:all']);
   if (!result.stderr.contains('Found 3 targets')) {
     print(
         'Error: `bazel build examples/hello_lib:all` did not find 3 targets:');
@@ -31,7 +31,7 @@ void testBuildLibraryAndTests() {
 
 void testPassingTest() {
   print('Testing the passing test...');
-  var result = bazel(['test','examples/hello_lib:passing_test']);
+  var result = bazel(['test', 'examples/hello_lib:passing_test']);
   if (!new RegExp(r'//examples/hello_lib:passing_test\s+PASSED')
           .hasMatch(result.stdout) ||
       !new RegExp(r'Executed 1 out of 1 test: 1 test passes.')
@@ -44,7 +44,8 @@ void testPassingTest() {
 
 void testFailingTest() {
   print('Testing the failing test...');
-  var result = bazel(['test','examples/hello_lib:failing_test'], expectedExitCode: 3);
+  var result =
+      bazel(['test', 'examples/hello_lib:failing_test'], expectedExitCode: 3);
   if (!new RegExp(r'//examples/hello_lib:failing_test\s+FAILED')
           .hasMatch(result.stdout) ||
       !new RegExp(r'Executed 1 out of 1 test: 1 fails locally.')
@@ -58,7 +59,7 @@ void testFailingTest() {
 
 void testBuildVmBinary() {
   print('Building some vm_binaries...');
-  var result = bazel(['build','examples/hello_bin:all']);
+  var result = bazel(['build', 'examples/hello_bin:all']);
   if (!result.stderr.contains('Found 4 targets')) {
     print(
         'Error: `bazel build examples/hello_bin:all` did not find 4 targets:');
@@ -70,7 +71,7 @@ void testBuildVmBinary() {
 void testRunVmBinary() {
   for (var target in ['hello_bin', 'nested_bin']) {
     print('Running vm_binary :$target...');
-    var result = bazel(['run','examples/hello_bin:$target']);
+    var result = bazel(['run', 'examples/hello_bin:$target']);
     if (!result.stdout.contains('Hello, world!') ||
         !result.stdout.contains('0 arguments: []')) {
       print(
@@ -80,7 +81,7 @@ void testRunVmBinary() {
     }
 
     print('Running vm_binary :$target -- arg1 arg2...');
-    result = bazel(['run','examples/hello_bin:$target', '--', 'arg1', 'arg2']);
+    result = bazel(['run', 'examples/hello_bin:$target', '--', 'arg1', 'arg2']);
     if (!result.stdout.contains('Hello, world!') ||
         !result.stdout.contains('2 arguments: [arg1, arg2]')) {
       print(
@@ -92,7 +93,7 @@ void testRunVmBinary() {
 
   for (var target in ['hello_bin_checked', 'hello_bin_snapshot']) {
     print('Running vm_binary :$target...');
-    var result = bazel(['run','examples/hello_bin:$target']);
+    var result = bazel(['run', 'examples/hello_bin:$target']);
     if (!result.stdout.contains('Hello, world!') ||
         !result.stdout.contains('2 arguments: [foo, bar]')) {
       print(
@@ -105,7 +106,7 @@ void testRunVmBinary() {
 
 void testBuildDartWebBinary() {
   print('Building some dart_web_binaries...');
-  var result = bazel(['build','examples/web_app:all']);
+  var result = bazel(['build', 'examples/web_app:all']);
   if (!result.stderr.contains('Found 4 targets')) {
     print(
         'Error: `bazel build examples/hello_bin:all` did not find 4 targets:');
@@ -116,7 +117,7 @@ void testBuildDartWebBinary() {
 
 void testGenruleTest() {
   print('Testing the genrule test...');
-  var result = bazel(['test','examples/hello_genrule:message_test']);
+  var result = bazel(['test', 'examples/hello_genrule:message_test']);
   if (!new RegExp(r'//examples/hello_genrule:message_test\s+PASSED')
           .hasMatch(result.stdout) ||
       !new RegExp(r'Executed 1 out of 1 test: 1 test passes.')

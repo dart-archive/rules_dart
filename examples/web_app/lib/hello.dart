@@ -1,5 +1,6 @@
 library hello;
 
+import 'dart:async';
 import 'goodbye.dart' deferred as byeLib;
 
 String sayHello(String name) => 'Hello, $name!';

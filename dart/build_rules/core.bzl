@@ -37,6 +37,7 @@ def _dart_library_impl(ctx):
                                srcs=ctx.files.srcs,
                                data=ctx.files.data,
                                deps=ctx.attr.deps,
+                               pub_pkg_name=ctx.attr.pub_pkg_name,
                                strong_summary=strong_summary,)
 
   if not _has_dart_sources:
@@ -96,16 +97,17 @@ _dart_library_attrs = {
         allow_files = True,
         cfg = "data",
     ),
+    "pub_pkg_name": attr.string(default=""),
     "deps": attr.label_list(providers = ["dart"]),
     "license_files": attr.label_list(allow_files = True),
     "web_exclude_srcs": attr.label_list(allow_files = True),
     "_analyzer": attr.label(
-        default = Label("@dart_linux_x86_64//:analyzer"),
+        default = Label("//dart/build_rules/ext:dart_analyzer"),
         executable = True,
         cfg = "host",
     ),
     "_dev_compiler": attr.label(
-        default = Label("@dart_linux_x86_64//:dev_compiler"),
+        default = Label("//dart/build_rules/ext:dev_compiler"),
         executable = True,
         cfg = "host",
     ),

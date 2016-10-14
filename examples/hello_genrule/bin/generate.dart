@@ -7,6 +7,5 @@ void main(List<String> args) {
     exit(1);
   }
   new File(args[1]).writeAsStringSync(
-    "String getGeneratedMessage() => '${new File(args[0]).readAsStringSync()}';"
-  );
+      "String getGeneratedMessage() => '${new File(args[0]).readAsStringSync()}';");
 }
