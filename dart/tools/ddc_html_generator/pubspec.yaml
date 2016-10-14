@@ -1,7 +1,6 @@
-name: rules_dart_tools
+name: __dart_tools_ddc_html_generator
 
 dependencies:
   args:
   html:
   path:
-  shelf_static:

@@ -7,3 +7,9 @@ filegroup(
         "//dart:k8": ["dart2js_helper.sh"],
     }),
 )
+
+filegroup(
+    name = "ddc_concat",
+    srcs = ["ddc_concat.sh"],
+    visibility = ["//visibility:public"],
+)

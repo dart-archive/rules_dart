@@ -3,6 +3,7 @@ load(
     "dart_filetypes",
     "filter_files",
     "has_dart_sources",
+    "make_dart_context",
     "make_package_uri",
     "api_summary_extension",
 )
@@ -85,3 +86,169 @@ def ddc_action(ctx, dart_ctx, ddc_output, source_map_output):
       mnemonic="DartDevCompiler",
       execution_requirements={"supports-workers": "1"},
   )
+
+def _ddc_bundle_outputs(output_dir, output_html):
+  html = "%{name}.html"
+
+  if output_html:
+    html = output_html
+  elif output_dir:
+    html = "%s/%s" % (output_dir, html)
+
+  prefix = _output_dir(output_dir, output_html) + "%{name}"
+
+  return {
+      "html": html,
+      "app": "%s.js" % prefix,
+  }
+
+# Computes the output dir based on output_dir and output_html options.
+def _output_dir(output_dir, output_html):
+  if output_html and output_dir:
+    fail("Cannot use both output_dir and output_html")
+
+  if output_html and "/" in output_html:
+    output_dir = "/".join(output_html.split("/")[0:-1])
+
+  if output_dir and not output_dir.endswith("/"):
+    output_dir = "%s/" % output_dir
+
+  if not output_dir:
+    output_dir = ""
+
+  return output_dir
+
+def _dart_ddc_bundle_impl(ctx):
+  dart_ctx = make_dart_context(ctx.label, deps=[ctx.attr.entry_module])
+
+  inputs = []
+  sourcemaps = []
+  # Initialize map of dart srcs to packages, if checking duplicate srcs
+  if ctx.attr.check_duplicate_srcs:
+    dart_srcs_to_pkgs = {}
+
+  for dep in dart_ctx.transitive_deps.values():
+    if has_dart_sources(dep.dart.srcs):
+      # Collect dict of dart srcs to packages, if checking duplicate srcs
+      # Note that we skip angular2 which is an exception to this rule for now.
+      if (ctx.attr.check_duplicate_srcs and
+          dep.label.package.endswith("angular2")):
+        all_dart_srcs = [f for f in dep.dart.srcs if f.path.endswith(".dart")]
+        for src in all_dart_srcs:
+          label_name = "%s:%s" % (dep.label.package, dep.label.name)
+          if src.short_path in dart_srcs_to_pkgs:
+            dart_srcs_to_pkgs[src.short_path] += [label_name]
+          else:
+            dart_srcs_to_pkgs[src.short_path] = [label_name]
+
+      if dep.ddc.output:
+        inputs.append(dep.ddc.output)
+        if dep.ddc.sourcemap:
+          sourcemaps.append(dep.ddc.sourcemap)
+      else:
+        # TODO: eventually we should fail here.
+        print("missing ddc code for %s" % dep.label)
+
+  # Actually check for duplicate dart srcs, if enabled
+  if ctx.attr.check_duplicate_srcs:
+    for src in dart_srcs_to_pkgs:
+      if len(dart_srcs_to_pkgs[src]) > 1:
+        print("%s found in multiple libraries %s" %
+              (src, dart_srcs_to_pkgs[src]))
+
+  ctx.action(
+      inputs = inputs,
+      executable = ctx.file._ddc_concat,
+      arguments = [ctx.outputs.app.path] + [f.path for f in inputs],
+      outputs = [ctx.outputs.app],
+      progress_message = "Concatenating ddc output files for %s" % ctx,
+      mnemonic = "DartDevCompilerConcat")
+
+  module = "%s/%s" % (
+      ctx.attr.entry_module.label.package,
+      ctx.attr.entry_module.label.name)
+  name = ctx.label.name
+  package = ctx.label.package
+  library = (package + "/" + ctx.attr.entry_library).replace("/", "__")
+  ddc_runtime_prefix = "%s." % ctx.label.name
+  html_gen_flags = [
+      "--entry_module", module,
+      "--entry_library", library,
+      "--ddc_runtime_prefix", ddc_runtime_prefix,
+      "--script", "%s.js" % name,
+      "--out", ctx.outputs.html.path,
+  ]
+
+  html_gen_inputs = []
+  input_html = ctx.attr.input_html
+  if input_html:
+    input_file = ctx.files.input_html[0]
+    html_gen_inputs.append(input_file)
+    html_gen_flags += ["--input_html", input_file.path]
+
+  if ctx.attr.include_test:
+    html_gen_flags.append("--include_test")
+
+  ctx.action(
+      inputs = html_gen_inputs,
+      outputs = [ctx.outputs.html],
+      executable = ctx.file._ddc_html_generator,
+      arguments = html_gen_flags)
+
+  for f in ctx.files._ddc_support:
+    if f.path.endswith("dart_library.js"):
+      ddc_dart_library = f
+    if f.path.endswith("dart_sdk.js"):
+      ddc_dart_sdk = f
+  if not ddc_dart_library:
+    fail("Unable to find dart_library.js in the ddc support files. " +
+         "Please file a bug on Chrome -> Dart -> Devtools")
+  if not ddc_dart_sdk:
+    fail("Unable to find dart_sdk.js in the ddc support files. " +
+         "Please file a bug on Chrome -> Dart -> Devtools")
+
+  # TODO: Do we need to prefix with workspace root?
+  ddc_runtime_output_prefix = "%s/%s%s" % (
+      ctx.label.package,
+      _output_dir(ctx.attr.output_dir, ctx.attr.output_html),
+      ddc_runtime_prefix)
+
+  return struct(
+      dart=dart_ctx,
+      runfiles=ctx.runfiles(
+          files=ctx.files._ddc_support,
+          root_symlinks={
+              "%sdart_library.js" % ddc_runtime_output_prefix: ddc_dart_library,
+              "%sdart_sdk.js" % ddc_runtime_output_prefix: ddc_dart_sdk,
+          }
+      ),
+  )
+
+dart_ddc_bundle = rule(
+    attrs = {
+        "check_duplicate_srcs": attr.bool(default = False),
+        "entry_library": attr.string(),
+        "entry_module": attr.label(providers = ["ddc"]),
+        "input_html": attr.label(allow_files = True),
+        "include_test": attr.bool(default = False),
+        "output_dir": attr.string(default = ""),
+        "output_html": attr.string(default = ""),
+        "_ddc_concat": attr.label(
+            single_file = True,
+            executable = True,
+            cfg = "host",
+            default = Label("//dart/build_rules/tools:ddc_concat"),
+        ),
+        "_ddc_html_generator": attr.label(
+            single_file = True,
+            executable = True,
+            cfg = "host",
+            default = Label("//dart/tools/ddc_html_generator"),
+        ),
+        "_ddc_support": attr.label(
+            default = Label("//dart/build_rules:ddc_support")
+        ),
+    },
+    outputs = _ddc_bundle_outputs,
+    implementation = _dart_ddc_bundle_impl,
+)

@@ -10,6 +10,7 @@ bazel-*
 **/packages/
 pubspec.lock
 
+.pubspec/packages.bzl
 .pubspec/.bazelify
 .pubspec/WORKSPACE
 .pubspec/BUILD

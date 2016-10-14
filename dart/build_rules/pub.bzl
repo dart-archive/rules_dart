@@ -45,6 +45,13 @@ pub_repository = repository_rule(
 
 def pub_repositories():
   pub_repository(
+      name = "args",
+      output = ".",
+      package = "args",
+      version = "0.13.6",
+  )
+
+  pub_repository(
       name = "async",
       output = ".",
       package = "async",
@@ -73,10 +80,31 @@ def pub_repositories():
   )
 
   pub_repository(
+      name = "csslib",
+      output = ".",
+      package = "csslib",
+      version = "0.13.2",
+  )
+
+  pub_repository(
+      name = "html",
+      output = ".",
+      package = "html",
+      version = "0.13.0",
+  )
+
+  pub_repository(
       name = "http_parser",
       output = ".",
       package = "http_parser",
       version = "3.0.3",
+  )
+
+  pub_repository(
+      name = "logging",
+      output = ".",
+      package = "logging",
+      version = "0.11.3+1",
   )
 
   pub_repository(
@@ -142,3 +170,9 @@ def pub_repositories():
       version = "1.1.3",
   )
 
+  pub_repository(
+      name = "utf",
+      output = ".",
+      package = "utf",
+      version = "0.9.0+3",
+  )

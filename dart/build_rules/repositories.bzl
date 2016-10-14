@@ -65,6 +65,9 @@ filegroup(
 def dart_repositories():
   native.new_http_archive(
       name = "dart_linux_x86_64",
+      # WHEN UPDATING THE SDK YOU MUST ALSO UPDATE /dart/build_rules/ddc_support
+      # TODO: Use the ddc support files from the sdk once available.
+      #       See https://github.com/dart-lang/sdk/issues/27001
       url = "https://storage.googleapis.com/dart-archive/channels/dev/release/1.20.0-dev.10.3/sdk/dartsdk-linux-x64-release.zip",
       sha256 = "dcbf41b5ea0f577aff098ed5d1dc62cc744be1311ce70e522eeccd7f2db9c282",
       build_file_content = _DART_SDK_BUILD_FILE,

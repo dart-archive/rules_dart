@@ -64,7 +64,7 @@ def _dart_library_impl(ctx):
       dart=dart_ctx,
       ddc=struct(
         output=ddc_output,
-        source_map_output=source_map_output,
+        sourcemap=source_map_output,
       ),
   )
 
