@@ -121,7 +121,7 @@ def make_dart_context(label,
       package = pub_pkg_name
   if not lib_root:
     if label.package.startswith("vendor/"):
-      lib_root = "%s/lib/" % label.package[7:]
+      lib_root = "%s/lib/" % label.package[len("vendor/"):]
     elif label.workspace_root.startswith("external/"):
       lib_root = "%s/lib/" % label.workspace_root[len("external/"):]
     elif not label.package:
