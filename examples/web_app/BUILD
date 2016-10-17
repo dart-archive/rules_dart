@@ -44,13 +44,13 @@ dart_ddc_bundle(
 # whenever you make a change to see the updates!
 dev_server(
     name = "ddc_dev_server",
-    # TODO: propagate css/html from web_app target.
-    data = glob([
-      "web/*.css",
-      "web/*.html",
-    ]) + [
+    data = [
       ":ddc_bundle",
     ],
+    # TODO: move this to data once we get that working
+    deps = [
+      ":web_app",
+    ]
 )
 
 dart_web_application(

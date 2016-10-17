@@ -64,15 +64,14 @@ def _dart_vm_binary_impl(ctx):
 
   # Compute runfiles.
   all_srcs, all_data = collect_files(dart_ctx)
-  runfiles_files = all_data + [
+  runfiles_files = all_data + all_srcs + [
       ctx.executable._dart_vm,
       ctx.outputs.executable,
       package_spec,
   ]
   if ctx.attr.snapshot:
     runfiles_files += [out_snapshot]
-  else:
-    runfiles_files += all_srcs
+
   runfiles = ctx.runfiles(
       files=list(runfiles_files),
       collect_data=True,
