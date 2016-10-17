@@ -126,6 +126,12 @@ def vm_snapshot_action(ctx, dart_ctx, output, vm_flags, script_file, script_args
 
   # Emit package spec.
   package_spec_path = ctx.label.package + "/" + ctx.label.name + ".packages"
+
+  # TODO (nshahan) this will not work if the package name does actually start
+  # with vendor.
+  if package_spec_path.startswith("vendor_"):
+    package_spec_path = package_spec_path[len("vendor_"):]
+
   package_spec = ctx.new_file(build_dir + package_spec_path)
   package_spec_action(
       ctx=ctx,
