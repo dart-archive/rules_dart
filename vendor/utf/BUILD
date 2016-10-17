@@ -5,9 +5,9 @@ package(default_visibility = ["//visibility:public"])
 dart_library(
     name = "utf",
     srcs = [
-        "@utf//:utf"
+        "@vendor_utf//:utf"
     ],
-    license_files = ["@utf//:LICENSE_FILES"],
+    license_files = ["@vendor_utf//:LICENSE_FILES"],
     pub_pkg_name = "utf",
     deps = [
     ],

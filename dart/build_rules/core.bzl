@@ -99,6 +99,7 @@ _dart_library_attrs = {
     ),
     "pub_pkg_name": attr.string(default=""),
     "deps": attr.label_list(providers = ["dart"]),
+    "force_ddc_compile": attr.bool(default = False),
     "license_files": attr.label_list(allow_files = True),
     "web_exclude_srcs": attr.label_list(allow_files = True),
     "_analyzer": attr.label(

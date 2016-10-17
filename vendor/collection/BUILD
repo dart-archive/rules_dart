@@ -5,11 +5,10 @@ package(default_visibility = ["//visibility:public"])
 dart_library(
     name = "collection",
     srcs = [
-        "@collection//:collection"
+        "@vendor_collection//:collection"
     ],
-    license_files = ["@collection//:LICENSE_FILES"],
+    license_files = ["@vendor_collection//:LICENSE_FILES"],
     pub_pkg_name = "collection",
     deps = [
     ],
 )
-

@@ -5,9 +5,9 @@ package(default_visibility = ["//visibility:public"])
 dart_library(
     name = "csslib",
     srcs = [
-        "@csslib//:csslib"
+        "@vendor_csslib//:csslib"
     ],
-    license_files = ["@csslib//:LICENSE_FILES"],
+    license_files = ["@vendor_csslib//:LICENSE_FILES"],
     pub_pkg_name = "csslib",
     deps = [
         "//vendor/args",

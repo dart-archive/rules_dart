@@ -120,7 +120,9 @@ def make_dart_context(label,
     else:
       package = pub_pkg_name
   if not lib_root:
-    if label.workspace_root.startswith("external/"):
+    if label.package.startswith("vendor/"):
+      lib_root = "%s/lib/" % label.package[len("vendor/"):]
+    elif label.workspace_root.startswith("external/"):
       lib_root = "%s/lib/" % label.workspace_root[len("external/"):]
     elif not label.package:
       lib_root = "lib/"
@@ -241,6 +243,8 @@ def layout_action(ctx, srcs, output_dir):
     output_dir += "/"
   for src_file in srcs:
     short_better_path = src_file.short_path
+    if "vendor_" in short_better_path:
+      short_better_path = short_better_path.replace("vendor_", "")
     if short_better_path.startswith('../'):
       dest_file = ctx.new_file(output_dir + short_better_path.replace("../", ""))
     else:
@@ -287,6 +291,8 @@ def filter_files(filetypes, files):
   return filtered_files
 
 def make_package_uri(dart_ctx, short_path, prefix=""):
+  if short_path.startswith("../"):
+    short_path = short_path.replace("../","")
   if short_path.startswith(dart_ctx.lib_root):
     return "package:%s/%s" % (
         dart_ctx.package, short_path[len(dart_ctx.lib_root):])

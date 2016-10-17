@@ -5,13 +5,12 @@ package(default_visibility = ["//visibility:public"])
 dart_library(
     name = "convert",
     srcs = [
-        "@convert//:convert"
+        "@vendor_convert//:convert"
     ],
-    license_files = ["@convert//:LICENSE_FILES"],
+    license_files = ["@vendor_convert//:LICENSE_FILES"],
     pub_pkg_name = "convert",
     deps = [
         "//vendor/charcode",
         "//vendor/typed_data",
     ],
 )
-

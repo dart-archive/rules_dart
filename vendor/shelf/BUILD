@@ -5,9 +5,9 @@ package(default_visibility = ["//visibility:public"])
 dart_library(
     name = "shelf",
     srcs = [
-        "@shelf//:shelf"
+        "@vendor_shelf//:shelf"
     ],
-    license_files = ["@shelf//:LICENSE_FILES"],
+    license_files = ["@vendor_shelf//:LICENSE_FILES"],
     pub_pkg_name = "shelf",
     deps = [
         "//vendor/async",
@@ -17,4 +17,3 @@ dart_library(
         "//vendor/stream_channel",
     ],
 )
-
