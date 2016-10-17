@@ -5,10 +5,9 @@ package(default_visibility = ["//visibility:public"])
 dart_library(
     name = "charcode",
     srcs = [
-        "@charcode//:charcode"
+        "@vendor_charcode//:charcode"
     ],
     pub_pkg_name = "charcode",
     deps = [
     ],
 )
-

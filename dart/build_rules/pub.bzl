@@ -45,133 +45,133 @@ pub_repository = repository_rule(
 
 def pub_repositories():
   pub_repository(
-      name = "args",
+      name = "vendor_args",
       output = ".",
       package = "args",
       version = "0.13.6",
   )
 
   pub_repository(
-      name = "async",
+      name = "vendor_async",
       output = ".",
       package = "async",
       version = "1.11.2",
   )
 
   pub_repository(
-      name = "charcode",
+      name = "vendor_charcode",
       output = ".",
       package = "charcode",
       version = "1.1.0",
   )
 
   pub_repository(
-      name = "collection",
+      name = "vendor_collection",
       output = ".",
       package = "collection",
       version = "1.9.1",
   )
 
   pub_repository(
-      name = "convert",
+      name = "vendor_convert",
       output = ".",
       package = "convert",
       version = "2.0.1",
   )
 
   pub_repository(
-      name = "csslib",
+      name = "vendor_csslib",
       output = ".",
       package = "csslib",
       version = "0.13.2",
   )
 
   pub_repository(
-      name = "html",
+      name = "vendor_html",
       output = ".",
       package = "html",
       version = "0.13.0",
   )
 
   pub_repository(
-      name = "http_parser",
+      name = "vendor_http_parser",
       output = ".",
       package = "http_parser",
       version = "3.0.3",
   )
 
   pub_repository(
-      name = "logging",
+      name = "vendor_logging",
       output = ".",
       package = "logging",
       version = "0.11.3+1",
   )
 
   pub_repository(
-      name = "mime",
+      name = "vendor_mime",
       output = ".",
       package = "mime",
       version = "0.9.3",
   )
 
   pub_repository(
-      name = "path",
+      name = "vendor_path",
       output = ".",
       package = "path",
       version = "1.4.0",
   )
 
   pub_repository(
-      name = "shelf",
+      name = "vendor_shelf",
       output = ".",
       package = "shelf",
       version = "0.6.5+3",
   )
 
   pub_repository(
-      name = "shelf_static",
+      name = "vendor_shelf_static",
       output = ".",
       package = "shelf_static",
       version = "0.2.4",
   )
 
   pub_repository(
-      name = "source_span",
+      name = "vendor_source_span",
       output = ".",
       package = "source_span",
       version = "1.2.3",
   )
 
   pub_repository(
-      name = "stack_trace",
+      name = "vendor_stack_trace",
       output = ".",
       package = "stack_trace",
       version = "1.6.8",
   )
 
   pub_repository(
-      name = "stream_channel",
+      name = "vendor_stream_channel",
       output = ".",
       package = "stream_channel",
       version = "1.5.0",
   )
 
   pub_repository(
-      name = "string_scanner",
+      name = "vendor_string_scanner",
       output = ".",
       package = "string_scanner",
       version = "1.0.0",
   )
 
   pub_repository(
-      name = "typed_data",
+      name = "vendor_typed_data",
       output = ".",
       package = "typed_data",
       version = "1.1.3",
   )
 
   pub_repository(
-      name = "utf",
+      name = "vendor_utf",
       output = ".",
       package = "utf",
       version = "0.9.0+3",
