@@ -255,7 +255,7 @@ dart_ddc_bundle = rule(
             default = Label("//dart/tools/ddc_html_generator"),
         ),
         "_ddc_support": attr.label(
-            default = Label("//dart/build_rules:ddc_support")
+            default = Label("@dart_linux_x86_64//:ddc_support")
         ),
     },
     outputs = _ddc_bundle_outputs,
