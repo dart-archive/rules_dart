@@ -38,14 +38,8 @@ class _Options {
   final bool includeTest;
   final String htmlInput;
   final String out;
-  _Options(
-      this.ddcRuntimePrefix,
-      this.script,
-      this.entryModule,
-      String entryLibrary,
-      this.includeTest,
-      this.htmlInput,
-      this.out)
+  _Options(this.ddcRuntimePrefix, this.script, this.entryModule,
+      String entryLibrary, this.includeTest, this.htmlInput, this.out)
       : entryLibrary = escapeAsIdentifier(entryLibrary);
 }
 
