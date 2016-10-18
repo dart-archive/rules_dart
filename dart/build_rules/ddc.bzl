@@ -171,12 +171,16 @@ def _dart_ddc_bundle_impl(ctx):
       progress_message = "Concatenating ddc output files for %s" % ctx,
       mnemonic = "DartDevCompilerConcat")
 
-  module = "%s/%s" % (
-      ctx.attr.entry_module.label.package,
-      ctx.attr.entry_module.label.name)
+  module = ""
+  if ctx.attr.entry_module.label.package:
+    module = module + ctx.attr.entry_module.label.package + "/"
+  module = module + ctx.attr.entry_module.label.name
   name = ctx.label.name
   package = ctx.label.package
-  library = (package + "/" + ctx.attr.entry_library).replace("/", "__")
+  library = ""
+  if package:
+    library = library + package + "/"
+  library = (library + ctx.attr.entry_library).replace("/", "__")
   ddc_runtime_prefix = "%s." % ctx.label.name
   html_gen_flags = [
       "--entry_module", module,
