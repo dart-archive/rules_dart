@@ -1,6 +1,7 @@
 load(
     ":internal.bzl",
     "dart_filetypes",
+    "collect_files",
     "filter_files",
     "has_dart_sources",
     "make_dart_context",
@@ -66,13 +67,9 @@ def ddc_action(ctx, dart_ctx, ddc_output, source_map_output):
     inputs.append(f)
     normalized_path = make_package_uri(dart_ctx, f.short_path)
     flags += ["--url-mapping", "%s,%s" % (normalized_path, f.path)]
-    if f.short_path.startswith("../"):
-      real_short_path = f.short_path.replace("../", "")
-    else:
-      real_short_path = f.short_path
-    flags += ["--bazel-mapping", "%s,%s" % (f.path, real_short_path)]
-    input_paths.append(normalized_path)
 
+    flags += ["--bazel-mapping", "%s,/%s" % (f.path, f.path)]
+    input_paths.append(normalized_path)
   # We normalized file:/// paths, so '/' corresponds to the top of google3.
   flags += ["--build-root", "/"]
   flags += ["--module-root", ddc_output.root.path]
@@ -224,10 +221,11 @@ def _dart_ddc_bundle_impl(ctx):
       _output_dir(ctx.attr.output_dir, ctx.attr.output_html),
       ddc_runtime_prefix)
 
+  all_srcs, all_data = collect_files(dart_ctx)
   return struct(
       dart=dart_ctx,
       runfiles=ctx.runfiles(
-          files=ctx.files._ddc_support,
+          files=ctx.files._ddc_support + list(all_srcs) + list(all_data),
           root_symlinks={
               "%sdart_library.js" % ddc_runtime_output_prefix: ddc_dart_library,
               "%sdart_sdk.js" % ddc_runtime_output_prefix: ddc_dart_sdk,

@@ -37,8 +37,7 @@ dart_ddc_bundle(
 #   - open up a terminal
 #   - run `bazel build examples/web_app:ddc_dev_server`
 #   - run `bazel-bin/examples/web_app/ddc_dev_server` to start the server
-#   - load http://localhost:8080/io_bazel_rules_dart/examples/web_app/web/ddc_bundle.html
-#     in chrome
+#   - load http://localhost:8080/examples/web_app/web/ddc_bundle.html in chrome
 #
 # Rerun `bazel build examples/web_app:ddc_dev_server` in a different terminal
 # whenever you make a change to see the updates!
@@ -47,10 +46,7 @@ dev_server(
     data = [
       ":ddc_bundle",
     ],
-    # TODO: move this to data once we get that working
-    deps = [
-      ":web_app",
-    ]
+    rules_dart_repo_name = "",
 )
 
 dart_web_application(

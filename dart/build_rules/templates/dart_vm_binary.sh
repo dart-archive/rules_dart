@@ -21,6 +21,7 @@ elif [[ -z "$RUNFILES" ]]; then
     export RUNFILES="$PWD"
   fi
 fi
+export BAZEL_WORKSPACE_NAME="%workspace%"
 dart="$RUNFILES/%workspace%/%dart_vm%"
 package_spec="$RUNFILES/%workspace%/%package_spec%"
 script_file="$RUNFILES/%workspace%/%script_file%"

@@ -208,7 +208,8 @@ def package_spec_action(ctx, dart_ctx, output):
     if lib_root.startswith("vendor/"):
       lib_root = lib_root[len("vendor/"):]
     relative_lib_root = _relative_path(dart_ctx.label.package, lib_root)
-    content += "%s:%s\n" % (dc.package, relative_lib_root)
+    if dc.package:
+      content += "%s:%s\n" % (dc.package, relative_lib_root)
 
   # Emit the package spec.
   ctx.file_action(
