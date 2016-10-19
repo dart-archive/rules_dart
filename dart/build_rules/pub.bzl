@@ -34,13 +34,13 @@ filegroup(name = "LICENSE_FILES", srcs=["LICENSE"])
   )
 
 pub_repository = repository_rule(
-    implementation = _pub_repository_impl,
     attrs = {
         "name": attr.string(),
         "output": attr.string(),
-        "package": attr.string(mandatory=True),
-        "version": attr.string(mandatory=True),
+        "package": attr.string(mandatory = True),
+        "version": attr.string(mandatory = True),
     },
+    implementation = _pub_repository_impl,
 )
 
 def pub_repositories():
@@ -98,6 +98,13 @@ def pub_repositories():
       output = ".",
       package = "http_parser",
       version = "3.0.3",
+  )
+
+  pub_repository(
+      name = "vendor_js",
+      output = ".",
+      package = "js",
+      version = "0.6.1",
   )
 
   pub_repository(

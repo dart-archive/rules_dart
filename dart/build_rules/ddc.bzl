@@ -1,7 +1,6 @@
 load(
     ":internal.bzl",
     "dart_filetypes",
-    "collect_files",
     "filter_files",
     "has_dart_sources",
     "make_dart_context",
@@ -225,14 +224,36 @@ def _dart_ddc_bundle_impl(ctx):
       _output_dir(ctx.attr.output_dir, ctx.attr.output_html),
       ddc_runtime_prefix)
 
-  all_srcs, all_data = collect_files(dart_ctx)
+  runfiles = set(ctx.files._ddc_support)
+  for dep in dart_ctx.transitive_deps.values():
+    runfiles += dep.dart.srcs
+    runfiles += dep.dart.data
+    runfiles += [dep.dart.strong_summary]
+
+  # Find the strong_summary file for the sdk
+  for f in ctx.files._sdk_summaries:
+    if f.path.endswith("strong.sum"):
+      sdk_strong_summary = f
+      break
+  if not sdk_strong_summary:
+    fail("unable to find sdk strong summary")
+
+  for f in ctx.files._js_pkg:
+    if f.path.endswith("js.api.ds"):
+      pkg_js_summary = f;
+      break
+  if not pkg_js_summary:
+    fail("unable to find js package summary")
+
   return struct(
       dart=dart_ctx,
       runfiles=ctx.runfiles(
-          files=ctx.files._ddc_support + list(all_srcs) + list(all_data),
+          files=list(runfiles),
           root_symlinks={
               "%sdart_library.js" % ddc_runtime_output_prefix: ddc_dart_library,
               "%sdart_sdk.js" % ddc_runtime_output_prefix: ddc_dart_sdk,
+              "%s/third_party/dart_lang/trunk/sdk/lib/_internal/strong.sum" % ctx.workspace_name: sdk_strong_summary,
+              "%s/third_party/dart/js/js.api.ds" % ctx.workspace_name: pkg_js_summary,
           }
       ),
   )
@@ -259,7 +280,13 @@ dart_ddc_bundle = rule(
             default = Label("//dart/tools/ddc_html_generator"),
         ),
         "_ddc_support": attr.label(
-            default = Label("@dart_linux_x86_64//:ddc_support")
+            default = Label("@dart_linux_x86_64//:ddc_support"),
+        ),
+        "_sdk_summaries": attr.label(
+            default = Label("@dart_linux_x86_64//:sdk_summaries"),
+        ),
+        "_js_pkg": attr.label(
+            default = Label("//vendor/js"),
         ),
     },
     outputs = _ddc_bundle_outputs,

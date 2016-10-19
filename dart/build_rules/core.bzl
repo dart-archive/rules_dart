@@ -97,7 +97,7 @@ _dart_library_attrs = {
         allow_files = True,
         cfg = "data",
     ),
-    "pub_pkg_name": attr.string(default=""),
+    "pub_pkg_name": attr.string(default = ""),
     "deps": attr.label_list(providers = ["dart"]),
     "force_ddc_compile": attr.bool(default = False),
     "license_files": attr.label_list(allow_files = True),

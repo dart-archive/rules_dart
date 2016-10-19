@@ -65,6 +65,11 @@ filegroup(
   ]),
 )
 
+filegroup(
+  name = "sdk_summaries",
+  srcs = ["dart-sdk/lib/_internal/strong.sum"],
+)
+
 """
 
 def dart_repositories():

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
@@ -21,12 +22,12 @@ Future main(List<String> args) async {
 
   var pipeline = new Pipeline()
       .addMiddleware(createMiddleware(requestHandler: _blockForOngoingBuilds))
-      .addHandler(createStaticHandler(
+      .addHandler(_base64EncodeSummariesHandler(createStaticHandler(
           path.join(Platform.environment['RUNFILES'],
               Platform.environment['BAZEL_WORKSPACE_NAME']),
           serveFilesOutsidePath: true,
           defaultDocument: 'index.html',
-          listDirectories: true));
+          listDirectories: true)));
 
   io.serve(pipeline, 'localhost', 8080);
   print('Server running on localhost:8080');
@@ -55,6 +56,24 @@ Future<Response> _blockForOngoingBuilds(Request request) async {
   }
 }
 
+// Handle summaries in a special way by base64 encoding them.
+Handler _base64EncodeSummariesHandler(Handler innerHandler) =>
+    (Request request) async {
+      Response response = await innerHandler(request);
+
+      // BASE64 encode strong mode summaries.
+      var extension = path.extension(request.requestedUri.path);
+      if ((extension == '.ds' || extension == '.sum') &&
+          response?.statusCode == 200) {
+        var bytes = await response.read().expand((i) => i).toList();
+        return new Response.ok(BASE64.encode(bytes),
+            headers: new Map.from(response.headers)..remove('content-length'),
+            encoding: response.encoding,
+            context: response.context);
+      }
+      return response;
+    };
+
 // Assigned at the top of main.
 String _buildTarget;
 
@@ -66,8 +85,8 @@ void scheduleBuild() {
   if (!_currentBuildCompleter.isCompleted) return;
   _currentBuildCompleter = new Completer<String>();
   print('Building $_buildTarget...');
-  var watch = new Stopwatch()..start();
-  new Future.delayed(new Duration(milliseconds: 250), () async {
+  new Future.delayed(new Duration(milliseconds: 100), () async {
+    var watch = new Stopwatch()..start();
     var result = await Process.run('bazel', [
       'build',
       _buildTarget,

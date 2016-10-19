@@ -89,7 +89,7 @@ _dart_vm_binary_attrs = {
     ),
     "script_args": attr.string_list(),
     "vm_flags": attr.string_list(),
-    "pub_pkg_name": attr.string(default=""),
+    "pub_pkg_name": attr.string(default = ""),
     "srcs": attr.label_list(
         allow_files = True,
         mandatory = True,
@@ -248,7 +248,7 @@ _dart_vm_test_attrs = {
     ),
     "script_args": attr.string_list(),
     "vm_flags": attr.string_list(),
-    "pub_pkg_name": attr.string(default=""),
+    "pub_pkg_name": attr.string(default = ""),
     "srcs": attr.label_list(
         allow_files = True,
         mandatory = True,

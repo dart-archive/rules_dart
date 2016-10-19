@@ -3,6 +3,7 @@ name: rules_dart_tools
 dependencies:
   args:
   html:
+  js:
   path:
   shelf_static:
   watcher:
