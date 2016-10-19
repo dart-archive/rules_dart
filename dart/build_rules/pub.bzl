@@ -176,3 +176,10 @@ def pub_repositories():
       package = "utf",
       version = "0.9.0+3",
   )
+
+  pub_repository(
+      name = "vendor_watcher",
+      output = ".",
+      package = "watcher",
+      version = "0.9.7+3",
+  )

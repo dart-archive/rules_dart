@@ -35,12 +35,10 @@ dart_ddc_bundle(
 # To run, do the following:
 #
 #   - open up a terminal
-#   - run `bazel build examples/web_app:ddc_dev_server`
-#   - run `bazel-bin/examples/web_app/ddc_dev_server` to start the server
+#   - bazel build examples/web_app:ddc_dev_server
+#   - bazel-bin/examples/web_app/ddc_dev_server --watch=examples/web_app --build-target=examples/web_app:ddc_dev_server
 #   - load http://localhost:8080/examples/web_app/web/ddc_bundle.html in chrome
-#
-# Rerun `bazel build examples/web_app:ddc_dev_server` in a different terminal
-# whenever you make a change to see the updates!
+#   - make edits and watch your changes appear, yay!
 dev_server(
     name = "ddc_dev_server",
     data = [

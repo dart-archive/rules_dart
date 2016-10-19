@@ -5,3 +5,4 @@ dependencies:
   html:
   path:
   shelf_static:
+  watcher:

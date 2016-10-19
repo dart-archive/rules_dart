@@ -1,5 +1,7 @@
 name: __dart_tools_server
 
 dependencies:
+  path:
   shelf:
   shelf_static:
+  watcher:
