@@ -13,4 +13,4 @@ before_install:
   - sudo dpkg -i bazel_0.3.2-linux-x86_64.deb
 
 script:
-  - ./tool/presubmit.dart
+  - pub run test
