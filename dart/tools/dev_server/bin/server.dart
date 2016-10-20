@@ -21,7 +21,10 @@ Future main(List<String> args) async {
   // --build-target and --watch have to be used together
   if (_buildTarget.isEmpty != watchPaths.isEmpty) {
     print('--build-target and --watch arguments have to be used together');
-    exit(1);
+    // command line usage error
+    exitCode = 64;
+    // return instead of calling exit(...) – allows debugging, code coverage
+    return;
   }
 
   if (packageSpec?.isEmpty == false) {
