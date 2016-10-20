@@ -13,6 +13,7 @@ Future main(List<String> args) async {
   var parsedArgs = _parser.parse(args);
   _buildTarget = parsedArgs[_buildTargetOption];
   var watchPaths = parsedArgs[_watchOption];
+  var packageSpec = parsedArgs[_packageSpec];
 
   // --build-target and --watch have to be used together
   if (_buildTarget.isEmpty != watchPaths.isEmpty) {
@@ -20,14 +21,28 @@ Future main(List<String> args) async {
     exit(1);
   }
 
+  if (packageSpec?.isEmpty == false) {
+    var packageSpecLines = new File(path.join(Platform.environment['RUNFILES'],
+            Platform.environment['BAZEL_WORKSPACE_NAME'], packageSpec))
+        .readAsLinesSync()
+        .where((l) => !l.startsWith(new RegExp('^\s*#')));
+    for (var line in packageSpecLines) {
+      var parts = line.split(':');
+      assert(parts.length == 2);
+      _packagePaths[parts[0]] = parts[1];
+    }
+  }
+
   var pipeline = new Pipeline()
       .addMiddleware(createMiddleware(requestHandler: _blockForOngoingBuilds))
-      .addHandler(_base64EncodeSummariesHandler(createStaticHandler(
+      .addMiddleware(_base64EncodeSummariesHandler)
+      .addMiddleware(_reroutePackagesPaths)
+      .addHandler(createStaticHandler(
           path.join(Platform.environment['RUNFILES'],
               Platform.environment['BAZEL_WORKSPACE_NAME']),
           serveFilesOutsidePath: true,
           defaultDocument: 'index.html',
-          listDirectories: true)));
+          listDirectories: true));
 
   io.serve(pipeline, 'localhost', 8080);
   print('Server running on localhost:8080');
@@ -41,19 +56,57 @@ Future main(List<String> args) async {
       // bazel generated folders.
       // TODO: make this more robust.
       if (event.path.startsWith('bazel-')) return;
-      scheduleBuild();
+      _scheduleBuild();
     });
   }
 }
 
-// A request handler which blocks during ongoing builds, and returns the last
-// error if the build is currently broken (and otherwise null).
+/// Map of package names to paths.
+final _packagePaths = <String, String>{};
+
+/// Changes any request containing a `packages` dir to route to the right place.
+Handler _reroutePackagesPaths(Handler innerHandler) => (Request request) {
+      var parts = request.requestedUri.pathSegments;
+      var packagesIndex = parts.indexOf('packages');
+      if (packagesIndex == -1) return innerHandler(request);
+
+      if (parts.length < packagesIndex + 3) {
+        return new Response.internalServerError(
+            body: 'Invalid `packages` path, must contain at least 2 segments '
+                'after `packages`');
+      }
+
+      var packagePath = _packagePaths[parts[packagesIndex + 1]];
+      if (packagePath == null) {
+        return new Response.internalServerError(
+            body: 'Unrecognized `packages` path. Make sure the package appears '
+                'in your dependencies.');
+      }
+
+      var filePath = path.url.joinAll([packagePath]
+        ..addAll(parts.getRange(packagesIndex + 2, parts.length)));
+      // TODO: Change this to use `request.change(path: filePath)`? That doesn't
+      // seem to allow what we want though.
+      var newRequest = new Request(
+          request.method, request.requestedUri.replace(path: filePath),
+          protocolVersion: request.protocolVersion,
+          headers: request.headers,
+          handlerPath: request.handlerPath,
+          body: request.read(),
+          encoding: request.encoding,
+          context: request.context);
+      return innerHandler(newRequest);
+    };
+
+/// A request handler which blocks during ongoing builds, and returns the last
+/// error if the build is currently broken (and otherwise null).
 Future<Response> _blockForOngoingBuilds(Request request) async {
   var error = await _currentBuildCompleter.future;
   if (error != null) {
     return new Response.internalServerError(
         body: 'Latest build failed with:\n\n$error');
   }
+  return null;
 }
 
 // Handle summaries in a special way by base64 encoding them.
@@ -74,14 +127,15 @@ Handler _base64EncodeSummariesHandler(Handler innerHandler) =>
       return response;
     };
 
-// Assigned at the top of main.
+/// The build target to run (if any).
 String _buildTarget;
 
-// Keep track of current build status. If a String is returned then it contains
-// an error.
+/// Keep track of current build status. If a String is returned then it contains
+/// an error.
 var _currentBuildCompleter = new Completer<String>()..complete(null);
 
-void scheduleBuild() {
+/// Schedules a build if one isn't already scheduled.
+void _scheduleBuild() {
   if (!_currentBuildCompleter.isCompleted) return;
   _currentBuildCompleter = new Completer<String>();
   print('Building $_buildTarget...');
@@ -105,6 +159,7 @@ void scheduleBuild() {
 }
 
 const _buildTargetOption = 'build-target';
+const _packageSpec = 'package-spec';
 const _watchOption = 'watch';
 
 final _parser = new ArgParser()
@@ -112,4 +167,6 @@ final _parser = new ArgParser()
       help: 'A build target to watch for edits and rebuild', defaultsTo: '')
   ..addOption(_watchOption,
       allowMultiple: true,
-      help: 'One or more files or directories to watch and trigger rebuilds');
+      help: 'One or more files or directories to watch and trigger rebuilds')
+  ..addOption(_packageSpec,
+      help: 'A .packages spec which is used to route packages paths');
