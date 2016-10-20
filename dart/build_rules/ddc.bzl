@@ -280,10 +280,10 @@ dart_ddc_bundle = rule(
             default = Label("//dart/tools/ddc_html_generator"),
         ),
         "_ddc_support": attr.label(
-            default = Label("@dart_linux_x86_64//:ddc_support"),
+            default = Label("//dart/build_rules/ext:ddc_support"),
         ),
         "_sdk_summaries": attr.label(
-            default = Label("@dart_linux_x86_64//:sdk_summaries"),
+            default = Label("//dart/build_rules/ext:sdk_summaries"),
         ),
         "_js_pkg": attr.label(
             default = Label("//vendor/js"),

@@ -29,7 +29,7 @@ filegroup(
     srcs = select({
         "//dart:darwin": ["@dart_darwin_x86_64//:analyzer"],
         "//dart:k8": ["@dart_linux_x86_64//:analyzer"],
-    })
+    }),
 )
 
 filegroup(
@@ -37,5 +37,21 @@ filegroup(
     srcs = select({
         "//dart:darwin": ["@dart_darwin_x86_64//:dev_compiler"],
         "//dart:k8": ["@dart_linux_x86_64//:dev_compiler"],
-    })
+    }),
+)
+
+filegroup(
+    name = "ddc_support",
+    srcs = select({
+        "//dart:darwin": ["@dart_darwin_x86_64//:ddc_support"],
+        "//dart:k8": ["@dart_linux_x86_64//:ddc_support"],
+    }),
+)
+
+filegroup(
+    name = "sdk_summaries",
+    srcs = select({
+        "//dart:darwin": ["@dart_darwin_x86_64//:sdk_summaries"],
+        "//dart:k8": ["@dart_linux_x86_64//:sdk_summaries"],
+    }),
 )
