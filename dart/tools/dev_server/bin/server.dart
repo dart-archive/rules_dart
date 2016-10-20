@@ -3,11 +3,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:path/path.dart' as path;
+import 'package:path/path.dart' as p;
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_static/shelf_static.dart';
 import 'package:watcher/watcher.dart';
+
+String get _workspacePath => p.join(Platform.environment['RUNFILES'],
+    Platform.environment['BAZEL_WORKSPACE_NAME']);
 
 Future main(List<String> args) async {
   var parsedArgs = _parser.parse(args);
@@ -22,8 +25,7 @@ Future main(List<String> args) async {
   }
 
   if (packageSpec?.isEmpty == false) {
-    var packageSpecLines = new File(path.join(Platform.environment['RUNFILES'],
-            Platform.environment['BAZEL_WORKSPACE_NAME'], packageSpec))
+    var packageSpecLines = new File(p.join(_workspacePath, packageSpec))
         .readAsLinesSync()
         .where((l) => !l.startsWith(new RegExp('^\s*#')));
     for (var line in packageSpecLines) {
@@ -37,9 +39,7 @@ Future main(List<String> args) async {
       .addMiddleware(createMiddleware(requestHandler: _blockForOngoingBuilds))
       .addMiddleware(_base64EncodeSummariesHandler)
       .addMiddleware(_reroutePackagesPaths)
-      .addHandler(createStaticHandler(
-          path.join(Platform.environment['RUNFILES'],
-              Platform.environment['BAZEL_WORKSPACE_NAME']),
+      .addHandler(createStaticHandler(_workspacePath,
           serveFilesOutsidePath: true,
           defaultDocument: 'index.html',
           listDirectories: true));
@@ -83,7 +83,7 @@ Handler _reroutePackagesPaths(Handler innerHandler) => (Request request) {
                 'in your dependencies.');
       }
 
-      var filePath = path.url.joinAll([packagePath]
+      var filePath = p.url.joinAll([packagePath]
         ..addAll(parts.getRange(packagesIndex + 2, parts.length)));
       // TODO: Change this to use `request.change(path: filePath)`? That doesn't
       // seem to allow what we want though.
@@ -115,7 +115,7 @@ Handler _base64EncodeSummariesHandler(Handler innerHandler) =>
       Response response = await innerHandler(request);
 
       // BASE64 encode strong mode summaries.
-      var extension = path.extension(request.requestedUri.path);
+      var extension = p.extension(request.requestedUri.path);
       if ((extension == '.ds' || extension == '.sum') &&
           response?.statusCode == 200) {
         var bytes = await response.read().expand((i) => i).toList();
