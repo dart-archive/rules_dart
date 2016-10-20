@@ -75,14 +75,14 @@ filegroup(
 def dart_repositories():
   native.new_http_archive(
       name = "dart_linux_x86_64",
-      url = "https://storage.googleapis.com/dart-archive/channels/be/raw/141823/sdk/dartsdk-linux-x64-release.zip",
-      sha256 = "e74e1aa31dcb5ae4822247836760beb252e2f08adb7da1a86b1cd59c5e280acb",
+      url = "https://storage.googleapis.com/dart-archive/channels/dev/release/1.21.0-dev.1.0/sdk/dartsdk-linux-x64-release.zip",
+      sha256 = "886b0ca303f39b954b2a8cf886f274cdc2ff465cc1ca3831f4dc410ca697ac57",
       build_file_content = _DART_SDK_BUILD_FILE,
   )
 
   native.new_http_archive(
       name = "dart_darwin_x86_64",
-      url = "https://storage.googleapis.com/dart-archive/channels/be/raw/141823/sdk/dartsdk-macos-x64-release.zip",
-      sha256 = "21e470aad6ca3e58b61474fd681897a31fb0909708ee63644e05bb8e668db63e",
+      url = "https://storage.googleapis.com/dart-archive/channels/dev/release/1.21.0-dev.1.0/sdk/dartsdk-macos-x64-release.zip",
+      sha256 = "c57e0fc6c812ea6f1958ce56e6f075aebc6b243ee9c900287b453927991ef362",
       build_file_content = _DART_SDK_BUILD_FILE,
   )
