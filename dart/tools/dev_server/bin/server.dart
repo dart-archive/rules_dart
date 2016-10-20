@@ -17,6 +17,11 @@ Future main(List<String> args) async {
   _buildTarget = parsedArgs[_buildTargetOption];
   var watchPaths = parsedArgs[_watchOption];
   var packageSpec = parsedArgs[_packageSpec];
+  for (var substitution in parsedArgs[_uriSubstitution]) {
+    var parts = substitution.split(':');
+    assert(parts.length == 2);
+    _uriSubstitutions[parts[0]] = parts[1];
+  }
 
   // --build-target and --watch have to be used together
   if (_buildTarget.isEmpty != watchPaths.isEmpty) {
@@ -41,6 +46,7 @@ Future main(List<String> args) async {
   var pipeline = new Pipeline()
       .addMiddleware(createMiddleware(requestHandler: _blockForOngoingBuilds))
       .addMiddleware(_base64EncodeSummariesHandler)
+      .addMiddleware(_applyUriSubstitutions)
       .addMiddleware(_reroutePackagesPaths)
       .addHandler(createStaticHandler(_workspacePath,
           serveFilesOutsidePath: true, listDirectories: true));
@@ -61,6 +67,22 @@ Future main(List<String> args) async {
     });
   }
 }
+
+/// Map of uri substitutions to be applied in [_applyUriSubstitutions]
+final _uriSubstitutions = <String, String>{};
+
+/// [Middleware] that applies [_uriSubstitutions].
+Handler _applyUriSubstitutions(Handler innerHandler) => (Request request) {
+      var newPath = request.requestedUri.path;
+      _uriSubstitutions.forEach((from, to) {
+        newPath = newPath.replaceFirst(from, to);
+      });
+      if (newPath != request.requestedUri.path) {
+        request = _changeRequestPath(
+            request, request.requestedUri.replace(path: newPath));
+      }
+      return innerHandler(request);
+    };
 
 /// Map of package names to paths.
 final _packagePaths = <String, String>{};
@@ -86,18 +108,21 @@ Handler _reroutePackagesPaths(Handler innerHandler) => (Request request) {
 
       var filePath = p.url.joinAll([packagePath]
         ..addAll(parts.getRange(packagesIndex + 2, parts.length)));
-      // TODO: Change this to use `request.change(path: filePath)`? That doesn't
-      // seem to allow what we want though.
-      var newRequest = new Request(
-          request.method, request.requestedUri.replace(path: filePath),
-          protocolVersion: request.protocolVersion,
-          headers: request.headers,
-          handlerPath: request.handlerPath,
-          body: request.read(),
-          encoding: request.encoding,
-          context: request.context);
+      var newRequest = _changeRequestPath(
+          request, request.requestedUri.replace(path: filePath));
       return innerHandler(newRequest);
     };
+
+/// Takes a [Request] and updates its uri to [newUri].
+/// TODO: We should be using `original.change` but its overly restrictive.
+Request _changeRequestPath(Request original, Uri newUri) =>
+    new Request(original.method, newUri,
+        protocolVersion: original.protocolVersion,
+        headers: original.headers,
+        handlerPath: original.handlerPath,
+        body: original.read(),
+        encoding: original.encoding,
+        context: original.context);
 
 /// A request handler which blocks during ongoing builds, and returns the last
 /// error if the build is currently broken (and otherwise null).
@@ -161,6 +186,7 @@ void _scheduleBuild() {
 
 const _buildTargetOption = 'build-target';
 const _packageSpec = 'package-spec';
+const _uriSubstitution = 'uri-substitution';
 const _watchOption = 'watch';
 
 final _parser = new ArgParser()
@@ -170,4 +196,8 @@ final _parser = new ArgParser()
       allowMultiple: true,
       help: 'One or more files or directories to watch and trigger rebuilds')
   ..addOption(_packageSpec,
-      help: 'A .packages spec which is used to route packages paths');
+      help: 'A .packages spec which is used to route packages paths')
+  ..addOption(_uriSubstitution,
+      allowMultiple: true,
+      help: 'Reroutes paths from one path to another using `.replaceFirst` on '
+          'all incoming requests. The format is `--uri-substitution=from:to`.');
