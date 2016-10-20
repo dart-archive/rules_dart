@@ -43,9 +43,7 @@ Future main(List<String> args) async {
       .addMiddleware(_base64EncodeSummariesHandler)
       .addMiddleware(_reroutePackagesPaths)
       .addHandler(createStaticHandler(_workspacePath,
-          serveFilesOutsidePath: true,
-          defaultDocument: 'index.html',
-          listDirectories: true));
+          serveFilesOutsidePath: true, listDirectories: true));
 
   io.serve(pipeline, 'localhost', 8080);
   print('Server running on localhost:8080');
