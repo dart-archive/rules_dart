@@ -55,9 +55,16 @@ Future main(List<String> args) async {
   print('Server running on localhost:8080');
 
   for (var path in watchPaths) {
-    final watcher = await FileSystemEntity.isDirectory(path)
-        ? new DirectoryWatcher(path)
-        : new FileWatcher(path);
+    Watcher watcher;
+    if (await FileSystemEntity.isDirectory(path)) {
+      watcher = new DirectoryWatcher(path);
+    } else if (await FileSystemEntity.isFile(path)) {
+      watcher = new FileWatcher(path);
+    } else {
+      print('Ignoring non-existent watch path `$path`');
+      continue;
+    }
+
     watcher.events.listen((WatchEvent event) {
       // If people watch '.', make sure we don't run builds for changes in the
       // bazel generated folders.
