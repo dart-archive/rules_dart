@@ -38,8 +38,6 @@ dart_library) then the file will still be generated but bazel will not know
 which rule generates the file.
 """
 
-load(":internal.bzl", "layout_action", "make_dart_context")
-
 def _filter_files(filetypes, files):
   """Filters a list of files based on a list of strings."""
   filtered_files = []

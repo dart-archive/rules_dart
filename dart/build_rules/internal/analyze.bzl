@@ -1,5 +1,5 @@
 load(
-    ":internal.bzl",
+    ":common.bzl",
     "compute_layout",
     "dart_filetypes",
     "filter_files",

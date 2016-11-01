@@ -1,5 +1,5 @@
 load(
-    ":internal.bzl",
+    ":common.bzl",
     "dart_filetypes",
     "filter_files",
     "has_dart_sources",
@@ -93,7 +93,7 @@ def ddc_action(ctx, dart_ctx, ddc_output, source_map_output):
       execution_requirements={"supports-workers": "1"},
   )
 
-def _ddc_bundle_outputs(output_dir, output_html):
+def dart_ddc_bundle_outputs(output_dir, output_html):
   html = "%{name}.html"
 
   if output_html:
@@ -125,7 +125,7 @@ def _output_dir(output_dir, output_html):
 
   return output_dir
 
-def _dart_ddc_bundle_impl(ctx):
+def dart_ddc_bundle_impl(ctx):
   dart_ctx = make_dart_context(ctx.label, deps=[ctx.attr.entry_module])
 
   inputs = []
@@ -300,38 +300,3 @@ def _ddc_package_spec_action(ctx, dart_ctx, output):
       output=output,
       content=content,
   )
-
-dart_ddc_bundle = rule(
-    attrs = {
-        "check_duplicate_srcs": attr.bool(default = False),
-        "entry_library": attr.string(),
-        "entry_module": attr.label(providers = ["ddc"]),
-        "input_html": attr.label(allow_files = True),
-        "include_test": attr.bool(default = False),
-        "output_dir": attr.string(default = ""),
-        "output_html": attr.string(default = ""),
-        "_ddc_concat": attr.label(
-            single_file = True,
-            executable = True,
-            cfg = "host",
-            default = Label("//dart/build_rules/tools:ddc_concat"),
-        ),
-        "_ddc_html_generator": attr.label(
-            single_file = True,
-            executable = True,
-            cfg = "host",
-            default = Label("//dart/tools/ddc_html_generator"),
-        ),
-        "_ddc_support": attr.label(
-            default = Label("//dart/build_rules/ext:ddc_support"),
-        ),
-        "_sdk_summaries": attr.label(
-            default = Label("//dart/build_rules/ext:sdk_summaries"),
-        ),
-        "_js_pkg": attr.label(
-            default = Label("//vendor/js"),
-        ),
-    },
-    outputs = _ddc_bundle_outputs,
-    implementation = _dart_ddc_bundle_impl,
-)

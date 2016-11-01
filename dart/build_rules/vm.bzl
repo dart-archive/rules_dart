@@ -14,72 +14,9 @@
 
 """Dart rules targeting the Dart VM."""
 
-load(":internal.bzl", "collect_files", "layout_action", "make_dart_context", "package_spec_action")
-
-def _dart_vm_binary_impl(ctx):
-  """Implements the dart_vm_binary() rule."""
-  dart_ctx = make_dart_context(ctx.label,
-                               srcs=ctx.files.srcs,
-                               data=ctx.files.data,
-                               deps=ctx.attr.deps,
-                               pub_pkg_name=ctx.attr.pub_pkg_name)
-
-  if ctx.attr.snapshot:
-    # Build snapshot
-    out_snapshot = ctx.new_file(ctx.label.name + ".snapshot")
-    vm_snapshot_action(
-        ctx=ctx,
-        dart_ctx=dart_ctx,
-        output=out_snapshot,
-        vm_flags=ctx.attr.vm_flags,
-        script_file=ctx.file.script_file,
-        script_args=ctx.attr.script_args,
-    )
-    script_file = out_snapshot
-  else:
-    script_file = ctx.file.script_file
-
-  # Emit package spec.
-  package_spec = ctx.new_file(ctx.label.name + ".packages")
-  package_spec_action(
-      ctx=ctx,
-      dart_ctx=dart_ctx,
-      output=package_spec,
-  )
-
-  # Emit entrypoint script.
-  ctx.template_action(
-      output=ctx.outputs.executable,
-      template=ctx.file._entrypoint_template,
-      executable=True,
-      substitutions={
-          "%workspace%": ctx.workspace_name,
-          "%dart_vm%": ctx.executable._dart_vm.short_path,
-          "%package_spec%": package_spec.short_path,
-          "%vm_flags%": " ".join(ctx.attr.vm_flags),
-          "%script_file%": script_file.short_path,
-          "%script_args%": " ".join(ctx.attr.script_args),
-      },
-  )
-
-  # Compute runfiles.
-  all_srcs, all_data = collect_files(dart_ctx)
-  runfiles_files = all_data + all_srcs + [
-      ctx.executable._dart_vm,
-      ctx.outputs.executable,
-      package_spec,
-  ]
-  if ctx.attr.snapshot:
-    runfiles_files += [out_snapshot]
-
-  runfiles = ctx.runfiles(
-      files=list(runfiles_files),
-      collect_data=True,
-  )
-
-  return struct(
-      runfiles=runfiles,
-  )
+load("//dart/build_rules/internal:dart_vm_binary.bzl", "dart_vm_binary_impl")
+load("//dart/build_rules/internal:dart_vm_snapshot.bzl", "dart_vm_snapshot_action", "dart_vm_snapshot_impl")
+load("//dart/build_rules/internal:dart_vm_test.bzl", "dart_vm_test_impl")
 
 _dart_vm_binary_attrs = {
     "script_file": attr.label(
@@ -116,164 +53,47 @@ _dart_vm_binary_attrs = {
 dart_vm_binary = rule(
     attrs = _dart_vm_binary_attrs,
     executable = True,
-    implementation = _dart_vm_binary_impl,
+    implementation = dart_vm_binary_impl,
 )
-
-def vm_snapshot_action(ctx, dart_ctx, output, vm_flags, script_file, script_args):
-  """Emits a Dart VM snapshot."""
-  build_dir = ctx.label.name + ".build/"
-
-  # Emit package spec.
-  package_spec_path = ctx.label.package + "/" + ctx.label.name + ".packages"
-
-  # TODO (nshahan) this will not work if the package name does actually start
-  # with vendor.
-  if package_spec_path.startswith("vendor_"):
-    package_spec_path = package_spec_path[len("vendor_"):]
-
-  package_spec = ctx.new_file(build_dir + package_spec_path)
-  package_spec_action(
-      ctx=ctx,
-      output=package_spec,
-      dart_ctx=dart_ctx,
-  )
-
-  # Build a flattened directory of dart2js inputs, including inputs from the
-  # src tree, genfiles, and bin.
-  all_srcs, _ = collect_files(dart_ctx)
-  build_dir_files = layout_action(
-      ctx=ctx,
-      srcs=all_srcs,
-      output_dir=build_dir,
-  )
-  out_script = build_dir_files[script_file.short_path]
-
-  # TODO(cbracken) assert --snapshot not in flags
-  # TODO(cbracken) assert --packages not in flags
-  arguments = [
-      "--packages=%s" % package_spec.path,
-      "--snapshot=%s" % output.path,
-  ]
-  arguments += vm_flags
-  arguments += [out_script.path]
-  arguments += script_args
-  ctx.action(
-      inputs=build_dir_files.values() + [package_spec],
-      outputs=[output],
-      executable=ctx.executable._dart_vm,
-      arguments=arguments,
-      progress_message="Building Dart VM snapshot %s" % ctx,
-      mnemonic="DartVMSnapshot",
-  )
-
-def _dart_vm_snapshot_impl(ctx):
-  """Implements the dart_vm_snapshot build rule."""
-  dart_ctx = make_dart_context(ctx.label,
-                               srcs=ctx.files.srcs,
-                               data=ctx.files.data,
-                               deps=ctx.attr.deps,
-                               pub_pkg_name=ctx.attr.pub_pkg_name)
-  vm_snapshot_action(
-      ctx=ctx,
-      dart_ctx=dart_ctx,
-      output=ctx.outputs.snapshot,
-      vm_flags=ctx.attr.vm_flags,
-      script_file=ctx.file.script_file,
-      script_args=ctx.attr.script_args,
-  )
-  return struct()
 
 dart_vm_snapshot = rule(
     attrs = _dart_vm_binary_attrs,
     outputs = {"snapshot": "%{name}.snapshot"},
-    implementation = _dart_vm_snapshot_impl,
+    implementation = dart_vm_snapshot_impl,
 )
 
-def _dart_vm_test_impl(ctx):
-  """Implements the dart_vm_test() rule."""
-  dart_ctx = make_dart_context(ctx.label,
-                               srcs=ctx.files.srcs,
-                               data=ctx.files.data,
-                               deps=ctx.attr.deps,
-                               pub_pkg_name=ctx.attr.pub_pkg_name)
-
-  # Emit package spec.
-  package_spec = ctx.new_file(ctx.label.name + ".packages")
-  package_spec_action(
-      ctx=ctx,
-      dart_ctx=dart_ctx,
-      output=package_spec,
-  )
-
-  # Emit entrypoint script.
-  ctx.template_action(
-      output=ctx.outputs.executable,
-      template=ctx.file._entrypoint_template,
-      executable=True,
-      substitutions={
-          "%workspace%": ctx.workspace_name,
-          "%dart_vm%": ctx.executable._dart_vm.short_path,
-          "%package_spec%": package_spec.short_path,
-          "%vm_flags%": " ".join(ctx.attr.vm_flags),
-          "%script_file%": ctx.file.script_file.short_path,
-          "%script_args%": " ".join(ctx.attr.script_args),
-      },
-  )
-
-  # Compute runfiles.
-  all_srcs, all_data = collect_files(dart_ctx)
-  runfiles_files = all_data + [
-      ctx.executable._dart_vm,
-      ctx.outputs.executable,
-  ]
-  runfiles_files += all_srcs
-  runfiles_files += [package_spec]
-  runfiles = ctx.runfiles(
-      files=list(runfiles_files),
-  )
-
-  return struct(
-      runfiles=runfiles,
-      instrumented_files=struct(
-          source_attributes=["srcs"],
-          dependency_attributes=["deps"],
-      ),
-  )
-
-_dart_vm_test_attrs = {
-    "script_file": attr.label(
-        allow_files = True,
-        single_file = True,
-        mandatory = True,
-    ),
-    "script_args": attr.string_list(),
-    "vm_flags": attr.string_list(),
-    "pub_pkg_name": attr.string(default = ""),
-    "srcs": attr.label_list(
-        allow_files = True,
-        mandatory = True,
-    ),
-    "data": attr.label_list(
-        allow_files = True,
-        cfg = "data",
-    ),
-    "deps": attr.label_list(providers = ["dart"]),
-    "_dart_vm": attr.label(
-        allow_files = True,
-        single_file = True,
-        executable = True,
-        cfg = "host",
-        default = Label("//dart/build_rules/ext:dart_vm"),
-    ),
-    "_entrypoint_template": attr.label(
-        single_file = True,
-        default = Label("//dart/build_rules/templates:dart_vm_test_template"),
-    ),
-}
-
 dart_vm_test = rule(
-    attrs = _dart_vm_test_attrs,
+    attrs = {
+        "script_file": attr.label(
+            allow_files = True,
+            single_file = True,
+            mandatory = True,
+        ),
+        "script_args": attr.string_list(),
+        "vm_flags": attr.string_list(),
+        "pub_pkg_name": attr.string(default = ""),
+        "srcs": attr.label_list(
+            allow_files = True,
+            mandatory = True,
+        ),
+        "data": attr.label_list(
+            allow_files = True,
+            cfg = "data",
+        ),
+        "deps": attr.label_list(providers = ["dart"]),
+        "_dart_vm": attr.label(
+            allow_files = True,
+            single_file = True,
+            executable = True,
+            cfg = "host",
+            default = Label("//dart/build_rules/ext:dart_vm"),
+        ),
+        "_entrypoint_template": attr.label(
+            single_file = True,
+            default = Label("//dart/build_rules/templates:dart_vm_test_template"),
+        ),
+    },
     executable = True,
     test = True,
-    implementation = _dart_vm_test_impl,
+    implementation = dart_vm_test_impl,
 )

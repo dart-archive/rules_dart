@@ -1,7 +1,5 @@
 load("//dart/build_rules:core.bzl", "dart_library")
-load("//dart/build_rules:ddc.bzl", "dart_ddc_bundle")
-load("//dart/build_rules:web.bzl", "dart_web_application")
-load("//dart/build_rules:dev_server.bzl", "dev_server")
+load("//dart/build_rules:web.bzl", "dart_ddc_bundle", "dev_server", "dart_web_application")
 
 package(default_visibility = ["//visibility:public"])
 
