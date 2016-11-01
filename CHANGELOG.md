@@ -1,4 +1,8 @@
-#### 0.2.0
+## 0.2.1
+
+* Updated to latest Dart SDK dev release - `1.21.0-dev.2.0`.
+
+## 0.2.0
 
 **Breaking Change**: Re-organization of the build rules:
 
