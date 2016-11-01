@@ -1,57 +1,57 @@
 package(default_visibility = ["//visibility:public"])
 
-filegroup(
+alias(
     name = "dart_vm",
-    srcs = select({
-        "//dart:darwin": ["@dart_darwin_x86_64//:dart_vm"],
-        "//dart:k8": ["@dart_linux_x86_64//:dart_vm"],
+    actual = select({
+        "//dart:darwin": "@dart_darwin_x86_64//:dart_vm",
+        "//dart:k8": "@dart_linux_x86_64//:dart_vm",
     }),
 )
 
-filegroup(
+alias(
     name = "dart2js",
-    srcs = select({
-        "//dart:darwin": ["@dart_darwin_x86_64//:dart2js"],
-        "//dart:k8": ["@dart_linux_x86_64//:dart2js"],
+    actual = select({
+        "//dart:darwin": "@dart_darwin_x86_64//:dart2js",
+        "//dart:k8": "@dart_linux_x86_64//:dart2js",
     }),
 )
 
-filegroup(
+alias(
     name = "dart2js_support",
-    srcs = select({
-        "//dart:darwin": ["@dart_darwin_x86_64//:dart2js_support"],
-        "//dart:k8": ["@dart_linux_x86_64//:dart2js_support"],
+    actual = select({
+        "//dart:darwin": "@dart_darwin_x86_64//:dart2js_support",
+        "//dart:k8": "@dart_linux_x86_64//:dart2js_support",
     }),
 )
 
-filegroup(
+alias(
     name = "dart_analyzer",
-    srcs = select({
-        "//dart:darwin": ["@dart_darwin_x86_64//:analyzer"],
-        "//dart:k8": ["@dart_linux_x86_64//:analyzer"],
+    actual = select({
+        "//dart:darwin": "@dart_darwin_x86_64//:analyzer",
+        "//dart:k8": "@dart_linux_x86_64//:analyzer",
     }),
 )
 
-filegroup(
+alias(
     name = "dev_compiler",
-    srcs = select({
-        "//dart:darwin": ["@dart_darwin_x86_64//:dev_compiler"],
-        "//dart:k8": ["@dart_linux_x86_64//:dev_compiler"],
+    actual = select({
+        "//dart:darwin": "@dart_darwin_x86_64//:dev_compiler",
+        "//dart:k8": "@dart_linux_x86_64//:dev_compiler",
     }),
 )
 
-filegroup(
+alias(
     name = "ddc_support",
-    srcs = select({
-        "//dart:darwin": ["@dart_darwin_x86_64//:ddc_support"],
-        "//dart:k8": ["@dart_linux_x86_64//:ddc_support"],
+    actual = select({
+        "//dart:darwin": "@dart_darwin_x86_64//:ddc_support",
+        "//dart:k8": "@dart_linux_x86_64//:ddc_support",
     }),
 )
 
-filegroup(
+alias(
     name = "sdk_summaries",
-    srcs = select({
-        "//dart:darwin": ["@dart_darwin_x86_64//:sdk_summaries"],
-        "//dart:k8": ["@dart_linux_x86_64//:sdk_summaries"],
+    actual = select({
+        "//dart:darwin": "@dart_darwin_x86_64//:sdk_summaries",
+        "//dart:k8": "@dart_linux_x86_64//:sdk_summaries",
     }),
 )
