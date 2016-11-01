@@ -1,4 +1,3 @@
 name: rules_dart
-version: 0.2.1-dev
 dev_dependencies:
   test: ^0.12.15+10
