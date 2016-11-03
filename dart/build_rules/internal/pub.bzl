@@ -35,7 +35,6 @@ filegroup(name = "LICENSE_FILES", srcs=["LICENSE"])
 
 pub_repository = repository_rule(
     attrs = {
-        "name": attr.string(),
         "output": attr.string(),
         "package": attr.string(mandatory = True),
         "version": attr.string(mandatory = True),

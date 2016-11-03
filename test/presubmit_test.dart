@@ -113,9 +113,15 @@ void _fail(String message, ProcessResult result) {
 }
 
 ProcessResult _bazel(List<String> args, {int expectedExitCode: 0}) {
-  var command = args.removeAt(0);
-  var result =
-      Process.runSync('bazel', [command, '--noshow_progress']..addAll(args));
+  var command = args.first;
+
+  var localArgs = [command, '--noshow_progress'];
+  if (command != 'version') {
+    localArgs.add('--spawn_strategy=standalone');
+  }
+  localArgs.addAll(args.skip(1));
+
+  var result = Process.runSync('bazel', localArgs);
 
   expect(result.exitCode, expectedExitCode,
       reason: [
