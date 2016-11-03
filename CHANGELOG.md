@@ -1,4 +1,4 @@
-## 0.2.2 - unreleased
+## 0.2.2
 
 * Updated to latest Dart SDK dev release - `1.21.0-dev.3.0`.
 * Fixes to support bazel `0.4.0` – but only with sandbox turned off.
