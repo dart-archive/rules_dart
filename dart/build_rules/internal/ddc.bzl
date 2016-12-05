@@ -29,6 +29,9 @@ def ddc_action(ctx, dart_ctx, ddc_output, source_map_output):
 
   # Specify all input summaries on the command line args
   for dep in dart_ctx.transitive_deps.values():
+    if not dep.ddc.enabled:
+      continue
+
     strict_transitive_srcs += dep.dart.srcs
     if has_dart_sources(dep.dart.srcs):
       if dep.ddc.output and dep.dart.strong_summary:
@@ -135,7 +138,7 @@ def dart_ddc_bundle_impl(ctx):
     dart_srcs_to_pkgs = {}
 
   for dep in dart_ctx.transitive_deps.values():
-    if has_dart_sources(dep.dart.srcs):
+    if dep.ddc.enabled and has_dart_sources(dep.dart.srcs):
       # Collect dict of dart srcs to packages, if checking duplicate srcs
       # Note that we skip angular2 which is an exception to this rule for now.
       if (ctx.attr.check_duplicate_srcs and

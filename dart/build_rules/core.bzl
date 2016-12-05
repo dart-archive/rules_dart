@@ -26,6 +26,7 @@ dart_library = rule(
             allow_files = True,
             cfg = "data",
         ),
+        "enable_ddc": attr.bool(default = True),
         "pub_pkg_name": attr.string(default = ""),
         "deps": attr.label_list(providers = ["dart"]),
         "force_ddc_compile": attr.bool(default = False),
