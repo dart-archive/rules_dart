@@ -2,10 +2,7 @@ package(default_visibility = ["//visibility:public"])
 
 filegroup(
     name = "dart_vm_binary",
-    srcs = select({
-        "//dart:darwin": ["dart_vm_binary.sh"],
-        "//dart:k8": ["dart_vm_binary.sh"],
-    }),
+    srcs = ["dart_vm_binary.sh"],
 )
 
 filegroup(
@@ -18,16 +15,10 @@ filegroup(
 
 filegroup(
     name = "dart_vm_test",
-    srcs = select({
-        "//dart:darwin": ["dart_vm_test.sh"],
-        "//dart:k8": ["dart_vm_test.sh"],
-    }),
+    srcs = ["dart_vm_test.sh"],
 )
 
 filegroup(
     name = "dart_vm_test_coverage",
-    srcs = select({
-        "//dart:darwin": ["dart_vm_test_coverage.sh"],
-        "//dart:k8": ["dart_vm_test_coverage.sh"],
-    }),
+    srcs = ["dart_vm_test_coverage.sh"],
 )
