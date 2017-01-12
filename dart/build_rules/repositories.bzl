@@ -39,7 +39,7 @@ filegroup(
 
 filegroup(
     name = "ddc_support",
-    srcs = glob(["dart-sdk/lib/_internal/dev_compiler/legacy/*.*"]),
+    srcs = glob(["dart-sdk/lib/dev_compiler/legacy/*.*"]),
 )
 
 filegroup(
