@@ -1,7 +1,17 @@
 # Dart rules
 
 **WARNING** These are in active development and are *not* production-ready.
-Expect frequent breaking changes.
+Expect frequent breaking changes. The only way these rules should be used is
+with automatically generated BUILD files which should not be checked in since
+they will not be stable across versions of `rules_dart`.
+
+## Overview
+
+These build rules are used for building [Dart][] projects with Bazel. To use the
+Dart rules see [bazelify][].
+
+[Dart]: https://dartlang.org
+[bazelify]: https://github.com/dart-lang/bazel
 
 ## Rules
 
@@ -12,30 +22,6 @@ Expect frequent breaking changes.
   * dart\_web\_application
   * dart\_web\_test
 
-## Overview
-
-These build rules are used for building [Dart](https://dartlang.org) projects
-with Bazel.
-
-## Setup
-
-To use the Dart rules, add the following to your `WORKSPACE` file to add the
-external repositories for the Dart toolchain:
-
-```python
-git_repository(
-    name = "io_bazel_rules_dart",
-    remote = "https://github.com/rules_dart/rules_dart.git",
-    tag = "0.0.1-alpha+1",
-)
-load("@io_bazel_rules_dart//dart:repositories.bzl", "dart_repositories")
-
-dart_repositories()
-```
-
-## Roadmap
-
-  * TODO
 
 ## Core rules
 
