@@ -1,6 +1,5 @@
 load(
     ":common.bzl",
-    "assert_third_party_licenses",
     "has_dart_sources",
     "make_dart_context",
     "api_summary_extension",
@@ -12,7 +11,6 @@ load(":ddc.bzl", "ddc_action")
 
 def dart_library_impl(ctx):
   """Implements the dart_library() rule."""
-  assert_third_party_licenses(ctx)
 
   ddc_output = ctx.outputs.ddc_output if ctx.attr.enable_ddc else None
   source_map_output = ctx.outputs.ddc_sourcemap if ctx.attr.enable_ddc else None
