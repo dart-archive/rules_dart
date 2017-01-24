@@ -21,8 +21,6 @@ a mechanism for enforcing limitied visibility of Skylark rules. This code makes
 no gurantees of API stability and is intended solely for use by the Dart rules.
 """
 
-_third_party_prefix = "third_party/dart/"
-
 def collect_files(dart_ctx):
   srcs = set(dart_ctx.srcs)
   data = set(dart_ctx.data)
@@ -49,18 +47,12 @@ def _collect_transitive_deps(deps):
 def _label_to_dart_package_name(label):
   """Returns the Dart package name for the specified label.
 
-  Packages under //third_party/dart resolve to their external Pub package names.
+  External packages resolve to their Pub package names.
   All other packages resolve to a unique identifier based on their repo path.
 
   Examples:
-    //foo/bar/baz:           foo.bar.baz
-    //third_party/dart/args: args
-    //third_party/guice:     third_party.guice
-
-  Restrictions:
-    Since packages outside of //third_party/dart are identified by their path
-    components joined by periods, it is an error for the label package to
-    contain periods.
+    //foo/bar/baz:     -> foo.bar.baz
+    @package//:package -> package
 
   Args:
     label: the label whose package name is to be returned.
@@ -69,10 +61,6 @@ def _label_to_dart_package_name(label):
     The Dart package name associated with the label.
   """
   package_name = label.package
-  if label.package.startswith(_third_party_prefix):
-    third_party_path = label.package[len(_third_party_prefix):]
-    if "/" not in third_party_path:
-      package_name = third_party_path
   if label.workspace_root.startswith("external/"):
     package_name = label.workspace_root[len("external/"):]
   if "." in package_name:
