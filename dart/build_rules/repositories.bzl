@@ -61,6 +61,24 @@ filegroup(
   srcs = ["dart-sdk/lib/_internal/strong.sum"],
 )
 
+filegroup(
+    name = "lib_files_no_summaries",
+    srcs = glob([
+        "dart-sdk/lib/**/*.dart",
+        "dart-sdk/lib/dart_client.platform",
+        "dart-sdk/lib/dart_shared.platform",
+        "dart-sdk/version",
+    ]),
+)
+
+filegroup(
+    name = "lib_files",
+    srcs = glob([
+        ":lib_files_no_summaries",
+        ":sdk_summaries",
+    ]),
+)
+
 """
 
 def _sdk_repositories():

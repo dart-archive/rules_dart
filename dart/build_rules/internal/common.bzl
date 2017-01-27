@@ -21,6 +21,9 @@ a mechanism for enforcing limitied visibility of Skylark rules. This code makes
 no gurantees of API stability and is intended solely for use by the Dart rules.
 """
 
+SDK_SUMMARIES = "//dart/build_rules/ext:sdk_summaries"
+SDK_LIB_FILES = "//dart/build_rules/ext:lib_files"
+
 def collect_files(dart_ctx):
   srcs = set(dart_ctx.srcs)
   data = set(dart_ctx.data)
@@ -44,7 +47,7 @@ def _collect_transitive_deps(deps):
     transitive_deps["%s" % dep.dart.label] = dep
   return transitive_deps
 
-def _label_to_dart_package_name(label):
+def label_to_dart_package_name(label):
   """Returns the Dart package name for the specified label.
 
   External packages resolve to their Pub package names.
@@ -96,7 +99,7 @@ def make_dart_context(label,
                       strong_summary=None):
   if not package:
     if not pub_pkg_name:
-      package = _label_to_dart_package_name(label)
+      package = label_to_dart_package_name(label)
     else:
       package = pub_pkg_name
 
