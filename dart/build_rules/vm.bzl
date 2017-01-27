@@ -14,11 +14,19 @@
 
 """Dart rules targeting the Dart VM."""
 
-load("//dart/build_rules/internal:dart_vm_binary.bzl", "dart_vm_binary_impl")
-load("//dart/build_rules/internal:dart_vm_snapshot.bzl", "dart_vm_snapshot_action", "dart_vm_snapshot_impl")
+load(
+    "//dart/build_rules/internal:dart_vm_binary.bzl",
+    "dart_vm_binary_action",
+    "dart_vm_binary_defaults",
+)
+load(
+    "//dart/build_rules/internal:dart_vm_snapshot.bzl",
+    "dart_vm_snapshot_action",
+    "dart_vm_snapshot_impl",
+)
 load("//dart/build_rules/internal:dart_vm_test.bzl", "dart_vm_test_impl")
 
-_dart_vm_binary_attrs = {
+_dart_vm_binary_attrs = dart_vm_binary_defaults({
     "script_file": attr.label(
         allow_files = True,
         single_file = True,
@@ -37,23 +45,29 @@ _dart_vm_binary_attrs = {
     ),
     "deps": attr.label_list(providers = ["dart"]),
     "snapshot": attr.bool(default = True),
-    "_dart_vm": attr.label(
-        allow_files = True,
-        single_file = True,
-        executable = True,
-        cfg = "host",
-        default = Label("//dart/build_rules/ext:dart_vm"),
-    ),
-    "_entrypoint_template": attr.label(
-        single_file = True,
-        default = Label("//dart/build_rules/templates:dart_vm_binary"),
-    ),
-}
+})
+
+def _dart_vm_binary_impl(ctx):
+  """Implements the dart_vm_binary() rule."""
+  runfiles = dart_vm_binary_action(
+      ctx,
+      srcs = ctx.files.srcs,
+      script_file = ctx.file.script_file,
+      deps = ctx.attr.deps,
+      data = ctx.files.data,
+      snapshot = ctx.attr.snapshot,
+      script_args = ctx.attr.script_args,
+      vm_flags = ctx.attr.vm_flags,
+      pub_pkg_name = ctx.attr.pub_pkg_name,
+  )
+  return struct(
+      runfiles=runfiles,
+  )
 
 dart_vm_binary = rule(
     attrs = _dart_vm_binary_attrs,
     executable = True,
-    implementation = dart_vm_binary_impl,
+    implementation = _dart_vm_binary_impl,
 )
 
 dart_vm_snapshot = rule(
@@ -96,4 +110,9 @@ dart_vm_test = rule(
     executable = True,
     test = True,
     implementation = dart_vm_test_impl,
+)
+
+dart_vm = struct(
+    binary_action = dart_vm_binary_action,
+    binary_action_defaults = dart_vm_binary_defaults,
 )
