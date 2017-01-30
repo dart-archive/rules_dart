@@ -55,3 +55,11 @@ alias(
         "//dart:k8": "@dart_linux_x86_64//:sdk_summaries",
     }),
 )
+
+alias(
+    name = "lib_files",
+    actual = select({
+        "//dart:darwin": "@dart_darwin_x86_64//:lib_files",
+        "//dart:k8": "@dart_linux_x86_64//:lib_files",
+    }),
+)
