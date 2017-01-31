@@ -1,3 +1,0 @@
-void speak() {
-  print('Hello!');
-}
