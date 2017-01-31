@@ -1,0 +1,15 @@
+import 'dart:async';
+
+import 'package:bazel_codegen/bazel_codegen.dart';
+
+import '$builderImport';
+
+Future main(List<String> args) {
+  return bazelGenerateMulti([
+      $builderFactories
+    ],
+    args,
+    defaultContent: {
+      $defaultContent
+    });
+}
