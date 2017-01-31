@@ -17,8 +17,8 @@ load(":dart_vm_snapshot.bzl", "dart_vm_snapshot_action")
 
 def dart_vm_binary_action(
     ctx,
-    srcs,
     script_file,
+    srcs,
     deps,
     data = [],
     snapshot = True,

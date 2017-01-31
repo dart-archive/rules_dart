@@ -51,8 +51,8 @@ def _dart_vm_binary_impl(ctx):
   """Implements the dart_vm_binary() rule."""
   runfiles = dart_vm_binary_action(
       ctx,
-      srcs = ctx.files.srcs,
       script_file = ctx.file.script_file,
+      srcs = ctx.files.srcs,
       deps = ctx.attr.deps,
       data = ctx.files.data,
       snapshot = ctx.attr.snapshot,
