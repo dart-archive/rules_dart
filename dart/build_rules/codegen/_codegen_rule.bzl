@@ -1,4 +1,5 @@
 """Builds custom skylark rules scoped to a specific dart_codegen_binary."""
+
 load(":_codegen_action.bzl", "codegen_action")
 load("//dart/build_rules/internal:common.bzl", "SDK_SUMMARIES")
 
@@ -6,8 +7,9 @@ def dart_codegen_rule(
     codegen_binary,
     in_extension,
     out_extensions,
-    aspects=[],
-    input_provider=""):
+    generator_args = [],
+    aspects = [],
+    input_provider = ""):
   """Builds custom skylark rules scoped to a specific dart_codegen_binary.
 
   See codegen.bzl for usage of the generated rule.
@@ -17,6 +19,10 @@ def dart_codegen_rule(
     in_extension: The file extension for files which are primary inputs.
     out_extensions: The file extensions which are generated for each primary
       input.
+    generator_args: Optional. Arguments that are always passed to the codegen
+      binary. These will be merged with the generator_args passed by callers of
+      the created rule. If any arguments impact the file extensions created by
+      the binary they must be included here.
     aspects: Optional. If the generator will need to read files from targets
       which are dependencies these aspects can collect them and make them
       available.
@@ -54,6 +60,7 @@ def dart_codegen_rule(
               default = Label(codegen_binary),
               providers = ["dart_codegen_config"],
           ),
+          "_forced_generator_args": attr.string_list(default=generator_args),
           "_sdk": attr.label(
               default = Label(SDK_SUMMARIES),
               allow_files = True,
@@ -85,6 +92,7 @@ def _codegen_impl(ctx):
     fail("Must provide either `srcs` or `generate_for`")
 
   config = ctx.attr._generator.dart_codegen_config
+  generator_args = ctx.attr.generator_args + ctx.attr._forced_generator_args
 
   outs = codegen_action(
       ctx,
@@ -93,7 +101,7 @@ def _codegen_impl(ctx):
       ctx.attr.out_extensions.split(","),
       ctx.executable._generator,
       forced_deps = ctx.files.forced_deps,
-      generator_args = ctx.attr.generator_args,
+      generator_args = generator_args,
       input_provider = ctx.attr._input_provider,
       log_level = ctx.attr.log_level,
       generate_for = ctx.files.generate_for,
