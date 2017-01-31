@@ -1,3 +1,18 @@
+## 0.3.0
+
+* Added dart_codegen_rule and dart_codegen_binary rules to enabled code
+  generation. These rules can only be used alongside bazel_codegen
+* Upgrade to Dart 1.21
+
+### Breaking
+
+* Remove old dart_code_gen build rule which was never supported
+
+## 0.2.3
+
+* enabled_ddc argument to dart_library rules allows disabling DDC for libraries
+  that don't run on the web.
+
 ## 0.2.2
 
 * Updated to latest Dart SDK dev release - `1.21.0-dev.3.0`.
