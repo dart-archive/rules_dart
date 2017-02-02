@@ -17,12 +17,14 @@ def dart_library_impl(ctx):
   strong_summary = ctx.outputs.strong_summary
   _has_dart_sources = has_dart_sources(ctx.files.srcs)
 
-  dart_ctx = make_dart_context(ctx.label,
-                               srcs=ctx.files.srcs,
-                               data=ctx.files.data,
-                               deps=ctx.attr.deps,
-                               pub_pkg_name=ctx.attr.pub_pkg_name,
-                               strong_summary=strong_summary,)
+  dart_ctx = make_dart_context(
+      ctx,
+      srcs = ctx.files.srcs,
+      data = ctx.files.data,
+      deps = ctx.attr.deps,
+      pub_pkg_name = ctx.attr.pub_pkg_name,
+      strong_summary = strong_summary,
+  )
 
   if not _has_dart_sources:
     ctx.file_action(

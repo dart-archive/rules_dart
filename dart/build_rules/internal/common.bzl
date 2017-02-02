@@ -89,14 +89,16 @@ def _new_dart_context(label,
       transitive_deps=dict(transitive_deps or {}),
   )
 
-def make_dart_context(label,
-                      package=None,
-                      lib_root=None,
-                      srcs=None,
-                      data=None,
-                      deps=None,
-                      pub_pkg_name=None,
-                      strong_summary=None):
+def make_dart_context(
+    ctx,
+    package = None,
+    lib_root = None,
+    srcs = None,
+    data = None,
+    deps = None,
+    pub_pkg_name = None,
+    strong_summary = None):
+  label = ctx.label
   if not package:
     if not pub_pkg_name:
       package = label_to_dart_package_name(label)

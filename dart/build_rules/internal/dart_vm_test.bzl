@@ -2,11 +2,13 @@ load(":common.bzl", "collect_files", "make_dart_context", "package_spec_action")
 
 def dart_vm_test_impl(ctx):
   """Implements the dart_vm_test() rule."""
-  dart_ctx = make_dart_context(ctx.label,
-                               srcs=ctx.files.srcs,
-                               data=ctx.files.data,
-                               deps=ctx.attr.deps,
-                               pub_pkg_name=ctx.attr.pub_pkg_name)
+  dart_ctx = make_dart_context(
+      ctx,
+      srcs = ctx.files.srcs,
+      data = ctx.files.data,
+      deps = ctx.attr.deps,
+      pub_pkg_name = ctx.attr.pub_pkg_name,
+  )
 
   # Emit package spec.
   package_spec = ctx.new_file(ctx.label.name + ".packages")

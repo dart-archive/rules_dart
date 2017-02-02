@@ -26,7 +26,7 @@ def dart_vm_binary_action(
     vm_flags = [],
     pub_pkg_name = ""):
   dart_ctx = make_dart_context(
-      ctx.label,
+      ctx,
       srcs = srcs,
       data = data,
       deps = deps,

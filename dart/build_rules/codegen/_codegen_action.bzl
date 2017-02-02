@@ -120,7 +120,7 @@ def codegen_action(
   log_path = "%s/%s/%s.log" % (out_base.path, ctx.label.package, ctx.label.name)
 
   dart_deps = [dep for dep in ctx.attr.deps if hasattr(dep, "dart")]
-  dart_context = make_dart_context(ctx.label, deps=dart_deps)
+  dart_context = make_dart_context(ctx, deps = dart_deps)
 
   package_map = _package_map_tmp_file(ctx, dart_context)
   inputs_file = _inputs_tmp_file(ctx, generate_for, "inputs_file")

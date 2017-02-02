@@ -3,10 +3,12 @@ load(":dart2js.bzl", "dart2js_action")
 
 def dart_web_application_impl(ctx):
   """Implements the dart_web_application build rule."""
-  dart_ctx = make_dart_context(ctx.label,
-                               srcs=ctx.files.srcs,
-                               data=ctx.files.data,
-                               deps=ctx.attr.deps)
+  dart_ctx = make_dart_context(
+      ctx,
+      srcs = ctx.files.srcs,
+      data = ctx.files.data,
+      deps = ctx.attr.deps,
+  )
 
   # Compute outputs.
   js_output = ctx.outputs.js

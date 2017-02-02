@@ -1,4 +1,10 @@
-load(":common.bzl", "collect_files", "layout_action", "make_dart_context", "package_spec_action")
+load(
+    ":common.bzl",
+    "collect_files",
+    "layout_action",
+    "make_dart_context",
+    "package_spec_action"
+)
 
 def dart_vm_snapshot_action(ctx, dart_ctx, output, vm_flags, script_file, script_args):
   """Emits a Dart VM snapshot."""
@@ -49,11 +55,13 @@ def dart_vm_snapshot_action(ctx, dart_ctx, output, vm_flags, script_file, script
 
 def dart_vm_snapshot_impl(ctx):
   """Implements the dart_vm_snapshot build rule."""
-  dart_ctx = make_dart_context(ctx.label,
-                               srcs=ctx.files.srcs,
-                               data=ctx.files.data,
-                               deps=ctx.attr.deps,
-                               pub_pkg_name=ctx.attr.pub_pkg_name)
+  dart_ctx = make_dart_context(
+      ctx,
+      srcs = ctx.files.srcs,
+      data = ctx.files.data,
+      deps = ctx.attr.deps,
+      pub_pkg_name = ctx.attr.pub_pkg_name,
+  )
   dart_vm_snapshot_action(
       ctx=ctx,
       dart_ctx=dart_ctx,

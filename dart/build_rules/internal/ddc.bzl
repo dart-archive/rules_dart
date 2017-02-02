@@ -129,7 +129,7 @@ def _output_dir(output_dir, output_html):
   return output_dir
 
 def dart_ddc_bundle_impl(ctx):
-  dart_ctx = make_dart_context(ctx.label, deps=[ctx.attr.entry_module])
+  dart_ctx = make_dart_context(ctx, deps = [ctx.attr.entry_module])
 
   inputs = []
   sourcemaps = []
