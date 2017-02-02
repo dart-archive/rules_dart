@@ -34,13 +34,18 @@ dart_web_application = rule(
             cfg = "data",
         ),
         "deps": attr.label_list(providers = ["dart"]),
-        "deferred_lib_count": attr.int(default = 0),
+        "create_packages_dir": attr.bool(default = True),
+        "output_js": attr.string(),
         # compiler flags
         "checked": attr.bool(default = False),
         "csp": attr.bool(default = False),
         "dump_info": attr.bool(default = False),
+        "emit_tar": attr.bool(default = True),
+        "fast_startup": attr.bool(default = False),
         "minify": attr.bool(default = True),
         "preserve_uris": attr.bool(default = False),
+        "trust_primitives": attr.bool(default = False),
+        "trust_type_annotations": attr.bool(default = False),
         # tools
         "_dart2js": attr.label(
             allow_files = True,

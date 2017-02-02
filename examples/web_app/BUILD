@@ -59,6 +59,7 @@ dart_web_application(
     name = "js_release",
     srcs = [],
     script_file = "web/main.dart",
+    output_js = "web/main.release.js",
     deps = [
         ":web_app",
         "//examples/hello_lib",

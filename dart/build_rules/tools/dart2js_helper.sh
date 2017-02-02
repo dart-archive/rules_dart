@@ -1,18 +1,26 @@
 #!/bin/bash
 set -e
 
-target="$1"
-expected_count="$2"
-out_dir="$(dirname "$3")"
-out_js="$(basename "$3")"
-shift 3
+EMIT_TAR=false
 
-"$@"
+if [[ $1 == "--emit-tar" ]]; then
+  EMIT_TAR=true
+  TAR_OUTPUT=$2
+  BIN_DIR=$3
+  OUTPUT_JS_SHORT_PATH=$4
+  DEPLOY_DIR=$5
+  shift 5
+fi
 
-actual_count=$(find "$out_dir" -name "${out_js}_*.part.js" -maxdepth 1 | wc -l | tr -d ' ')
-if [[ "$actual_count" != "$expected_count" ]]; then
-  echo "ERROR: Expected $expected_count deferred library outputs, but found $actual_count."
-  find "$out_dir" -name "$out_js_*.part.js" -maxdepth 1 | xargs -I {} echo '    ' {}
-  echo "Set deferred_lib_count=$actual_count on $target."
-  exit 1
+DART2JS=$1
+shift 1
+
+"$DART2JS" "$@"
+
+if [[ $EMIT_TAR == true ]]; then
+  OUTPUT_JS_SHORT_DIR=$(dirname "$OUTPUT_JS_SHORT_PATH")
+  DEST_DIR="$BIN_DIR/$DEPLOY_DIR/$OUTPUT_JS_SHORT_DIR"
+  mkdir -p "$DEST_DIR"
+  cp "$BIN_DIR/$OUTPUT_JS_SHORT_PATH"* "$DEST_DIR"
+  tar cfh "$TAR_OUTPUT" -C "$BIN_DIR/$DEPLOY_DIR" . > /dev/null
 fi

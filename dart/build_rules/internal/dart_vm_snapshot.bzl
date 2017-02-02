@@ -1,6 +1,5 @@
 load(
     ":common.bzl",
-    "collect_files",
     "layout_action",
     "make_dart_context",
     "package_spec_action"
@@ -27,10 +26,9 @@ def dart_vm_snapshot_action(ctx, dart_ctx, output, vm_flags, script_file, script
 
   # Build a flattened directory of dart2js inputs, including inputs from the
   # src tree, genfiles, and bin.
-  all_srcs, _ = collect_files(dart_ctx)
   build_dir_files = layout_action(
       ctx=ctx,
-      srcs=all_srcs,
+      srcs=dart_ctx.transitive_srcs,
       output_dir=build_dir,
   )
   out_script = build_dir_files[script_file.short_path]

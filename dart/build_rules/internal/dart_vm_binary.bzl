@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load(":common.bzl", "collect_files", "make_dart_context", "package_spec_action")
+load(":common.bzl", "make_dart_context", "package_spec_action")
 load(":dart_vm_snapshot.bzl", "dart_vm_snapshot_action")
 
 def dart_vm_binary_action(
@@ -68,14 +68,15 @@ def dart_vm_binary_action(
   )
 
   # Compute runfiles.
-  all_srcs, all_data = collect_files(dart_ctx)
-  runfiles_files = all_data + all_srcs + [
+  runfiles_files = dart_ctx.transitive_data + [
       ctx.executable._dart_vm,
       ctx.outputs.executable,
       package_spec,
   ]
   if snapshot:
     runfiles_files += [out_snapshot]
+  else:
+    runfiles_files += dart_ctx.transitive_srcs
 
   return ctx.runfiles(
       files = list(runfiles_files),
