@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:bazel_codegen/bazel_codegen.dart';
+import 'package:_bazel_codegen/_bazel_codegen.dart';
 
 import '$builderImport';
 
