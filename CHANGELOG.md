@@ -1,3 +1,8 @@
+## 0.4.0
+
+* Update to the way `vendor_` packages are handled. This is a breaking change
+  for repositories with manually created `pub_repository` rules.
+
 ## 0.3.0
 
 * Added dart_codegen_rule and dart_codegen_binary rules to enabled code
