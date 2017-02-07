@@ -245,8 +245,6 @@ def layout_action(ctx, srcs, output_dir):
     output_dir += "/"
   for src_file in srcs:
     short_better_path = src_file.short_path
-    if "vendor_" in short_better_path:
-      short_better_path = short_better_path.replace("vendor_", "")
     if short_better_path.startswith('../'):
       dest_file = ctx.new_file(output_dir + short_better_path.replace("../", ""))
     else:

@@ -7,10 +7,10 @@ dart_library(
         "bin/server.dart",
     ],
     deps = [
-        "//vendor/args",
-        "//vendor/path",
-        "//vendor/shelf",
-        "//vendor/shelf_static",
-        "//vendor/watcher",
+        "@vendor_args//:args",
+        "@vendor_path//:path",
+        "@vendor_shelf//:shelf",
+        "@vendor_shelf_static//:shelf_static",
+        "@vendor_watcher//:watcher",
     ],
 )

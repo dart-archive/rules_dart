@@ -8,8 +8,8 @@ dart_vm_binary(
     script_file = "bin/ddc_html_generator.dart",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/args",
-        "//vendor/html",
-        "//vendor/path",
+        "@vendor_args//:args",
+        "@vendor_html//:html",
+        "@vendor_path//:path",
     ],
 )

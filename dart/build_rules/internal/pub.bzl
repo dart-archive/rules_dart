@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+_pub_uri = "https://storage.googleapis.com/pub.dartlang.org/packages"
+
 """A set of BUILD rules that facilitate using or building on "pub"."""
 
 def _pub_repository_impl(repository_ctx):
@@ -19,18 +21,35 @@ def _pub_repository_impl(repository_ctx):
   version = repository_ctx.attr.version
 
   repository_ctx.download_and_extract(
-      "https://storage.googleapis.com/pub.dartlang.org/packages/%s-%s.tar.gz" % (package, version),
+      "%s/%s-%s.tar.gz" % (_pub_uri, package, version),
       repository_ctx.attr.output,
   )
+
+
+  pub_deps = repository_ctx.attr.pub_deps
+  bazel_deps = ["\"@vendor_%s//:%s\"" % (dep, dep) for dep in pub_deps]
+  deps = ",\n".join(bazel_deps)
 
   repository_ctx.file(
       "%s/BUILD" % (repository_ctx.attr.output),
 """
+load("@io_bazel_rules_dart//dart/build_rules:core.bzl", "dart_library")
+
 package(default_visibility = ["//visibility:public"])
 
-filegroup(name = "%s", srcs=glob(["lib/**"]))
 filegroup(name = "LICENSE_FILES", srcs=["LICENSE"])
-""" % package,
+
+dart_library(
+    name = "%s",
+    srcs = glob(["lib/**"]),
+    license_files = ["LICENSE"],
+    pub_pkg_name = "%s",
+    deps = [
+        %s
+    ],
+)
+
+""" % (package, package, deps),
   )
 
 pub_repository = repository_rule(
@@ -38,6 +57,7 @@ pub_repository = repository_rule(
         "output": attr.string(),
         "package": attr.string(mandatory = True),
         "version": attr.string(mandatory = True),
+        "pub_deps": attr.string_list(default = []),
     },
     implementation = _pub_repository_impl,
 )

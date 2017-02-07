@@ -1,6 +1,7 @@
 load("//dart/build_rules/internal:pub.bzl", "pub_repository")
 
 """Required Repositories for Dart Build Rules."""
+
 def dart_repositories():
   _sdk_repositories()
   _pub_repositories()
@@ -102,6 +103,7 @@ def _pub_repositories():
       output = ".",
       package = "args",
       version = "0.13.6",
+      pub_deps = [],
   )
 
   pub_repository(
@@ -109,6 +111,7 @@ def _pub_repositories():
       output = ".",
       package = "async",
       version = "1.11.2",
+      pub_deps = ["collection"],
   )
 
   pub_repository(
@@ -116,6 +119,7 @@ def _pub_repositories():
       output = ".",
       package = "charcode",
       version = "1.1.0",
+      pub_deps = [],
   )
 
   pub_repository(
@@ -123,6 +127,7 @@ def _pub_repositories():
       output = ".",
       package = "collection",
       version = "1.9.1",
+      pub_deps = [],
   )
 
   pub_repository(
@@ -130,6 +135,7 @@ def _pub_repositories():
       output = ".",
       package = "convert",
       version = "2.0.1",
+      pub_deps = ["charcode", "typed_data"],
   )
 
   pub_repository(
@@ -137,6 +143,12 @@ def _pub_repositories():
       output = ".",
       package = "csslib",
       version = "0.13.2",
+      pub_deps = [
+          "args",
+          "logging",
+          "path",
+          "source_span",
+      ],
   )
 
   pub_repository(
@@ -144,6 +156,11 @@ def _pub_repositories():
       output = ".",
       package = "html",
       version = "0.13.0",
+      pub_deps = [
+          "csslib",
+          "source_span",
+          "utf",
+      ],
   )
 
   pub_repository(
@@ -151,6 +168,11 @@ def _pub_repositories():
       output = ".",
       package = "http_parser",
       version = "3.0.3",
+      pub_deps = [
+          "collection",
+          "source_span",
+          "string_scanner",
+      ],
   )
 
   pub_repository(
@@ -158,6 +180,7 @@ def _pub_repositories():
       output = ".",
       package = "js",
       version = "0.6.1",
+      pub_deps = [],
   )
 
   pub_repository(
@@ -165,6 +188,7 @@ def _pub_repositories():
       output = ".",
       package = "logging",
       version = "0.11.3+1",
+      pub_deps = [],
   )
 
   pub_repository(
@@ -172,6 +196,7 @@ def _pub_repositories():
       output = ".",
       package = "mime",
       version = "0.9.3",
+      pub_deps = [],
   )
 
   pub_repository(
@@ -179,6 +204,7 @@ def _pub_repositories():
       output = ".",
       package = "path",
       version = "1.4.0",
+      pub_deps = [],
   )
 
   pub_repository(
@@ -186,6 +212,13 @@ def _pub_repositories():
       output = ".",
       package = "shelf",
       version = "0.6.5+3",
+      pub_deps = [
+          "async",
+          "http_parser",
+          "path",
+          "stack_trace",
+          "stream_channel",
+      ],
   )
 
   pub_repository(
@@ -193,6 +226,13 @@ def _pub_repositories():
       output = ".",
       package = "shelf_static",
       version = "0.2.4",
+      pub_deps = [
+          "convert",
+          "http_parser",
+          "mime",
+          "path",
+          "shelf",
+      ],
   )
 
   pub_repository(
@@ -200,6 +240,7 @@ def _pub_repositories():
       output = ".",
       package = "source_span",
       version = "1.2.3",
+      pub_deps = ["path"],
   )
 
   pub_repository(
@@ -207,6 +248,7 @@ def _pub_repositories():
       output = ".",
       package = "stack_trace",
       version = "1.6.8",
+      pub_deps = ["path"],
   )
 
   pub_repository(
@@ -214,6 +256,7 @@ def _pub_repositories():
       output = ".",
       package = "stream_channel",
       version = "1.5.0",
+      pub_deps = ["async", "stack_trace"],
   )
 
   pub_repository(
@@ -221,6 +264,7 @@ def _pub_repositories():
       output = ".",
       package = "string_scanner",
       version = "1.0.0",
+      pub_deps = ["charcode", "source_span"],
   )
 
   pub_repository(
@@ -228,6 +272,7 @@ def _pub_repositories():
       output = ".",
       package = "typed_data",
       version = "1.1.3",
+      pub_deps = [],
   )
 
   pub_repository(
@@ -235,6 +280,7 @@ def _pub_repositories():
       output = ".",
       package = "utf",
       version = "0.9.0+3",
+      pub_deps = [],
   )
 
   pub_repository(
@@ -242,4 +288,9 @@ def _pub_repositories():
       output = ".",
       package = "watcher",
       version = "0.9.7+3",
+      pub_deps = [
+          "async",
+          "collection",
+          "path",
+      ],
   )

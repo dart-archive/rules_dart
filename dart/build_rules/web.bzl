@@ -98,7 +98,7 @@ dart_ddc_bundle = rule(
           default = Label("//dart/build_rules/ext:sdk_summaries"),
       ),
       "_js_pkg": attr.label(
-          default = Label("//vendor/js"),
+          default = Label("@vendor_js//:js"),
       ),
   },
   outputs = dart_ddc_bundle_outputs,
