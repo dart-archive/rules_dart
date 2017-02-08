@@ -206,7 +206,7 @@ def package_spec_action(ctx, dart_ctx, output):
     lib_root = dc.lib_root
     if lib_root.startswith("vendor/"):
       lib_root = lib_root[len("vendor/"):]
-    relative_lib_root = _relative_path(dart_ctx.label.package, lib_root)
+    relative_lib_root = relative_path(dart_ctx.label.package, lib_root)
     if dc.package:
       content += "%s:%s\n" % (dc.package, relative_lib_root)
 
@@ -215,12 +215,6 @@ def package_spec_action(ctx, dart_ctx, output):
       output=output,
       content=content,
   )
-
-def _relative_path(from_dir, to_path):
-  """Returns the relative path from a directory to a path via the repo root."""
-  if not from_dir:
-    return to_path
-  return "../" * (from_dir.count("/") + 1) + to_path
 
 def layout_action(ctx, srcs, output_dir):
   """Generates a flattened directory of sources.
@@ -248,7 +242,7 @@ def layout_action(ctx, srcs, output_dir):
     else:
       dest_file = ctx.new_file(output_dir + short_better_path)
     dest_dir = dest_file.path[:dest_file.path.rfind("/")]
-    link_target = _relative_path(dest_dir, src_file.path)
+    link_target = relative_path(dest_dir, src_file.path)
     commands += ["ln -s '%s' '%s'" % (link_target, dest_file.path)]
     output_files[src_file.short_path] = dest_file
 
@@ -311,7 +305,11 @@ def compute_layout(srcs):
 
 def relative_path(from_dir, to_path):
   """Returns the relative path from a directory to a path via the repo root."""
-  return "../" * (from_dir.count("/") + 1) + to_path
+  if to_path.startswith("/") or from_dir.startswith("/"):
+    fail("Absolute paths are not supported.")
+  if not from_dir:
+    return to_path
+  return "../" * len(from_dir.split("/")) + to_path
 
 def strip_extension(path):
   index = path.rfind(".")
