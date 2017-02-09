@@ -115,7 +115,7 @@ void _fail(String message, ProcessResult result) {
 ProcessResult _bazel(List<String> args, {int expectedExitCode: 0}) {
   var command = args.first;
 
-  var localArgs = [command, '--noshow_progress'];
+  var localArgs = ['--bazelrc=/dev/null', command, '--noshow_progress'];
   if (command != 'version') {
     localArgs.add('--spawn_strategy=standalone');
   }
