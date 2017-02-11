@@ -106,7 +106,8 @@ def codegen_action(
     input_provider=None,
     log_level="warning",
     generate_for=None,
-    use_summaries=True):
+    use_summaries=True,
+    use_resolver=True):
   """Runs a dart codegen action, see docs at the top of this file."""
   if not generate_for:
     generate_for = srcs
@@ -152,12 +153,14 @@ def codegen_action(
   arguments += ["--"]
 
   filtered_deps = set()
-  if input_provider:
-    for dep in ctx.attr.deps:
-      if hasattr(dep, input_provider):
-        filtered_deps += getattr(dep, input_provider).inputs
-  elif not use_summaries:
+  if not use_summaries and use_resolver:
     filtered_deps += ctx.files.deps
+  elif input_provider:
+    for dep in ctx.attr.deps:
+      if hasattr(dep, "dart_codegen"):
+        dep_srcs = dep.dart_codegen.srcs.get(input_provider)
+        if dep_srcs:
+          filtered_deps += dep_srcs
 
   filtered_deps += forced_deps
 

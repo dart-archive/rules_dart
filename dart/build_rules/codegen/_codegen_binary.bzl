@@ -31,6 +31,7 @@ def _codegen_binary_impl(ctx):
       runfiles = runfiles,
       dart_codegen_config = struct(
           use_summaries = ctx.attr.use_summaries,
+          use_resolver = ctx.attr.use_resolver,
       )
   )
 
@@ -44,6 +45,7 @@ _codegen_binary_attrs = {
     "builder_factories": attr.string_list(mandatory = True),
     "default_content": attr.string_dict(),
     "use_summaries": attr.bool(default = True),
+    "use_resolver": attr.bool(default = True),
     "data": attr.label_list(
         allow_files = True,
         cfg = "data",
@@ -127,6 +129,7 @@ def dart_codegen_binary(
       builder_factories = builder_factories,
       default_content = default_content,
       use_summaries = use_summaries,
+      use_resolver = use_resolver,
       data = data,
       **kwargs
   )

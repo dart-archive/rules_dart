@@ -8,7 +8,7 @@ def dart_codegen_rule(
     in_extension,
     out_extensions,
     generator_args = [],
-    aspects = [],
+    aspect = None,
     input_provider = ""):
   """Builds custom skylark rules scoped to a specific dart_codegen_binary.
 
@@ -23,18 +23,21 @@ def dart_codegen_rule(
       binary. These will be merged with the generator_args passed by callers of
       the created rule. If any arguments impact the file extensions created by
       the binary they must be included here.
-    aspects: Optional. If the generator will need to read files from targets
-      which are dependencies these aspects can collect them and make them
-      available.
-    input_provider: Optional. The name of the provider to use to get the list of
-      inputs for source_gen actions. This is typically a provider that is
-      returned by one of your aspects.
+    aspect: Optional. An Aspect created with `dart_codegen_aspect` to collect
+      extra source that need to be read within dependencies.
+    input_provider: Optiona. If an aspect is provided, this must match the name
+      used when creating it.
 
   Returns:
     A skylark rule which runs the provided Builders.
   """
 
   joined_out = ",".join(out_extensions)
+
+  if aspect:
+    aspects = [aspect]
+  else:
+    aspects = []
 
   return rule(
       implementation = _codegen_impl,
@@ -106,6 +109,7 @@ def _codegen_impl(ctx):
       log_level = ctx.attr.log_level,
       generate_for = ctx.files.generate_for,
       use_summaries = config.use_summaries,
+      use_resolver = config.use_resolver,
   )
 
   return struct(files=outs)
