@@ -4,7 +4,7 @@ def _matches_extension(f, extensions):
   for extension in extensions:
     if f.path.endswith(extension):
       return True
-  return False;
+  return False
 
 def _collect_by_extensions(attribute, extensions):
   files = [f for value in attribute for f in value.files]
