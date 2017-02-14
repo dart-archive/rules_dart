@@ -153,14 +153,14 @@ def codegen_action(
   arguments += ["--"]
 
   filtered_deps = set()
-  if not use_summaries and use_resolver:
-    filtered_deps += ctx.files.deps
-  elif input_provider:
+  if input_provider:
     for dep in ctx.attr.deps:
       if hasattr(dep, "dart_codegen"):
         dep_srcs = dep.dart_codegen.srcs.get(input_provider)
         if dep_srcs:
           filtered_deps += dep_srcs
+  elif not use_summaries:
+    filtered_deps += ctx.files.deps
 
   filtered_deps += forced_deps
 
