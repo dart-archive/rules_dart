@@ -12,180 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Internal implemenation utility functions for Dart rules.
+"""Internal implementation utility functions for Dart rules."""
 
-WARNING: NOT A PUBLIC API.
-
-This code is public only by virtue of the fact that Bazel does not yet support
-a mechanism for enforcing limitied visibility of Skylark rules. This code makes
-no gurantees of API stability and is intended solely for use by the Dart rules.
-"""
+# Re-exports for backwards compatibility.
+load(
+    "//dart/build_rules/common:constants.bzl",
+    "api_summary_extension",
+    "dart_filetypes",
+)
+load(
+    "//dart/build_rules/common:context.bzl",
+    "collect_dart_context",
+    "make_dart_context",
+)
+load(
+    "//dart/build_rules/common:ddc.bzl",
+    "compute_ddc_output_dir",
+)
+load(
+    "//dart/build_rules/common:label.bzl",
+    "label_to_dart_package_name",
+)
+load(
+    "//dart/build_rules/common:path.bzl",
+    "filter_files",
+    "relative_path",
+    "strip_extension",
+)
 
 SDK_SUMMARIES = "//dart/build_rules/ext:sdk_summaries"
 SDK_LIB_FILES = "//dart/build_rules/ext:lib_files"
-
-dart_filetypes = [".dart"]
-api_summary_extension = "api.ds"
-
-def label_to_dart_package_name(label):
-  """Returns the Dart package name for the specified label.
-
-  External packages resolve to their Pub package names.
-  All other packages resolve to a unique identifier based on their repo path.
-
-  Examples:
-    //foo/bar/baz:     -> foo.bar.baz
-    @package//:package -> package
-
-  Args:
-    label: the label whose package name is to be returned.
-
-  Returns:
-    The Dart package name associated with the label.
-  """
-  package_name = label.package
-  if label.workspace_root.startswith("external/"):
-    package_name = label.workspace_root[len("external/"):]
-  if "." in package_name:
-    fail("Dart package paths may not contain '.': " + label.package)
-  return package_name.replace("/", ".")
-
-def _new_dart_context(label,
-                      package,
-                      lib_root,
-                      srcs=None,
-                      dart_srcs=None,
-                      data=None,
-                      deps=None,
-                      strong_summary=None,
-                      transitive_srcs=None,
-                      transitive_dart_srcs=None,
-                      transitive_data=None,
-                      transitive_deps=None):
-  return struct(
-      label=label,
-      package=package,
-      lib_root=lib_root,
-      srcs=set(srcs or []),
-      dart_srcs=set(dart_srcs or []),
-      data=set(data or []),
-      deps=deps or [],
-      strong_summary=None,
-      transitive_srcs=set(transitive_srcs or []),
-      transitive_dart_srcs=set(transitive_dart_srcs or []),
-      transitive_data=set(transitive_data or []),
-      transitive_deps=dict(transitive_deps or {}),
-  )
-
-def make_dart_context(
-    ctx,
-    package = None,
-    lib_root = None,
-    srcs = None,
-    data = None,
-    deps = None,
-    pub_pkg_name = None,
-    strong_summary = None):
-  label = ctx.label
-  if not package:
-    if not pub_pkg_name:
-      package = label_to_dart_package_name(label)
-    else:
-      package = pub_pkg_name
-
-  if not lib_root:
-    lib_root = ""
-    if label.workspace_root.startswith("external/"):
-      lib_root += label.workspace_root[len("external/"):] + "/"
-
-    if label.package:
-      lib_root += label.package + "/"
-
-    lib_root += "lib/"
-
-  srcs = set(srcs or [])
-  dart_srcs = filter_files(dart_filetypes, srcs)
-  data = set(data or [])
-  deps = deps or []
-  transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps = (
-      collect_files(srcs, dart_srcs, data, deps))
-  return struct(
-      label=label,
-      package=package,
-      lib_root=lib_root,
-      srcs=srcs,
-      dart_srcs=dart_srcs,
-      data=data,
-      deps=deps,
-      strong_summary=strong_summary,
-      transitive_srcs=transitive_srcs,
-      transitive_dart_srcs=transitive_dart_srcs,
-      transitive_data=transitive_data,
-      transitive_deps=transitive_deps,
-  )
-
-def collect_files(srcs, dart_srcs, data, deps):
-  transitive_srcs = set()
-  transitive_dart_srcs = set()
-  transitive_data = set()
-  transitive_deps = {}
-  for dep in deps:
-    transitive_srcs += dep.dart.transitive_srcs
-    transitive_dart_srcs += dep.dart.transitive_dart_srcs
-    transitive_data += dep.dart.transitive_data
-    transitive_deps += dep.dart.transitive_deps
-    transitive_deps["%s" % dep.dart.label] = dep
-  transitive_srcs += srcs
-  transitive_dart_srcs += dart_srcs
-  transitive_data += data
-  return (transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps)
-
-def _merge_dart_context(dart_ctx1, dart_ctx2):
-  """Merges two dart contexts whose package and lib_root must be identical."""
-  if dart_ctx1.package != dart_ctx2.package:
-    fail("Incompatible packages: %s and %s" % (dart_ctx1.package,
-                                               dart_ctx2.package))
-  if dart_ctx1.lib_root != dart_ctx2.lib_root:
-    fail("Incompatible lib_roots for package %s:\n" % dart_ctx1.package +
-         "  %s declares: %s\n" % (dart_ctx1.label, dart_ctx1.lib_root) +
-         "  %s declares: %s\n" % (dart_ctx2.label, dart_ctx2.lib_root) +
-         "Targets in the same package must declare the same lib_root")
-
-  return _new_dart_context(
-      label=dart_ctx1.label,
-      package=dart_ctx1.package,
-      lib_root=dart_ctx1.lib_root,
-      srcs=dart_ctx1.srcs + dart_ctx2.srcs,
-      dart_srcs=dart_ctx1.dart_srcs + dart_ctx2.dart_srcs,
-      data=dart_ctx1.data + dart_ctx2.data,
-      deps=dart_ctx1.deps + dart_ctx2.deps,
-      strong_summary=dart_ctx1.strong_summary,
-      transitive_srcs=dart_ctx1.transitive_srcs + dart_ctx2.transitive_srcs,
-      transitive_dart_srcs=dart_ctx1.transitive_dart_srcs + dart_ctx2.transitive_dart_srcs,
-      transitive_data=dart_ctx1.transitive_data + dart_ctx2.transitive_data,
-      transitive_deps=dart_ctx1.transitive_deps + dart_ctx2.transitive_deps,
-  )
-
-def collect_dart_context(dart_ctx, transitive=True, include_self=True):
-  """Collects and returns dart contexts."""
-  # Collect direct or transitive deps.
-  dart_ctxs = [dart_ctx]
-  if transitive:
-    dart_ctxs += [d.dart for d in dart_ctx.transitive_deps.values()]
-  else:
-    dart_ctxs += [d.dart for d in dart_ctx.deps]
-
-  # Optionally, exclude all self-packages.
-  if not include_self:
-    dart_ctxs = [c for c in dart_ctxs if c.package != dart_ctx.package]
-
-  # Merge Dart context by package.
-  ctx_map = {}
-  for dc in dart_ctxs:
-    if dc.package in ctx_map:
-      dc = _merge_dart_context(ctx_map[dc.package], dc)
-    ctx_map[dc.package] = dc
-  return ctx_map
 
 def package_spec_action(ctx, dart_ctx, output):
   """Creates an action that generates a Dart package spec.
@@ -269,17 +125,6 @@ def has_dart_sources(srcs):
       return True
   return False
 
-def filter_files(filetypes, files):
-  """Filters a list of files based on a list of strings."""
-  filtered_files = []
-  for file_to_filter in files:
-    for filetype in filetypes:
-      if str(file_to_filter).endswith(filetype):
-        filtered_files.append(file_to_filter)
-        break
-
-  return filtered_files
-
 def make_package_uri(dart_ctx, short_path, prefix=""):
   if short_path.startswith("../"):
     short_path = short_path.replace("../","")
@@ -300,17 +145,3 @@ def compute_layout(srcs):
   for src_file in srcs:
     output_files[src_file.short_path] = src_file
   return output_files
-
-def relative_path(from_dir, to_path):
-  """Returns the relative path from a directory to a path via the repo root."""
-  if to_path.startswith("/") or from_dir.startswith("/"):
-    fail("Absolute paths are not supported.")
-  if not from_dir:
-    return to_path
-  return "../" * len(from_dir.split("/")) + to_path
-
-def strip_extension(path):
-  index = path.rfind(".")
-  if index == -1:
-    return path
-  return path[0:index]

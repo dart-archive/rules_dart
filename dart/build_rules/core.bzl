@@ -14,7 +14,7 @@
 
 """Dart rules shared across deployment platforms."""
 
-load("//dart/build_rules/internal:dart_library.bzl", "dart_library_impl", "dart_library_outputs")
+load("//dart/build_rules/internal:dart_library.bzl", "dart_library_impl")
 
 dart_library = rule(
     attrs = {
@@ -27,6 +27,7 @@ dart_library = rule(
             cfg = "data",
         ),
         "enable_ddc": attr.bool(default = True),
+        "enable_summaries": attr.bool(default = True),
         "pub_pkg_name": attr.string(default = ""),
         "deps": attr.label_list(providers = ["dart"]),
         "force_ddc_compile": attr.bool(default = False),
@@ -43,6 +44,5 @@ dart_library = rule(
             cfg = "host",
         ),
     },
-    outputs = dart_library_outputs,
     implementation = dart_library_impl,
 )

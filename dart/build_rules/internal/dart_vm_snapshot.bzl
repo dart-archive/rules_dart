@@ -53,7 +53,7 @@ def dart_vm_snapshot_impl(ctx):
       srcs = ctx.files.srcs,
       data = ctx.files.data,
       deps = ctx.attr.deps,
-      pub_pkg_name = ctx.attr.pub_pkg_name,
+      package = ctx.attr.pub_pkg_name,
   )
   dart_vm_snapshot_action(
       ctx=ctx,

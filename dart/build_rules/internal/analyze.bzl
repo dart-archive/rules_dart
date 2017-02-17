@@ -211,5 +211,13 @@ def analyze_action(ctx, dart_ctx, summary=None,
 
 def summary_action(ctx, dart_ctx):
   """Run the analyzer to create summaries."""
-  analyze_action(ctx, dart_ctx, summary=ctx.outputs.strong_summary,
-                 fail_on_error=False, strong=True)
+  # If a strong_summary is declared, we assume summaries are enabled.
+  if dart_ctx.strong_summary:
+    if not dart_ctx.dart_srcs:
+      ctx.file_action(
+          output=dart_ctx.strong_summary,
+          content=("// empty summary, package %s has no dart sources\n" %
+                   ctx.label.name))
+    else:
+      analyze_action(ctx, dart_ctx, summary=dart_ctx.strong_summary,
+                     fail_on_error=False, strong=True)

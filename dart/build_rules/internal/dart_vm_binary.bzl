@@ -30,7 +30,7 @@ def dart_vm_binary_action(
       srcs = srcs,
       data = data,
       deps = deps,
-      pub_pkg_name = pub_pkg_name)
+      package = pub_pkg_name)
 
   if snapshot:
     out_snapshot = ctx.new_file(ctx.label.name + ".snapshot")
