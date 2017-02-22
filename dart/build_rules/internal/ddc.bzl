@@ -73,7 +73,7 @@ def ddc_action(ctx, dart_ctx, ddc_output, source_map_output):
     flags += ["--bazel-mapping", "%s,/%s" % (f.path, f.path)]
     input_paths.append(normalized_path)
   # We normalized file:/// paths, so '/' corresponds to the top of google3.
-  flags += ["--build-root", "/"]
+  flags += ["--library-root", "/"]
   flags += ["--module-root", ddc_output.root.path]
   flags += ["--no-summarize"]
 

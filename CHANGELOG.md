@@ -1,3 +1,8 @@
+## 0.4.1
+
+* Upgrade to Dart 1.22
+* Allow generating files for external packages
+
 ## 0.4.0
 
 * Update to the way `vendor_` packages are handled. This is a breaking change
