@@ -29,6 +29,9 @@ def _tmp_file(ctx, file_suffix, lines):
   ctx.file_action(output=tmp_file, content="\n".join(lines))
   return tmp_file
 
+def _input_path(file):
+  return file.short_path.replace("../", "external/", 1)
+
 def _inputs_tmp_file(ctx, file_sequence, file_suffix):
   """Creates a file containing path information for files in file_sequence.
 
@@ -41,7 +44,7 @@ def _inputs_tmp_file(ctx, file_sequence, file_suffix):
   Returns:
     A File with the paths of each file in file_sequence.
   """
-  paths = [f.short_path for f in file_sequence]
+  paths = [_input_path(f) for f in file_sequence]
   return _tmp_file(ctx, file_suffix, paths)
 
 def _package_map_tmp_file(ctx, dart_context):
