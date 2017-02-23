@@ -47,7 +47,6 @@ def dart_codegen_rule(
           "srcs": attr.label_list(allow_files = True),
           "generate_for": attr.label_list(allow_files = True),
           "generator_args": attr.string_list(),
-          "log_level": attr.string(default = "warning"),
           "in_extension": attr.string(
               default = in_extension,
               values = [in_extension],
@@ -97,6 +96,10 @@ def _codegen_impl(ctx):
   config = ctx.attr._generator.dart_codegen_config
   generator_args = ctx.attr.generator_args + ctx.attr._forced_generator_args
 
+  log_level = "warning"
+  if "DART_CODEGEN_LOG_LEVEL" in ctx.var:
+    log_level = ctx.var["DART_CODEGEN_LOG_LEVEL"]
+
   outs = codegen_action(
       ctx,
       ctx.files.srcs,
@@ -106,7 +109,7 @@ def _codegen_impl(ctx):
       forced_deps = ctx.files.forced_deps,
       generator_args = generator_args,
       input_provider = ctx.attr._input_provider,
-      log_level = ctx.attr.log_level,
+      log_level = log_level,
       generate_for = ctx.files.generate_for,
       use_summaries = config.use_summaries,
       use_resolver = config.use_resolver,
