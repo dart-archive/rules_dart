@@ -2,6 +2,8 @@
 
 * Add flag `--define=DART_CODEGEN_ASYNC_STACK_TRACE=` for use when debugging
   exceptions in a `Builder`
+* Correct a case where use_summaries was not correctly defaulted when
+  use_resolver was passed a `select`.
 
 ## 0.4.1
 

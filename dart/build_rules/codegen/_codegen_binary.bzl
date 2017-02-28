@@ -27,10 +27,16 @@ def _codegen_binary_impl(ctx):
       ctx.attr.deps + [ctx.attr._codegen_dep],
       data = ctx.files.data,
   )
+
+  use_summaries = ctx.attr.use_summaries
+  # Redo default in case the macro did not have a real value for use_resolver
+  if not ctx.attr.use_resolver:
+    use_summaries = False
+
   return struct(
       runfiles = runfiles,
       dart_codegen_config = struct(
-          use_summaries = ctx.attr.use_summaries,
+          use_summaries = use_summaries,
           use_resolver = ctx.attr.use_resolver,
       )
   )
