@@ -196,11 +196,16 @@ def codegen_action(
 
   arguments += generator_args
 
-  # When running as a worker, we put all the args in a separate file
+  # Bazel requires worker args in a separate file
   args_file = _tmp_file(ctx, "args", arguments)
   extra_inputs.append(args_file)
-  # Without this, the worker doesn't actually run.
-  arguments = ["@%s" % args_file.path]
+
+  if "DART_CODEGEN_ASYNC_STACK_TRACE" in ctx.var:
+    arguments = ["--async-stack-trace"]
+  else:
+    arguments = []
+
+  arguments += ["@%s" % args_file.path]
 
   inputs = set()
   inputs += srcs

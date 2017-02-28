@@ -1,3 +1,8 @@
+## 0.4.2-dev
+
+* Add flag `--define=DART_CODEGEN_ASYNC_STACK_TRACE=` for use when debugging
+  exceptions in a `Builder`
+
 ## 0.4.1
 
 * Upgrade to Dart 1.22
