@@ -1,101 +1,13 @@
 load("//dart/build_rules/internal:pub.bzl", "pub_repository")
+load("//dart/build_rules/internal:sdk.bzl", "sdk_repository")
 
 """Required Repositories for Dart Build Rules."""
 
 def dart_repositories():
-  _sdk_repositories()
+  sdk_repository(
+      name = "dart_sdk",
+  )
   _pub_repositories()
-
-_DART_SDK_BUILD_FILE = """
-package(default_visibility = [ "//visibility:public" ])
-
-filegroup(
-  name = "dart_vm",
-  srcs = ["dart-sdk/bin/dart"],
-)
-
-filegroup(
-  name = "analyzer",
-  srcs = ["dart-sdk/bin/dartanalyzer"],
-)
-
-filegroup(
-  name = "dart2js",
-  srcs = ["dart-sdk/bin/dart2js"],
-)
-
-filegroup(
-  name = "dart2js_support",
-  srcs = glob([
-      "dart-sdk/bin/dart",
-      "dart-sdk/bin/snapshots/dart2js.dart.snapshot",
-      "dart-sdk/lib/**",
-  ]),
-)
-
-filegroup(
-  name = "dev_compiler",
-  srcs = ["dart-sdk/bin/dartdevc"],
-)
-
-filegroup(
-    name = "ddc_support",
-    srcs = glob(["dart-sdk/lib/dev_compiler/legacy/*.*"]),
-)
-
-filegroup(
-  name = "pub",
-  srcs = ["dart-sdk/bin/pub"],
-)
-
-filegroup(
-  name = "pub_support",
-  srcs = glob([
-      "dart-sdk/version",
-      "dart-sdk/bin/dart",
-      "dart-sdk/bin/snapshots/pub.dart.snapshot",
-  ]),
-)
-
-filegroup(
-  name = "sdk_summaries",
-  srcs = ["dart-sdk/lib/_internal/strong.sum"],
-)
-
-filegroup(
-    name = "lib_files_no_summaries",
-    srcs = glob([
-        "dart-sdk/lib/**/*.dart",
-        "dart-sdk/lib/dart_client.platform",
-        "dart-sdk/lib/dart_shared.platform",
-        "dart-sdk/version",
-    ]),
-)
-
-filegroup(
-    name = "lib_files",
-    srcs = glob([
-        ":lib_files_no_summaries",
-        ":sdk_summaries",
-    ]),
-)
-
-"""
-
-def _sdk_repositories():
-  native.new_http_archive(
-      name = "dart_linux_x86_64",
-      url = "https://storage.googleapis.com/dart-archive/channels/stable/release/1.22.0/sdk/dartsdk-linux-x64-release.zip",
-      sha256 = "f474bdd9f9bbd5811f53ef07ad8109cf0abab58a9438ac3663ef41e8d741a694",
-      build_file_content = _DART_SDK_BUILD_FILE,
-  )
-
-  native.new_http_archive(
-      name = "dart_darwin_x86_64",
-      url = "https://storage.googleapis.com/dart-archive/channels/stable/release/1.22.0/sdk/dartsdk-macos-x64-release.zip",
-      sha256 = "6f5e3ddfa32666f72392b985b78a7ccc8c507285c6d9ce59bdadd58de45ef343",
-      build_file_content = _DART_SDK_BUILD_FILE,
-  )
 
 def _pub_repositories():
   pub_repository(

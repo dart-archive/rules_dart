@@ -34,12 +34,12 @@ dart_library = rule(
         "license_files": attr.label_list(allow_files = True),
         "web_exclude_srcs": attr.label_list(allow_files = True),
         "_analyzer": attr.label(
-            default = Label("//dart/build_rules/ext:dart_analyzer"),
+            default = Label("@dart_sdk//:analyzer"),
             executable = True,
             cfg = "host",
         ),
         "_dev_compiler": attr.label(
-            default = Label("//dart/build_rules/ext:dev_compiler"),
+            default = Label("@dart_sdk//:dev_compiler"),
             executable = True,
             cfg = "host",
         ),

@@ -52,11 +52,11 @@ dart_web_application = rule(
             single_file = True,
             executable = True,
             cfg = "host",
-            default = Label("//dart/build_rules/ext:dart2js"),
+            default = Label("@dart_sdk//:dart2js"),
         ),
         "_dart2js_support": attr.label(
             allow_files = True,
-            default = Label("//dart/build_rules/ext:dart2js_support"),
+            default = Label("@dart_sdk//:dart2js_support"),
         ),
         "_dart2js_helper": attr.label(
             allow_files = True,
@@ -92,10 +92,10 @@ dart_ddc_bundle = rule(
           default = Label("//dart/tools/ddc_html_generator"),
       ),
       "_ddc_support": attr.label(
-          default = Label("//dart/build_rules/ext:ddc_support"),
+          default = Label("@dart_sdk//:ddc_support"),
       ),
       "_sdk_summaries": attr.label(
-          default = Label("//dart/build_rules/ext:sdk_summaries"),
+          default = Label("@dart_sdk//:sdk_summaries"),
       ),
       "_js_pkg": attr.label(
           default = Label("@vendor_js//:js"),

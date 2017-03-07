@@ -40,8 +40,8 @@ load(
     "strip_extension",
 )
 
-SDK_SUMMARIES = "//dart/build_rules/ext:sdk_summaries"
-SDK_LIB_FILES = "//dart/build_rules/ext:lib_files"
+SDK_SUMMARIES = "@dart_sdk//:sdk_summaries"
+SDK_LIB_FILES = "@dart_sdk//:lib_files"
 
 def package_spec_action(ctx, dart_ctx, output):
   """Creates an action that generates a Dart package spec.

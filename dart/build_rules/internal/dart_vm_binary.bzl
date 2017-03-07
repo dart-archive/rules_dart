@@ -89,7 +89,7 @@ _default_binary_attrs = {
         single_file = True,
         executable = True,
         cfg = "host",
-        default = Label("//dart/build_rules/ext:dart_vm"),
+        default = Label("@dart_sdk//:dart_vm"),
     ),
     "_entrypoint_template": attr.label(
         single_file = True,
