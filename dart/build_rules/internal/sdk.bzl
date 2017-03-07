@@ -13,69 +13,69 @@
 # limitations under the License.
 """A repository rule to download the Dart SDK."""
 
-_BUILD_FILE = """
+SDK_BUILD_FILE = """
 package(default_visibility = [ "//visibility:public" ])
 
 filegroup(
   name = "dart_vm",
-  srcs = ["dart-sdk/bin/dart"],
+  srcs = ["bin/dart"],
 )
 
 filegroup(
   name = "analyzer",
-  srcs = ["dart-sdk/bin/dartanalyzer"],
+  srcs = ["bin/dartanalyzer"],
 )
 
 filegroup(
   name = "dart2js",
-  srcs = ["dart-sdk/bin/dart2js"],
+  srcs = ["bin/dart2js"],
 )
 
 filegroup(
   name = "dart2js_support",
   srcs = glob([
-      "dart-sdk/bin/dart",
-      "dart-sdk/bin/snapshots/dart2js.dart.snapshot",
-      "dart-sdk/lib/**",
+      "bin/dart",
+      "bin/snapshots/dart2js.dart.snapshot",
+      "lib/**",
   ]),
 )
 
 filegroup(
   name = "dev_compiler",
-  srcs = ["dart-sdk/bin/dartdevc"],
+  srcs = ["bin/dartdevc"],
 )
 
 filegroup(
     name = "ddc_support",
-    srcs = glob(["dart-sdk/lib/dev_compiler/legacy/*.*"]),
+    srcs = glob(["lib/dev_compiler/legacy/*.*"]),
 )
 
 filegroup(
   name = "pub",
-  srcs = ["dart-sdk/bin/pub"],
+  srcs = ["bin/pub"],
 )
 
 filegroup(
   name = "pub_support",
   srcs = glob([
-      "dart-sdk/version",
-      "dart-sdk/bin/dart",
-      "dart-sdk/bin/snapshots/pub.dart.snapshot",
+      "version",
+      "bin/dart",
+      "bin/snapshots/pub.dart.snapshot",
   ]),
 )
 
 filegroup(
   name = "sdk_summaries",
-  srcs = ["dart-sdk/lib/_internal/strong.sum"],
+  srcs = ["lib/_internal/strong.sum"],
 )
 
 filegroup(
     name = "lib_files_no_summaries",
     srcs = glob([
-        "dart-sdk/lib/**/*.dart",
-        "dart-sdk/lib/dart_client.platform",
-        "dart-sdk/lib/dart_shared.platform",
-        "dart-sdk/version",
+        "lib/**/*.dart",
+        "lib/dart_client.platform",
+        "lib/dart_shared.platform",
+        "version",
     ]),
 )
 
@@ -117,8 +117,9 @@ def _sdk_repository_impl(repository_ctx):
   repository_ctx.download_and_extract(
       url = "%s/%s/sdk/%s" % (_hosted_prefix, _version, file_name),
       sha256 = sha,
+      stripPrefix = "dart-sdk/",
   )
-  repository_ctx.file("BUILD", _BUILD_FILE)
+  repository_ctx.file("BUILD", SDK_BUILD_FILE)
 
 sdk_repository = repository_rule(
     implementation = _sdk_repository_impl,

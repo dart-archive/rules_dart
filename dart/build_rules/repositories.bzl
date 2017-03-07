@@ -1,12 +1,19 @@
 load("//dart/build_rules/internal:pub.bzl", "pub_repository")
-load("//dart/build_rules/internal:sdk.bzl", "sdk_repository")
+load("//dart/build_rules/internal:sdk.bzl", "sdk_repository", "SDK_BUILD_FILE")
 
 """Required Repositories for Dart Build Rules."""
 
-def dart_repositories():
-  sdk_repository(
-      name = "dart_sdk",
-  )
+def dart_repositories(local_sdk = None):
+  if local_sdk:
+    native.new_local_repository(
+        name = "dart_sdk",
+        path = local_sdk,
+        build_file_content = SDK_BUILD_FILE,
+    )
+  else:
+    sdk_repository(
+        name = "dart_sdk",
+    )
   _pub_repositories()
 
 def _pub_repositories():

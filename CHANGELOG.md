@@ -1,9 +1,11 @@
-## 0.4.2-dev
+## 0.4.2
 
 * Add flag `--define=DART_CODEGEN_ASYNC_STACK_TRACE=` for use when debugging
   exceptions in a `Builder`
 * Correct a case where use_summaries was not correctly defaulted when
   use_resolver was passed a `select`.
+* Add a local_sdk argument to dart_repositories to allow overriding the SDK
+  download
 
 ## 0.4.1
 
