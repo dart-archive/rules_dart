@@ -20,18 +20,21 @@ def _script_action(ctx):
 def _codegen_binary_impl(ctx):
   _script_action(ctx)
 
+  use_summaries = ctx.attr.use_summaries
+  if not ctx.attr.use_resolver:
+    use_summaries = False
+
+  data = set()
+  if ctx.attr.use_resolver and not use_summaries:
+    data = ctx.files._sdk_lib_files
+
   runfiles = dart_vm.binary_action(
       ctx,
       ctx.outputs.script_file,
       ctx.files.srcs + [ctx.outputs.script_file],
       ctx.attr.deps + [ctx.attr._codegen_dep],
-      data = ctx.files.data,
+      data = data,
   )
-
-  use_summaries = ctx.attr.use_summaries
-  # Redo default in case the macro did not have a real value for use_resolver
-  if not ctx.attr.use_resolver:
-    use_summaries = False
 
   return struct(
       runfiles = runfiles,
@@ -52,15 +55,15 @@ _codegen_binary_attrs = {
     "default_content": attr.string_dict(),
     "use_summaries": attr.bool(default = True),
     "use_resolver": attr.bool(default = True),
-    "data": attr.label_list(
-        allow_files = True,
-        cfg = "data",
-    ),
     "_codegen_dep": attr.label(default = labels.package),
     "_template_file": attr.label(
         default = labels.template,
         allow_files = True,
         single_file = True,
+    ),
+    "_sdk_lib_files": attr.label(
+        default = Label(SDK_LIB_FILES),
+        allow_files = True,
     ),
 }
 
@@ -118,15 +121,6 @@ def dart_codegen_binary(
       contents for that file. If the builders fail to output a file this value
       will be output instead.
   """
-  if not use_resolver:
-    # Summary files wouldn't be read
-    use_summaries = False
-
-  data = []
-  if not use_summaries and use_resolver:
-    # BarbackResolver needs sdk directory
-    data = [SDK_LIB_FILES]
-
   _codegen_binary(
       name = name,
       srcs = srcs,
@@ -136,6 +130,5 @@ def dart_codegen_binary(
       default_content = default_content,
       use_summaries = use_summaries,
       use_resolver = use_resolver,
-      data = data,
       **kwargs
   )

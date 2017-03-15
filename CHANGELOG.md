@@ -1,3 +1,7 @@
+## 0.4.3-dev
+
+* Bug Fix: Allow `select` as argument to use_resolver in dart_codegen_binary
+
 ## 0.4.2
 
 * Add flag `--define=DART_CODEGEN_ASYNC_STACK_TRACE=` for use when debugging
