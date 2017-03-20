@@ -89,13 +89,13 @@ filegroup(
 
 """
 
-_hosted_prefix = "https://storage.googleapis.com/dart-archive/channels/stable/release"
+_hosted_prefix = "https://storage.googleapis.com/dart-archive/channels/dev/release"
 _linux_file = "dartsdk-linux-x64-release.zip"
 _mac_file = "dartsdk-macos-x64-release.zip"
 
-_version = "1.22.0"
-_linux_sha = "f474bdd9f9bbd5811f53ef07ad8109cf0abab58a9438ac3663ef41e8d741a694"
-_mac_sha = "6f5e3ddfa32666f72392b985b78a7ccc8c507285c6d9ce59bdadd58de45ef343"
+_version = "1.23.0-dev.9.0"
+_linux_sha = "a0a3a066c112743bd4aba4b3f2637dc341fcc551050f1751bb36674605ebe97e"
+_mac_sha = "786f9fad414d9ea0e595748bd958e16f87541f5e739b10108a0a9e8cfcab64d7"
 
 
 def _sdk_repository_impl(repository_ctx):

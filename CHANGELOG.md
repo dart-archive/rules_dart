@@ -1,6 +1,7 @@
 ## 0.4.3-dev
 
 * Bug Fix: Allow `select` as argument to use_resolver in dart_codegen_binary
+* Bug Fix: Update to latest dev sdk to get an analyzer worker mode fix.
 
 ## 0.4.2
 
