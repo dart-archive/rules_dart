@@ -32,8 +32,6 @@ def dart_codegen_rule(
     A skylark rule which runs the provided Builders.
   """
 
-  joined_out = ",".join(out_extensions)
-
   if aspect:
     aspects = [aspect]
   else:
@@ -47,13 +45,11 @@ def dart_codegen_rule(
           "srcs": attr.label_list(allow_files = True),
           "generate_for": attr.label_list(allow_files = True),
           "generator_args": attr.string_list(),
-          "in_extension": attr.string(
+          "_in_extension": attr.string(
               default = in_extension,
-              values = [in_extension],
           ),
-          "out_extensions": attr.string(
-              default = joined_out,
-              values = [joined_out],
+          "_out_extensions": attr.string_list(
+              default = out_extensions,
           ),
           "_input_provider": attr.string(default = input_provider),
           "_generator": attr.label(
@@ -71,21 +67,20 @@ def dart_codegen_rule(
       outputs = _compute_outs,
   )
 
-def _compute_outs(in_extension, out_extensions, srcs, generate_for):
+def _compute_outs(_in_extension, _out_extensions, srcs, generate_for):
   if not srcs and not generate_for:
     fail("either `srcs` or `generate_for` must not be empty")
-  if not out_extensions:
-    fail("must not be empty", attr="out_extensions")
+  if not _out_extensions:
+    fail("must not be empty", attr="_out_extensions")
 
   if not generate_for:
     generate_for = srcs
 
-  split_out = out_extensions.split(",")
   outs = {}
   for label in generate_for:
-    if label.name.endswith(in_extension):
-      for ext in split_out:
-        out_name = "%s%s" % (label.name[:-1 * len(in_extension)], ext)
+    if label.name.endswith(_in_extension):
+      for ext in _out_extensions:
+        out_name = "%s%s" % (label.name[:-1 * len(_in_extension)], ext)
         outs[out_name] = out_name
   return outs
 
@@ -103,8 +98,8 @@ def _codegen_impl(ctx):
   outs = codegen_action(
       ctx,
       ctx.files.srcs,
-      ctx.attr.in_extension,
-      ctx.attr.out_extensions.split(","),
+      ctx.attr._in_extension,
+      ctx.attr._out_extensions,
       ctx.executable._generator,
       forced_deps = ctx.files.forced_deps,
       generator_args = generator_args,

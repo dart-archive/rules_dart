@@ -1,3 +1,8 @@
+## 0.4.4
+
+* Disallow overriding extensions at usage of codegen rules. Extension behavior
+  is an attribute of the codegen_binary.
+
 ## 0.4.3
 
 * Bug Fix: Allow `select` as argument to use_resolver in dart_codegen_binary
