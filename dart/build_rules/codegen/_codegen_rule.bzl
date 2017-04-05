@@ -95,13 +95,22 @@ def _codegen_impl(ctx):
   if "DART_CODEGEN_LOG_LEVEL" in ctx.var:
     log_level = ctx.var["DART_CODEGEN_LOG_LEVEL"]
 
+
+  forced_dep_files = set()
+  for dep in ctx.attr.forced_deps:
+    if hasattr(dep, "dart"):
+      forced_dep_files += dep.dart.srcs
+      forced_dep_files += dep.dart.data
+    else:
+      forced_dep_files += dep.files
+
   outs = codegen_action(
       ctx,
       ctx.files.srcs,
       ctx.attr._in_extension,
       ctx.attr._out_extensions,
       ctx.executable._generator,
-      forced_deps = ctx.files.forced_deps,
+      forced_deps = forced_dep_files,
       generator_args = generator_args,
       input_provider = ctx.attr._input_provider,
       log_level = log_level,

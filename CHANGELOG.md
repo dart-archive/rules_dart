@@ -1,3 +1,8 @@
+## 0.4.5
+
+* Don't include transitive srcs from targets with the "dart" provider in the
+  forced_deps argument of codegen rules.
+
 ## 0.4.4
 
 * Disallow overriding extensions at usage of codegen rules. Extension behavior
