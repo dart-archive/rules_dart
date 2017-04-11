@@ -183,6 +183,14 @@ def codegen_action(
     sdk_summary = [f for f in ctx.files._sdk if f.path.endswith("strong.sum")][0]
     arguments += ["--dart-sdk-summary=%s" % sdk_summary.path]
 
+    # Files that have a relative import need to be reachable via an 'asset:' uri
+    local_deps = [dep for dep in dart_context.transitive_deps.values()
+                  if dep.dart.package  == dart_context.package]
+    non_lib_srcs = [src for dep in local_deps for src in dep.dart.srcs
+                    if not src.short_path.startswith(dep.dart.lib_root)
+                    and src.short_path.startswith(ctx.label.package)]
+    srcs += non_lib_srcs
+
     all_srcs = set([])
     all_srcs += srcs
     all_srcs += generate_for

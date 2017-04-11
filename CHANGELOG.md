@@ -1,3 +1,8 @@
+## 0.4.6
+
+* Include non-lib srcs from dependencies in the same package as inputs during
+  codegen with summaries.
+
 ## 0.4.5
 
 * Don't include transitive srcs from targets with the "dart" provider in the
