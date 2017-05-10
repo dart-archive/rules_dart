@@ -1,3 +1,7 @@
+## 0.4.7
+
+* Add support for build time --define arguments to codegen binaries
+
 ## 0.4.6
 
 * Include non-lib srcs from dependencies in the same package as inputs during

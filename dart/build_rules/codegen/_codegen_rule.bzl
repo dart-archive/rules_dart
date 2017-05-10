@@ -8,6 +8,7 @@ def dart_codegen_rule(
     in_extension,
     out_extensions,
     generator_args = [],
+    arg_prefix = "",
     aspect = None,
     input_provider = ""):
   """Builds custom skylark rules scoped to a specific dart_codegen_binary.
@@ -58,7 +59,8 @@ def dart_codegen_rule(
               default = Label(codegen_binary),
               providers = ["dart_codegen_config"],
           ),
-          "_forced_generator_args": attr.string_list(default=generator_args),
+          "_default_generator_args": attr.string_list(default=generator_args),
+          "_arg_prefix": attr.string(default = arg_prefix),
           "_sdk": attr.label(
               default = Label(SDK_SUMMARIES),
               allow_files = True,
@@ -89,7 +91,7 @@ def _codegen_impl(ctx):
     fail("Must provide either `srcs` or `generate_for`")
 
   config = ctx.attr._generator.dart_codegen_config
-  generator_args = ctx.attr.generator_args + ctx.attr._forced_generator_args
+  generator_args = ctx.attr._default_generator_args + ctx.attr.generator_args
 
   log_level = "warning"
   if "DART_CODEGEN_LOG_LEVEL" in ctx.var:
@@ -112,6 +114,7 @@ def _codegen_impl(ctx):
       ctx.executable._generator,
       forced_deps = forced_dep_files,
       generator_args = generator_args,
+      arg_prefix = ctx.attr._arg_prefix,
       input_provider = ctx.attr._input_provider,
       log_level = log_level,
       generate_for = ctx.files.generate_for,

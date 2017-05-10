@@ -106,6 +106,7 @@ def codegen_action(
     generator_binary,
     forced_deps=None,
     generator_args=None,
+    arg_prefix=None,
     input_provider=None,
     log_level="warning",
     generate_for=None,
@@ -203,6 +204,12 @@ def codegen_action(
     ]
 
   arguments += generator_args
+  if arg_prefix:
+    codegen_arg_key = "%s_CODEGEN_ARGS" % arg_prefix
+    if codegen_arg_key in ctx.var:
+      define_args = ctx.var[codegen_arg_key]
+      if define_args:
+        arguments += ["--%s" % arg for arg in define_args.split(",")]
 
   # Bazel requires worker args in a separate file
   args_file = _tmp_file(ctx, "args", arguments)
