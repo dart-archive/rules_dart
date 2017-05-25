@@ -2,6 +2,7 @@
 
 load(
     "//dart/build_rules/common:constants.bzl",
+    "analysis_extension",
     "api_summary_extension",
     "dart_filetypes",
 )
@@ -43,11 +44,29 @@ def make_dart_context(
     package = None,
     lib_root = None,
     enable_summaries = False,
+    enable_analysis = False,
+    checks = None,
     srcs = None,
     data = None,
     deps = None,
     license_files = []):
-  """Creates a dart context for a target."""
+  """Creates a dart context for a target.
+
+  Args:
+    ctx: The target context.
+    package: The dart package name.
+    lib_root: The lib folder for the package.
+    enable_summaries: Whether to generate analyzer summaries.
+    enable_analysis: Whether to generate analyzer output.
+    checks: A file for post-processed analyzer output.
+    srcs: Source files.
+    data: Data files.
+    deps: Dart library dependencies.
+    license_files: License files associated with the target.
+
+  Returns:
+    The dart context; a struct.
+  """
   label = ctx.label
   if not package:
     package = label_to_dart_package_name(label)
@@ -66,8 +85,14 @@ def make_dart_context(
   deps = deps or []
   transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps = (
       _collect_files(srcs, dart_srcs, data, deps))
+  strong_analysis = None
   strong_summary = None
   if enable_summaries:
+    if enable_analysis:
+      strong_analysis = ctx.new_file("%s%s.%s" % (
+          compute_ddc_output_dir(label, dart_srcs),
+          label.name,
+          analysis_extension))
     strong_summary = ctx.new_file("%s%s.%s" % (
         compute_ddc_output_dir(label, dart_srcs),
         label.name,
@@ -77,6 +102,8 @@ def make_dart_context(
       package=package,
       lib_root=lib_root,
       strong_summary=strong_summary,
+      strong_analysis=strong_analysis,
+      checks=checks,
       srcs=srcs,
       dart_srcs=dart_srcs,
       data=data,
@@ -119,7 +146,11 @@ def _merge_dart_context(dart_ctx1, dart_ctx2):
       label = dart_ctx1.label,
       package = dart_ctx1.package,
       lib_root = dart_ctx1.lib_root,
+      # TODO(davidmorgan): are these three fields ever used when merged? May be
+      # better to just drop them.
       strong_summary = dart_ctx1.strong_summary,
+      strong_analysis = dart_ctx1.strong_analysis,
+      checks = dart_ctx1.checks,
       srcs = dart_ctx1.srcs + dart_ctx2.srcs,
       dart_srcs = dart_ctx1.dart_srcs + dart_ctx2.dart_srcs,
       data = dart_ctx1.data + dart_ctx2.data,
@@ -136,6 +167,8 @@ def _new_dart_context(
     package,
     lib_root,
     strong_summary = None,
+    strong_analysis = None,
+    checks = None,
     srcs = None,
     dart_srcs = None,
     data = None,
@@ -150,6 +183,8 @@ def _new_dart_context(
       package = package,
       lib_root = lib_root,
       strong_summary = strong_summary,
+      strong_analysis = strong_analysis,
+      checks = checks,
       srcs = set(srcs or []),
       dart_srcs = set(dart_srcs or []),
       data = set(data or []),

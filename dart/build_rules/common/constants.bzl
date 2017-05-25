@@ -2,3 +2,4 @@
 
 dart_filetypes = [".dart"]
 api_summary_extension = "api.ds"
+analysis_extension = "analysis"
