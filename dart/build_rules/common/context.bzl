@@ -18,6 +18,10 @@ load(
     "//dart/build_rules/common:path.bzl",
     "filter_files",
 )
+load(
+    "//dart/build_rules/common:_archive.bzl",
+    "create_archive",
+)
 
 def collect_dart_context(dart_ctx, transitive = True, include_self = True):
   """Collect direct or transitive deps in a map, merging contexts as needed."""
@@ -83,8 +87,14 @@ def make_dart_context(
   dart_srcs = filter_files(dart_filetypes, srcs)
   data = set(data or [])
   deps = deps or []
-  transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps = (
-      _collect_files(srcs, dart_srcs, data, deps))
+  archive_srcs = list(srcs + data)
+
+  archive = None
+  if archive_srcs:
+    archive = create_archive(ctx, archive_srcs, ctx.label)
+
+  transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps, transitive_archives = (
+      _collect_files(srcs, dart_srcs, data, deps, archive))
   strong_analysis = None
   strong_summary = None
   if enable_summaries:
@@ -113,23 +123,29 @@ def make_dart_context(
       transitive_dart_srcs = transitive_dart_srcs,
       transitive_data = transitive_data,
       transitive_deps = transitive_deps,
+      archive=archive,
+      transitive_archives=transitive_archives
   )
 
-def _collect_files(srcs, dart_srcs, data, deps):
+def _collect_files(srcs, dart_srcs, data, deps, archive):
   transitive_srcs = set()
   transitive_dart_srcs = set()
   transitive_data = set()
   transitive_deps = {}
+  transitive_archives = set()
   for dep in deps:
     transitive_srcs += dep.dart.transitive_srcs
     transitive_dart_srcs += dep.dart.transitive_dart_srcs
     transitive_data += dep.dart.transitive_data
     transitive_deps += dep.dart.transitive_deps
     transitive_deps["%s" % dep.dart.label] = dep
+    transitive_archives += dep.dart.transitive_archives
   transitive_srcs += srcs
   transitive_dart_srcs += dart_srcs
   transitive_data += data
-  return (transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps)
+  if archive:
+    transitive_archives += [archive]
+  return (transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps, transitive_archives)
 
 def _merge_dart_context(dart_ctx1, dart_ctx2):
   """Merges dart contexts, or fails if they are incompatible."""

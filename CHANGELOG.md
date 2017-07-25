@@ -1,3 +1,7 @@
+## 0.4.8
+
+* Add utilities for Dart archives. 
+
 ## 0.4.7
 
 * Add support for build time --define arguments to codegen binaries
