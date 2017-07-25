@@ -27,7 +27,7 @@ def create_archive(ctx, srcs, label):
           "export ARCHIVE_DIR=$(mktemp -d)",
           "bash %s" % tmp_file.path,
           "cd $ARCHIVE_DIR",
-          "tar -chzf temp_tar.tar *",
+          "tar -chf temp_tar.tar *",
           "cd $WORKSPACE",
           "cp $ARCHIVE_DIR/temp_tar.tar %s" % tar_file.path]),
       progress_message="Creating Dart archive")

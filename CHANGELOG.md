@@ -1,3 +1,8 @@
+## 0.4.9
+
+* Don't gzip Dart archives.
+* Explicitly use filename when filtering files.
+
 ## 0.4.8
 
 * Add utilities for Dart archives. 
