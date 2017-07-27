@@ -87,7 +87,7 @@ def make_dart_context(
   dart_srcs = filter_files(dart_filetypes, srcs)
   data = set(data or [])
   deps = deps or []
-  archive_srcs = list(srcs + data)
+  archive_srcs = list(srcs)
 
   archive = None
   if archive_srcs:

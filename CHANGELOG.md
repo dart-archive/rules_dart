@@ -1,3 +1,7 @@
+## 0.4.10-dev
+
+* Only add srcs to Dart archives.
+
 ## 0.4.9
 
 * Don't gzip Dart archives.
