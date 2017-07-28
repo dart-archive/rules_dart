@@ -96,13 +96,13 @@ def make_dart_context(
   transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps, transitive_archives = (
       _collect_files(srcs, dart_srcs, data, deps, archive))
   strong_analysis = None
+  if enable_analysis:
+    strong_analysis = ctx.new_file("%s%s.%s" % (
+        compute_ddc_output_dir(label, dart_srcs),
+        label.name,
+        analysis_extension))
   strong_summary = None
   if enable_summaries:
-    if enable_analysis:
-      strong_analysis = ctx.new_file("%s%s.%s" % (
-          compute_ddc_output_dir(label, dart_srcs),
-          label.name,
-          analysis_extension))
     strong_summary = ctx.new_file("%s%s.%s" % (
         compute_ddc_output_dir(label, dart_srcs),
         label.name,
