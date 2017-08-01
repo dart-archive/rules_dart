@@ -51,6 +51,7 @@ def make_dart_context(
     enable_analysis = False,
     checks = None,
     srcs = None,
+    outline_srcs = None,
     data = None,
     deps = None,
     license_files = []):
@@ -64,6 +65,9 @@ def make_dart_context(
     enable_analysis: Whether to generate analyzer output.
     checks: A file for post-processed analyzer output.
     srcs: Source files.
+    outline_srcs: Source files with possibly incomplete implementations but full
+      api outlines. These are intended for use when generating summaries only.
+      Defaults to `srcs` if not provided.
     data: Data files.
     deps: Dart library dependencies.
     license_files: License files associated with the target.
@@ -84,6 +88,7 @@ def make_dart_context(
     lib_root += "lib/"
 
   srcs = set(srcs or [])
+  outline_srcs = set(outline_srcs or srcs)
   dart_srcs = filter_files(dart_filetypes, srcs)
   data = set(data or [])
   deps = deps or []
@@ -115,6 +120,7 @@ def make_dart_context(
       strong_analysis=strong_analysis,
       checks=checks,
       srcs=srcs,
+      outline_srcs=outline_srcs,
       dart_srcs=dart_srcs,
       data=data,
       deps=deps,

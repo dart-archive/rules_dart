@@ -10,6 +10,10 @@ load(
     "label_to_dart_package_name",
     "make_dart_context",
 )
+load(
+    "//dart/build_rules/common:constants.bzl",
+    "codegen_outline_extension",
+)
 
 def _tmp_file(ctx, file_suffix, lines):
   """Creates a file named after the ctx label containing lines.
@@ -47,12 +51,13 @@ def _inputs_tmp_file(ctx, file_sequence, file_suffix):
   paths = [_input_path(f) for f in file_sequence]
   return _tmp_file(ctx, file_suffix, paths)
 
-def _package_map_tmp_file(ctx, dart_context):
+def _package_map_tmp_file(ctx, dart_context, file_suffix = None):
   """Creates a file containing the path under bazel to each Dart dependency.
 
   Args:
     ctx: The skylark rule context.
     dart_context: The Dart build context.
+    file_suffix: The suffix to append to the ctx label for the file name.
 
   Returns:
     A File with the package name and path for each transitive dep in the format
@@ -62,26 +67,38 @@ def _package_map_tmp_file(ctx, dart_context):
   labels += [ctx.label]
   package_paths = ["%s:%s" % (label_to_dart_package_name(label), label.package)
                    for label in labels]
-  return _tmp_file(ctx, "packages", package_paths)
+  return _tmp_file(
+      ctx,
+      "packages%s" % (("_%s" % file_suffix) if file_suffix else ""),
+      package_paths)
 
-def _declare_outs(ctx, generate_for, in_extension, out_extensions):
+def _declare_outs(ctx, generate_for, in_extension, out_extensions, outline_only):
   """Declares the outs for a generator.
 
   This declares one outfile per entry in out_extensions for each file in
   generate_for which ends with in_extension.
 
-  Example:
-  generate_for = ["a.dart", "b.css"]
-  in_extension = ".dart"
-  out_extensions = [".g.dart", ".info.xml"]
+  If outline_only is true then the output extension will be preceded with
+  codegen_outline_extension to eliminate collisions with the real file.
 
-  outs => ["a.g.dart", "a.info.xml"]
+  Example:
+
+    generate_for = ["a.dart", "b.css"]
+    in_extension = ".dart"
+    out_extensions = [".g.dart", ".info.xml"]
+
+    # If outline_only == False
+    outs => ["a.g.dart", "a.info.xml"]
+    # If outline_only == True
+    outs => ["a.outline.g.dart", "a.outline.info.xml"]
+
 
   Args:
     ctx: The context.
     generate_for: The files to treat as primary inputs for codegen.
     in_extension: The file extension to process.
     out_extensions: One or more output extensions that should be emitted.
+    outline_only: Whether or not we are declaring outline file outputs.
 
   Returns:
     A sequence of File objects which will be emitted.
@@ -93,10 +110,35 @@ def _declare_outs(ctx, generate_for, in_extension, out_extensions):
   for src in generate_for:
     if (src.basename.endswith(in_extension)):
       for ext in out_extensions:
+        if outline_only:
+          ext = ".%s%s" % (codegen_outline_extension, ext)
         out_name = "%s%s" % (src.basename[:-1 * len(in_extension)], ext)
         output = ctx.new_file(src, out_name)
         outs.append(output)
   return outs
+
+def _collect_summaries(deps):
+  """Collects all summaries for deps, fails if any summaries are missing.
+
+  Args:
+    deps: The deps to collect summaries for. Transitive summaries are not
+      included.
+
+  Returns:
+    The list of strong summary files.
+  """
+  missing_summaries = [
+      dep for dep in deps
+      if dep.dart.strong_summary == None and dep.dart.dart_srcs
+  ]
+  if missing_summaries:
+    fail("Missing some strong summaries: %s"
+         % [dep.label for dep in missing_summaries])
+
+  return [
+      dep.dart.strong_summary for dep in deps
+      if dep.dart.strong_summary and dep.dart.dart_srcs
+  ]
 
 def codegen_action(
     ctx,
@@ -111,24 +153,55 @@ def codegen_action(
     log_level="warning",
     generate_for=None,
     use_summaries=True,
-    use_resolver=True):
-  """Runs a dart codegen action, see docs at the top of this file."""
+    outline_only=False,
+    outline_summary_deps=[],):
+  """Runs a dart codegen action.
+
+  Args:
+    ctx: The skylark context.
+    srcs: The srcs for this action.
+    in_extension: The file extension to process.
+    out_extensions: One or more output extensions that should be emitted.
+    generator_binary: The binary to invoke which will perform codegen.
+    forced_deps: Extra deps which will always be provided to this action.
+    generator_args: Extra arguments to pass on to the code generator.
+    arg_prefix: Prefix to match for --define=%arg_prefix%_CODEGEN_ARGS=%value%
+      flags. Any matching args will be passed on to the generator.
+    input_provider: Optional provider to read for inputs instead of using the
+      default logic. Generally this will be coming from a codegen_aspect that
+      collects inputs.
+    log_level: The minimum level at which to log to the console.
+    generate_for: The files to treat as primary inputs for codegen.
+    use_summaries: Whether or not to to use analyzer summaries for this action.
+    outline_only: Whether or not we are declaring outline file outputs.
+    outline_summary_deps: If outline_only == True, the deps to provide summaries
+      for. No other summaries will be available.
+
+  Returns:
+    The set of File objects which will be emitted.
+  """
   if not generate_for:
     generate_for = srcs
 
   out_base = ctx.configuration.bin_dir
 
-  outs = _declare_outs(ctx, generate_for, in_extension, out_extensions)
+  outs = _declare_outs(
+      ctx, generate_for, in_extension, out_extensions, outline_only)
   if not outs:
     return set()
 
-  log_path = "%s/%s/%s.log" % (out_base.path, ctx.label.package, ctx.label.name)
+  log_path = "%s/%s/%s%s.log" % (
+      out_base.path, ctx.label.package, ctx.label.name,
+      (".%s" % codegen_outline_extension) if outline_only else "")
 
   dart_deps = [dep for dep in ctx.attr.deps if hasattr(dep, "dart")]
   dart_context = make_dart_context(ctx, deps = dart_deps)
 
-  package_map = _package_map_tmp_file(ctx, dart_context)
-  inputs_file = _inputs_tmp_file(ctx, generate_for, "inputs_file")
+  optional_prefix = ("%s_" % codegen_outline_extension) if outline_only else ""
+  package_map = _package_map_tmp_file(
+      ctx, dart_context, optional_prefix)
+  inputs_file = _inputs_tmp_file(
+      ctx, generate_for, "%sinputs_file" % optional_prefix)
 
   # Extra inputs required for the main action.
   extra_inputs = [inputs_file, package_map]
@@ -157,29 +230,25 @@ def codegen_action(
   arguments += ["--"]
 
   filtered_deps = set()
-  if input_provider:
-    for dep in ctx.attr.deps:
-      if hasattr(dep, "dart_codegen"):
-        dep_srcs = dep.dart_codegen.srcs.get(input_provider)
-        if dep_srcs:
-          filtered_deps += dep_srcs
-  elif not use_summaries:
-    filtered_deps += ctx.files.deps
+  if not outline_only:
+    if input_provider:
+      for dep in ctx.attr.deps:
+        if hasattr(dep, "dart_codegen"):
+          dep_srcs = dep.dart_codegen.srcs.get(input_provider)
+          if dep_srcs:
+            filtered_deps += dep_srcs
+    elif not use_summaries:
+      filtered_deps += ctx.files.deps
 
   filtered_deps += forced_deps
 
   if use_summaries:
-    summaries = [
-        dep.dart.strong_summary for dep in dart_context.transitive_deps.values()
-        if dep.dart.strong_summary and len(dep.dart.dart_srcs) > 0
-    ]
-    missing_summaries = [
-        dep for dep in dart_context.transitive_deps.values()
-        if dep.dart.strong_summary == None and len(dep.dart.dart_srcs) > 0
-    ]
-    if missing_summaries:
-      fail("Missing some strong summaries: %s"
-           % [dep.label for dep in missing_summaries])
+    if outline_only:
+      summaries = set(_collect_summaries(outline_summary_deps))
+      for dep in outline_summary_deps:
+        summaries += _collect_summaries(dep.dart.transitive_deps.values())
+    else:
+      summaries = _collect_summaries(dart_context.transitive_deps.values())
     arguments += ["--summary-files=%s" % summary.path for summary in summaries]
     sdk_summary = [f for f in ctx.files._sdk if f.path.endswith("strong.sum")][0]
     arguments += ["--dart-sdk-summary=%s" % sdk_summary.path]
@@ -195,7 +264,8 @@ def codegen_action(
     all_srcs = set([])
     all_srcs += srcs
     all_srcs += generate_for
-    srcs_file = _inputs_tmp_file(ctx, all_srcs, "srcs_file")
+    srcs_file = _inputs_tmp_file(
+        ctx, all_srcs, "%ssrcs_file" % optional_prefix)
     extra_inputs.append(srcs_file)
     arguments += [
         "--srcs-file=%s" % srcs_file.path,
@@ -204,6 +274,8 @@ def codegen_action(
     ]
 
   arguments += generator_args
+  if outline_only:
+    arguments += ["--outline-only"]
   if arg_prefix:
     codegen_arg_key = "%s_CODEGEN_ARGS" % arg_prefix
     if codegen_arg_key in ctx.var:
@@ -212,7 +284,8 @@ def codegen_action(
         arguments += ["--%s" % arg for arg in define_args.split(",")]
 
   # Bazel requires worker args in a separate file
-  args_file = _tmp_file(ctx, "args", arguments)
+  args_file = _tmp_file(
+      ctx, "%sargs" % optional_prefix, arguments)
   extra_inputs.append(args_file)
 
   if "DART_CODEGEN_ASYNC_STACK_TRACE" in ctx.var:

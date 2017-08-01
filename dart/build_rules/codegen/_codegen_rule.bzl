@@ -10,7 +10,9 @@ def dart_codegen_rule(
     generator_args = [],
     arg_prefix = "",
     aspect = None,
-    input_provider = ""):
+    input_provider = "",
+    supports_outline_codegen = False,
+    outline_summary_deps = [],):
   """Builds custom skylark rules scoped to a specific dart_codegen_binary.
 
   See codegen.bzl for usage of the generated rule.
@@ -26,8 +28,16 @@ def dart_codegen_rule(
       the binary they must be included here.
     aspect: Optional. An Aspect created with `dart_codegen_aspect` to collect
       extra source that need to be read within dependencies.
-    input_provider: Optiona. If an aspect is provided, this must match the name
+    input_provider: Optional. If an aspect is provided, this must match the name
       used when creating it.
+    supports_outline_codegen: Whether or not this code generator supports
+      generating outlines based on a predefined set of summaries and not
+      transitive ones. When the outline only should be output, an additional
+      `--outline-only` flag will be passed to the codegen_binary along with any
+      other arguments.
+    outline_summary_deps: If supports_outline_codegen == True, the summaries to
+      pass to the outline codegen action. All transitive summaries of these deps
+      will also be available.
 
   Returns:
     A skylark rule which runs the provided Builders.
@@ -46,6 +56,10 @@ def dart_codegen_rule(
           "srcs": attr.label_list(allow_files = True),
           "generate_for": attr.label_list(allow_files = True),
           "generator_args": attr.string_list(),
+          "outline_summary_deps": attr.label_list(
+              default = outline_summary_deps,
+              providers = ["dart"],
+          ),
           "_in_extension": attr.string(
               default = in_extension,
           ),
@@ -64,6 +78,9 @@ def dart_codegen_rule(
           "_sdk": attr.label(
               default = Label(SDK_SUMMARIES),
               allow_files = True,
+          ),
+          "_supports_outline_codegen": attr.bool(
+              default = supports_outline_codegen,
           ),
       },
       outputs = _compute_outs,
@@ -97,7 +114,6 @@ def _codegen_impl(ctx):
   if "DART_CODEGEN_LOG_LEVEL" in ctx.var:
     log_level = ctx.var["DART_CODEGEN_LOG_LEVEL"]
 
-
   forced_dep_files = set()
   for dep in ctx.attr.forced_deps:
     if hasattr(dep, "dart"):
@@ -106,7 +122,7 @@ def _codegen_impl(ctx):
     else:
       forced_dep_files += dep.files
 
-  outs = codegen_action(
+  full_srcs = codegen_action(
       ctx,
       ctx.files.srcs,
       ctx.attr._in_extension,
@@ -119,7 +135,33 @@ def _codegen_impl(ctx):
       log_level = log_level,
       generate_for = ctx.files.generate_for,
       use_summaries = config.use_summaries,
-      use_resolver = config.use_resolver,
   )
 
-  return struct(files=outs)
+  if ctx.attr._supports_outline_codegen:
+    outline_summary_deps = ctx.attr.outline_summary_deps
+    outline_srcs = codegen_action(
+        ctx,
+        ctx.files.srcs,
+        ctx.attr._in_extension,
+        ctx.attr._out_extensions,
+        ctx.executable._generator,
+        forced_deps = forced_dep_files,
+        generator_args = generator_args,
+        arg_prefix = ctx.attr._arg_prefix,
+        input_provider = ctx.attr._input_provider,
+        log_level = log_level,
+        generate_for = ctx.files.generate_for,
+        use_summaries = config.use_summaries,
+        outline_only = True,
+        outline_summary_deps = outline_summary_deps,
+    )
+  else:
+    outline_srcs = full_srcs
+
+  return struct(
+      dart_codegen = struct(
+          outline_srcs = outline_srcs,
+          full_srcs = full_srcs,
+      ),
+      files = full_srcs,
+  )
