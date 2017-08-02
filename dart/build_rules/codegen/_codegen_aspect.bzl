@@ -6,8 +6,10 @@ def _matches_extension(f, extensions):
       return True
   return False
 
-def _collect_by_extensions(attribute, extensions):
-  files = [f for value in attribute for f in value.files]
+def _collect_files_for_attribute(attribute):
+  return [f for value in attribute for f in value.files]
+
+def _filter_by_extensions(files, extensions):
   return [f for f in files if _matches_extension(f, extensions)]
 
 def _codegen_aspect_impl(target, ctx):
@@ -19,10 +21,10 @@ def _codegen_aspect_impl(target, ctx):
 
   matching_files = set()
   extensions = ctx.attr._extensions
-  if hasattr(ctx.rule.attr, "srcs"):
-    matching_files += _collect_by_extensions(ctx.rule.attr.srcs, extensions)
+  matching_files += _filter_by_extensions(target.dart.srcs, extensions)
   if hasattr(ctx.rule.attr, "data"):
-    matching_files += _collect_by_extensions(ctx.rule.attr.data, extensions)
+    matching_files += _filter_by_extensions(
+        _collect_files_for_attribute(ctx.rule.attr.data), extensions)
 
   srcs[aspect_name] = matching_files
   return struct(dart_codegen = struct(srcs = srcs))
