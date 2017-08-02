@@ -21,7 +21,8 @@ def _codegen_aspect_impl(target, ctx):
 
   matching_files = set()
   extensions = ctx.attr._extensions
-  matching_files += _filter_by_extensions(target.dart.srcs, extensions)
+  if hasattr(target, "dart"):
+    matching_files += _filter_by_extensions(target.dart.srcs, extensions)
   if hasattr(ctx.rule.attr, "data"):
     matching_files += _filter_by_extensions(
         _collect_files_for_attribute(ctx.rule.attr.data), extensions)
