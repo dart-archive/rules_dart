@@ -1,12 +1,12 @@
 """Custom internal impl of create_archive."""
 
-def create_archive(ctx, srcs, label):
+def create_archive(ctx, srcs, name):
   """Creates an archive for the supplied srcs.
 
   Args:
     ctx: The target context.
     srcs: the srcs for the current target
-    label: the label for the current target
+    name: the name for the current target
   Returns:
     - A tar file which contains the supplied srcs.
 
@@ -15,9 +15,9 @@ def create_archive(ctx, srcs, label):
   for src in srcs:
     commands += ["mkdir -p $(dirname $ARCHIVE_DIR/%s)" % src.short_path]
     commands += ["cp -L %s $ARCHIVE_DIR/%s" % (src.path, src.short_path)]
-  tmp_file = ctx.new_file(label.name + ".archive_inputs")
+  tmp_file = ctx.new_file(name + ".archive_inputs")
   ctx.file_action(output=tmp_file, content="\n".join(commands))
-  tar_file = ctx.new_file(label.name + ".dart_archive.tar")
+  tar_file = ctx.new_file(name + ".dart_archive.tar")
   ctx.action(
       inputs=srcs +[tmp_file],
       outputs=[tar_file],

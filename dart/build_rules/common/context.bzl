@@ -96,7 +96,7 @@ def make_dart_context(
 
   archive = None
   if archive_srcs:
-    archive = create_archive(ctx, archive_srcs, ctx.label)
+    archive = create_archive(ctx, archive_srcs, ctx.label.name)
 
   transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps, transitive_archives = (
       _collect_files(srcs, dart_srcs, data, deps, archive))
