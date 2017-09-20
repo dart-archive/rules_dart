@@ -24,7 +24,7 @@ def _codegen_binary_impl(ctx):
   if not ctx.attr.use_resolver:
     use_summaries = False
 
-  data = set()
+  data = depset()
   if ctx.attr.use_resolver and not use_summaries:
     data = ctx.files._sdk_lib_files
 

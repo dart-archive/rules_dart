@@ -72,14 +72,11 @@ def _package_map_tmp_file(ctx, dart_context, file_suffix = None):
       "packages%s" % (("_%s" % file_suffix) if file_suffix else ""),
       package_paths)
 
-def _declare_outs(ctx, generate_for, in_extension, out_extensions, outline_only):
+def _declare_outs(ctx, generate_for, in_extension, out_extensions):
   """Declares the outs for a generator.
 
   This declares one outfile per entry in out_extensions for each file in
   generate_for which ends with in_extension.
-
-  If outline_only is true then the output extension will be preceded with
-  codegen_outline_extension to eliminate collisions with the real file.
 
   Example:
 
@@ -98,7 +95,6 @@ def _declare_outs(ctx, generate_for, in_extension, out_extensions, outline_only)
     generate_for: The files to treat as primary inputs for codegen.
     in_extension: The file extension to process.
     out_extensions: One or more output extensions that should be emitted.
-    outline_only: Whether or not we are declaring outline file outputs.
 
   Returns:
     A sequence of File objects which will be emitted.
@@ -110,8 +106,6 @@ def _declare_outs(ctx, generate_for, in_extension, out_extensions, outline_only)
   for src in generate_for:
     if (src.basename.endswith(in_extension)):
       for ext in out_extensions:
-        if outline_only:
-          ext = ".%s%s" % (codegen_outline_extension, ext)
         out_name = "%s%s" % (src.basename[:-1 * len(in_extension)], ext)
         output = ctx.new_file(src, out_name)
         outs.append(output)
@@ -185,10 +179,13 @@ def codegen_action(
 
   out_base = ctx.configuration.bin_dir
 
+  real_out_extensions = out_extensions if not outline_only else [
+      ".%s%s" % (codegen_outline_extension, ext) for ext in out_extensions]
+
   outs = _declare_outs(
-      ctx, generate_for, in_extension, out_extensions, outline_only)
+      ctx, generate_for, in_extension, out_extensions, real_outline_only)
   if not outs:
-    return set()
+    return depset()
 
   log_path = "%s/%s/%s%s.log" % (
       out_base.path, ctx.label.package, ctx.label.name,
@@ -222,14 +219,14 @@ def codegen_action(
       "--package-map=%s" % package_map.path,
       "--log-level=%s" % log_level,
   ]
-  arguments += ["--out-extension=%s" % ext for ext in out_extensions]
+  arguments += ["--out-extension=%s" % ext for ext in real_out_extensions]
 
   if not use_summaries:
     arguments += ["--no-use-summaries"]
   # Prevent the source_gen ArgParser from interpreting generator args.
   arguments += ["--"]
 
-  filtered_deps = set()
+  filtered_deps = depset()
   if not outline_only:
     if input_provider:
       for dep in ctx.attr.deps:
@@ -244,7 +241,7 @@ def codegen_action(
 
   if use_summaries:
     if outline_only:
-      summaries = set(_collect_summaries(outline_summary_deps))
+      summaries = depset(_collect_summaries(outline_summary_deps))
       for dep in outline_summary_deps:
         summaries += _collect_summaries(dep.dart.transitive_deps.values())
     else:
@@ -259,9 +256,9 @@ def codegen_action(
     non_lib_srcs = [src for dep in local_deps for src in dep.dart.srcs
                     if not src.short_path.startswith(dep.dart.lib_root)
                     and src.short_path.startswith(ctx.label.package)]
-    srcs += non_lib_srcs
+    srcs = srcs + non_lib_srcs
 
-    all_srcs = set([])
+    all_srcs = depset([])
     all_srcs += srcs
     all_srcs += generate_for
     srcs_file = _inputs_tmp_file(
@@ -295,7 +292,7 @@ def codegen_action(
 
   arguments += ["@%s" % args_file.path]
 
-  inputs = set()
+  inputs = depset()
   inputs += srcs
   inputs += generate_for
   inputs += filtered_deps
@@ -308,9 +305,9 @@ def codegen_action(
              outputs=outs,
              executable=generator_binary,
              progress_message="Generating %s files %s " % (
-                 ", ".join(out_extensions), ctx.label),
+                 ", ".join(real_out_extensions), ctx.label),
              mnemonic="DartSourceGen",
              execution_requirements={"supports-workers": "1"},
              arguments=arguments)
 
-  return set(outs)
+  return depset(outs)

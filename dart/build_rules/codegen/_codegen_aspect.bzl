@@ -19,7 +19,7 @@ def _codegen_aspect_impl(target, ctx):
   if hasattr(target, "dart_codegen"):
     srcs.update(target.dart_codegen.srcs)
 
-  matching_files = set()
+  matching_files = depset()
   extensions = ctx.attr._extensions
   if hasattr(target, "dart"):
     matching_files += _filter_by_extensions(target.dart.srcs, extensions)

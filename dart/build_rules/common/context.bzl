@@ -87,10 +87,10 @@ def make_dart_context(
       lib_root += label.package + "/"
     lib_root += "lib/"
 
-  srcs = set(srcs or [])
-  outline_srcs = set(outline_srcs or srcs)
+  srcs = depset(srcs or [])
+  outline_srcs = depset(outline_srcs or srcs)
   dart_srcs = filter_files(dart_filetypes, srcs)
-  data = set(data or [])
+  data = depset(data or [])
   deps = deps or []
   archive_srcs = list(srcs)
 
@@ -134,11 +134,11 @@ def make_dart_context(
   )
 
 def _collect_files(srcs, dart_srcs, data, deps, archive):
-  transitive_srcs = set()
-  transitive_dart_srcs = set()
-  transitive_data = set()
+  transitive_srcs = depset()
+  transitive_dart_srcs = depset()
+  transitive_data = depset()
   transitive_deps = {}
-  transitive_archives = set()
+  transitive_archives = depset()
   for dep in deps:
     transitive_srcs += dep.dart.transitive_srcs
     transitive_dart_srcs += dep.dart.transitive_dart_srcs
@@ -177,7 +177,7 @@ def _merge_dart_context(dart_ctx1, dart_ctx2):
       dart_srcs = dart_ctx1.dart_srcs + dart_ctx2.dart_srcs,
       data = dart_ctx1.data + dart_ctx2.data,
       deps = dart_ctx1.deps + dart_ctx2.deps,
-      license_files = list(set(dart_ctx1.license_files + dart_ctx2.license_files)),
+      license_files = list(depset(dart_ctx1.license_files + dart_ctx2.license_files)),
       transitive_srcs = dart_ctx1.transitive_srcs + dart_ctx2.transitive_srcs,
       transitive_dart_srcs = dart_ctx1.transitive_dart_srcs + dart_ctx2.transitive_dart_srcs,
       transitive_data = dart_ctx1.transitive_data + dart_ctx2.transitive_data,
@@ -207,13 +207,13 @@ def _new_dart_context(
       strong_summary = strong_summary,
       strong_analysis = strong_analysis,
       checks = checks,
-      srcs = set(srcs or []),
-      dart_srcs = set(dart_srcs or []),
-      data = set(data or []),
+      srcs = depset(srcs or []),
+      dart_srcs = depset(dart_srcs or []),
+      data = depset(data or []),
       deps = deps or [],
       license_files = license_files,
-      transitive_srcs = set(transitive_srcs or []),
-      transitive_dart_srcs = set(transitive_dart_srcs or []),
-      transitive_data = set(transitive_data or []),
+      transitive_srcs = depset(transitive_srcs or []),
+      transitive_dart_srcs = depset(transitive_dart_srcs or []),
+      transitive_data = depset(transitive_data or []),
       transitive_deps = dict(transitive_deps or {}),
   )
