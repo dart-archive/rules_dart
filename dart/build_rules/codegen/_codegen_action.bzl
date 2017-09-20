@@ -84,10 +84,7 @@ def _declare_outs(ctx, generate_for, in_extension, out_extensions):
     in_extension = ".dart"
     out_extensions = [".g.dart", ".info.xml"]
 
-    # If outline_only == False
     outs => ["a.g.dart", "a.info.xml"]
-    # If outline_only == True
-    outs => ["a.outline.g.dart", "a.outline.info.xml"]
 
 
   Args:
@@ -183,7 +180,7 @@ def codegen_action(
       ".%s%s" % (codegen_outline_extension, ext) for ext in out_extensions]
 
   outs = _declare_outs(
-      ctx, generate_for, in_extension, out_extensions, real_outline_only)
+      ctx, generate_for, in_extension, real_out_extensions)
   if not outs:
     return depset()
 
