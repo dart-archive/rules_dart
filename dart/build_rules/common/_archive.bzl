@@ -39,6 +39,6 @@ def create_archive(ctx, srcs, name):
           "cd $WORKSPACE",
           "cp $ARCHIVE_DIR/temp_tar.tar %s" % tar_file.path,
           "rm -rf \"$ARCHIVE_DIR\""]),
-      progress_message="Creating Dart archive")
+      progress_message="Creating Dart archive %s" % ctx.label)
   return tar_file
 
