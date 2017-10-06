@@ -16,7 +16,8 @@ def create_archive(ctx, srcs, name):
     commands += ["mkdir -p $(dirname $ARCHIVE_DIR/%s)" % src.short_path]
     commands += ["cp -L %s $ARCHIVE_DIR/%s" % (src.path, src.short_path)]
   # Use the following options to ensure the archive creation is deterministic
-  tar_command = "tar --mtime=@0 --owner=0 --group=0 -chf temp_tar.tar *"
+  tar_command = ("tar --mtime=@0 --owner=0 --group=0 -chf temp_tar.tar "
+      + "$(find . -type f | sort)")
   # Check for Exoblaze
   if not hasattr(native, "js_library"):
     # The above options are not available on Exoblaze
