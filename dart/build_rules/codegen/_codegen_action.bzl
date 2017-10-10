@@ -210,13 +210,12 @@ def codegen_action(
       "--package-path=%s" % ctx.label.package,
       "--out=%s" % out_base.path,
       "--log=%s" % log_path,
-      "--in-extension=%s" % in_extension,
+      "--build-extensions=%s:%s" % (in_extension, ";".join(real_out_extensions)),
       # TODO(nbosch) rename this to 'input' or 'generate-for'
       "--srcs-file=%s" % inputs_file.path,
       "--package-map=%s" % package_map.path,
       "--log-level=%s" % log_level,
   ]
-  arguments += ["--out-extension=%s" % ext for ext in real_out_extensions]
 
   if not use_summaries:
     arguments += ["--no-use-summaries"]

@@ -1,6 +1,7 @@
 ## 0.4.10-dev
 
 * Only add srcs to Dart archives.
+* Pass new build-extension style argument to `_bazel_codegen`
 
 ## 0.4.9
 
