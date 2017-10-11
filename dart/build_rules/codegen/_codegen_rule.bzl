@@ -60,11 +60,8 @@ def dart_codegen_rule(
               default = outline_summary_deps,
               providers = ["dart"],
           ),
-          "_in_extension": attr.string(
-              default = in_extension,
-          ),
-          "_out_extensions": attr.string_list(
-              default = out_extensions,
+          "_build_extensions": attr.string_list_dict(
+              default = {in_extension: out_extensions},
           ),
           "_input_provider": attr.string(default = input_provider),
           "_generator": attr.label(
@@ -86,21 +83,24 @@ def dart_codegen_rule(
       outputs = _compute_outs,
   )
 
-def _compute_outs(_in_extension, _out_extensions, srcs, generate_for):
+def _compute_outs(_build_extensions, srcs, generate_for):
   if not srcs and not generate_for:
     fail("either `srcs` or `generate_for` must not be empty")
-  if not _out_extensions:
-    fail("must not be empty", attr="_out_extensions")
+  if not _build_extensions:
+    fail("must not be empty", attr="_build_extensions")
 
   if not generate_for:
     generate_for = srcs
 
   outs = {}
   for label in generate_for:
-    if label.name.endswith(_in_extension):
-      for ext in _out_extensions:
-        out_name = "%s%s" % (label.name[:-1 * len(_in_extension)], ext)
-        outs[out_name] = out_name
+    for in_extension in _build_extensions:
+      if label.name.endswith(in_extension):
+        for out_extension in _build_extensions[in_extension]:
+          out_name = "%s%s" % (
+              label.name[:-1 * len(in_extension)], out_extension
+          )
+          outs[out_name] = out_name
   return outs
 
 def _codegen_impl(ctx):
@@ -125,8 +125,7 @@ def _codegen_impl(ctx):
   full_srcs = codegen_action(
       ctx,
       ctx.files.srcs,
-      ctx.attr._in_extension,
-      ctx.attr._out_extensions,
+      ctx.attr._build_extensions,
       ctx.executable._generator,
       forced_deps = forced_dep_files,
       generator_args = generator_args,
@@ -142,8 +141,7 @@ def _codegen_impl(ctx):
     outline_srcs = codegen_action(
         ctx,
         ctx.files.srcs,
-        ctx.attr._in_extension,
-        ctx.attr._out_extensions,
+        ctx.attr._build_extensions,
         ctx.executable._generator,
         forced_deps = forced_dep_files,
         generator_args = generator_args,

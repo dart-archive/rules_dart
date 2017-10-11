@@ -72,17 +72,16 @@ def _package_map_tmp_file(ctx, dart_context, file_suffix = None):
       "packages%s" % (("_%s" % file_suffix) if file_suffix else ""),
       package_paths)
 
-def _declare_outs(ctx, generate_for, in_extension, out_extensions):
+def _declare_outs(ctx, generate_for, build_extensions):
   """Declares the outs for a generator.
 
-  This declares one outfile per entry in out_extensions for each file in
-  generate_for which ends with in_extension.
+  Declares one outfile per output expection in build_extensions for each file in
+  generate_for which ends with an extesion in the build_extensions keys.
 
   Example:
 
     generate_for = ["a.dart", "b.css"]
-    in_extension = ".dart"
-    out_extensions = [".g.dart", ".info.xml"]
+    build_extensions = {".dart": [".g.dart", ".info.xml"]}
 
     outs => ["a.g.dart", "a.info.xml"]
 
@@ -90,22 +89,22 @@ def _declare_outs(ctx, generate_for, in_extension, out_extensions):
   Args:
     ctx: The context.
     generate_for: The files to treat as primary inputs for codegen.
-    in_extension: The file extension to process.
-    out_extensions: One or more output extensions that should be emitted.
+    build_extensions: Dictionary from input extension to output extensions.
 
   Returns:
     A sequence of File objects which will be emitted.
   """
-  if not out_extensions:
-    fail("must not be empty", attr="out_extensions")
+  if not build_extensions:
+    fail("must not be empty", attr="build_extensions")
 
   outs = []
   for src in generate_for:
-    if (src.basename.endswith(in_extension)):
-      for ext in out_extensions:
-        out_name = "%s%s" % (src.basename[:-1 * len(in_extension)], ext)
-        output = ctx.new_file(src, out_name)
-        outs.append(output)
+    for extension in build_extensions:
+      if (src.basename.endswith(extension)):
+        for out_extension in build_extensions[extension]:
+          out_name = "%s%s" % (src.basename[:-1 * len(extension)], out_extension)
+          output = ctx.new_file(src, out_name)
+          outs.append(output)
   return outs
 
 def _collect_summaries(deps):
@@ -134,8 +133,7 @@ def _collect_summaries(deps):
 def codegen_action(
     ctx,
     srcs,
-    in_extension,
-    out_extensions,
+    build_extensions,
     generator_binary,
     forced_deps=None,
     generator_args=None,
@@ -151,8 +149,7 @@ def codegen_action(
   Args:
     ctx: The skylark context.
     srcs: The srcs for this action.
-    in_extension: The file extension to process.
-    out_extensions: One or more output extensions that should be emitted.
+    build_extensions: Dictionary from input extension to output extensions.
     generator_binary: The binary to invoke which will perform codegen.
     forced_deps: Extra deps which will always be provided to this action.
     generator_args: Extra arguments to pass on to the code generator.
@@ -176,11 +173,15 @@ def codegen_action(
 
   out_base = ctx.configuration.bin_dir
 
-  real_out_extensions = out_extensions if not outline_only else [
-      ".%s%s" % (codegen_outline_extension, ext) for ext in out_extensions]
+  if outline_only:
+    build_extensions = dict(build_extensions)
+    for extension in build_extensions.keys():
+      build_extensions[extension] = [
+          ".%s%s" % (codegen_outline_extension, ext)
+          for ext in build_extensions[extension]
+      ]
 
-  outs = _declare_outs(
-      ctx, generate_for, in_extension, real_out_extensions)
+  outs = _declare_outs(ctx, generate_for, build_extensions)
   if not outs:
     return depset()
 
@@ -210,11 +211,15 @@ def codegen_action(
       "--package-path=%s" % ctx.label.package,
       "--out=%s" % out_base.path,
       "--log=%s" % log_path,
-      "--build-extensions=%s:%s" % (in_extension, ";".join(real_out_extensions)),
       # TODO(nbosch) rename this to 'input' or 'generate-for'
       "--srcs-file=%s" % inputs_file.path,
       "--package-map=%s" % package_map.path,
       "--log-level=%s" % log_level,
+  ]
+  arguments += [
+      "--build-extensions=%s:%s" % (in_extension,
+                                    ";".join([o for o in out_extensions]))
+      for in_extension, out_extensions in build_extensions.items()
   ]
 
   if not use_summaries:
@@ -297,11 +302,14 @@ def codegen_action(
     inputs += summaries
     inputs += [sdk_summary]
 
+  all_out_extensions = [
+      ext for extensions in build_extensions.values() for ext in extensions
+  ]
   ctx.action(inputs=list(inputs),
              outputs=outs,
              executable=generator_binary,
              progress_message="Generating %s files %s " % (
-                 ", ".join(real_out_extensions), ctx.label),
+                 ", ".join(all_out_extensions), ctx.label),
              mnemonic="DartSourceGen",
              execution_requirements={"supports-workers": "1"},
              arguments=arguments)
