@@ -2,6 +2,8 @@
 
 * Only add srcs to Dart archives.
 * Pass new build-extension style argument to `_bazel_codegen`
+* Add `build_extensions` argument to `dart_codegen_rule` to replace the separate
+  input and output extension arguments.
 
 ## 0.4.9
 

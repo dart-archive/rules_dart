@@ -5,8 +5,9 @@ load("//dart/build_rules/internal:common.bzl", "SDK_SUMMARIES")
 
 def dart_codegen_rule(
     codegen_binary,
-    in_extension,
-    out_extensions,
+    build_extensions = None,
+    in_extension = None,
+    out_extensions = None,
     generator_args = [],
     arg_prefix = "",
     aspect = None,
@@ -19,9 +20,9 @@ def dart_codegen_rule(
 
   Args:
     codegen_binary: A binary created with a dart_codegen_binary rule.
-    in_extension: The file extension for files which are primary inputs.
-    out_extensions: The file extensions which are generated for each primary
-      input.
+    build_extensions: Dictionary from input extension to output extensions.
+    in_extension: Deprecated, use build_extensions
+    out_extensions: Deprecated, use build_extensions
     generator_args: Optional. Arguments that are always passed to the codegen
       binary. These will be merged with the generator_args passed by callers of
       the created rule. If any arguments impact the file extensions created by
@@ -48,6 +49,11 @@ def dart_codegen_rule(
   else:
     aspects = []
 
+  if not build_extensions:
+    if not in_extension or not out_extensions:
+      fail('build_extensions is required')
+    build_extensions = {in_extension: out_extensions}
+
   return rule(
       implementation = _codegen_impl,
       attrs = {
@@ -61,7 +67,7 @@ def dart_codegen_rule(
               providers = ["dart"],
           ),
           "_build_extensions": attr.string_list_dict(
-              default = {in_extension: out_extensions},
+              default = build_extensions,
           ),
           "_input_provider": attr.string(default = input_provider),
           "_generator": attr.label(
