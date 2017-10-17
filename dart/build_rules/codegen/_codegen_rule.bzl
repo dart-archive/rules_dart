@@ -27,6 +27,8 @@ def dart_codegen_rule(
       binary. These will be merged with the generator_args passed by callers of
       the created rule. If any arguments impact the file extensions created by
       the binary they must be included here.
+    arg_prefix: Optional. Allows arguments to get passed to the builder with
+      `--define=<PREFIX>_CODEGEN_ARGS=arg1=value1,arg1=value2` format.
     aspect: Optional. An Aspect created with `dart_codegen_aspect` to collect
       extra source that need to be read within dependencies.
     input_provider: Optional. If an aspect is provided, this must match the name
