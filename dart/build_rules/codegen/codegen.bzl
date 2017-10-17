@@ -22,11 +22,10 @@ For example:
 
 # Rule definition
 my_rule = dart_codegen_rule(
+    arg_prefix=["MY"], # Allows build-time flags
+    build_extensions = {".dart": [".g.dart"]},
     codegen_binary="//codegen_binary_target",
-    in_extension=".dart",
-    out_extensions=[".g.dart"],
     generator_args=["--foo=definition"],
-    arg_prefix=["MY"], # Required to allow build-time flags
 )
 
 # Rule usage in a BUILD file
