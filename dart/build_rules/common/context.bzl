@@ -5,6 +5,7 @@ load(
     "analysis_extension",
     "api_summary_extension",
     "dart_filetypes",
+    "ALL_PLATFORMS",
 )
 load(
     "//dart/build_rules/common:ddc.bzl",
@@ -54,6 +55,7 @@ def make_dart_context(
     outline_srcs = None,
     data = None,
     deps = None,
+    platforms = ALL_PLATFORMS,
     license_files = []):
   """Creates a dart context for a target.
 
@@ -93,13 +95,28 @@ def make_dart_context(
   data = depset(data or [])
   deps = deps or []
   archive_srcs = list(srcs)
+  platforms = list(platforms)
+
+  for platform in platforms:
+    if platform not in ALL_PLATFORMS:
+      fail(("Invalid platforms selection for %s. " % label) +
+           ("%s is not an available platform. " % platform) +
+           ("Should be one of %s" % ALL_PLATFORMS))
+
 
   archive = None
   if archive_srcs:
     archive = create_archive(ctx, archive_srcs, ctx.label.name)
 
-  transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps, transitive_archives = (
-      _collect_files(srcs, dart_srcs, data, deps, archive))
+  transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps, transitive_archives, platforms_intersection = (
+      _collect_files(srcs, dart_srcs, data, deps, archive, platforms))
+
+  if len(platforms_intersection) == 0:
+    dep_platforms = ""
+    for dep in deps:
+      dep_platforms += ("%s : %s\n" % (dep.dart.label, dep.dart.platforms))
+    fail(("\nIncompatible platforms for %s: %s" % (label, platforms)) +
+         ("\n\nImmediate deps and inferred platforms\n" + dep_platforms))
   strong_analysis = None
   if enable_analysis:
     strong_analysis = ctx.new_file("%s%s.%s" % (
@@ -130,15 +147,17 @@ def make_dart_context(
       transitive_data = transitive_data,
       transitive_deps = transitive_deps,
       archive=archive,
-      transitive_archives=transitive_archives
+      transitive_archives=transitive_archives,
+      platforms=platforms_intersection
   )
 
-def _collect_files(srcs, dart_srcs, data, deps, archive):
+def _collect_files(srcs, dart_srcs, data, deps, archive, platforms):
   transitive_srcs = depset()
   transitive_dart_srcs = depset()
   transitive_data = depset()
   transitive_deps = {}
   transitive_archives = depset()
+  platforms_intersection = list(platforms)
   for dep in deps:
     transitive_srcs += dep.dart.transitive_srcs
     transitive_dart_srcs += dep.dart.transitive_dart_srcs
@@ -146,12 +165,15 @@ def _collect_files(srcs, dart_srcs, data, deps, archive):
     transitive_deps += dep.dart.transitive_deps
     transitive_deps["%s" % dep.dart.label] = dep
     transitive_archives += dep.dart.transitive_archives
+    for platform in platforms:
+      if platform not in dep.dart.platforms:
+        platforms_intersection.remove(platform)
   transitive_srcs += srcs
   transitive_dart_srcs += dart_srcs
   transitive_data += data
   if archive:
     transitive_archives += [archive]
-  return (transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps, transitive_archives)
+  return (transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps, transitive_archives, platforms_intersection)
 
 def _merge_dart_context(dart_ctx1, dart_ctx2):
   """Merges dart contexts, or fails if they are incompatible."""
