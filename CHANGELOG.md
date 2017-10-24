@@ -1,3 +1,8 @@
+## 0.5.0-dev
+
+* **Breaking:** Drop deprecated `in_extension` and `out_extensions` arguments in
+  favor of `build_extensions`.
+
 ## 0.4.10
 
 * Only add srcs to Dart archives.
