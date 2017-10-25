@@ -2,6 +2,7 @@
 
 * **Breaking:** Drop deprecated `in_extension` and `out_extensions` arguments in
   favor of `build_extensions`.
+* Add platform support in `make_dart_context`.
 
 ## 0.4.10
 

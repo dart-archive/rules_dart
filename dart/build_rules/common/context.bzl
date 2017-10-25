@@ -72,6 +72,8 @@ def make_dart_context(
       Defaults to `srcs` if not provided.
     data: Data files.
     deps: Dart library dependencies.
+    platforms: List of platforms this dart context supports. Defaults to the intersection of
+      all dependency platforms or ["web", "flutter", "vm"] if no dependencies are provided.
     license_files: License files associated with the target.
 
   Returns:
@@ -166,7 +168,7 @@ def _collect_files(srcs, dart_srcs, data, deps, archive, platforms):
     transitive_deps["%s" % dep.dart.label] = dep
     transitive_archives += dep.dart.transitive_archives
     for platform in platforms:
-      if platform not in dep.dart.platforms:
+      if platform not in dep.dart.platforms and platform in platforms_intersection:
         platforms_intersection.remove(platform)
   transitive_srcs += srcs
   transitive_dart_srcs += dart_srcs
