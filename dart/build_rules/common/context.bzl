@@ -55,7 +55,7 @@ def make_dart_context(
     outline_srcs = None,
     data = None,
     deps = None,
-    platforms = ALL_PLATFORMS,
+    platforms = None,
     license_files = []):
   """Creates a dart context for a target.
 
@@ -97,23 +97,26 @@ def make_dart_context(
   data = depset(data or [])
   deps = deps or []
   archive_srcs = list(srcs)
-  platforms = list(platforms)
-
-  for platform in platforms:
-    if platform not in ALL_PLATFORMS:
-      fail(("Invalid platforms selection for %s. " % label) +
-           ("%s is not an available platform. " % platform) +
-           ("Should be one of %s" % ALL_PLATFORMS))
-
 
   archive = None
   if archive_srcs:
     archive = create_archive(ctx, archive_srcs, ctx.label.name)
 
+  explicit_platforms = False
+  if not platforms:
+    platforms = list(ALL_PLATFORMS)
+  else:
+    explicit_platforms = True
+    for platform in platforms:
+      if platform not in ALL_PLATFORMS:
+        fail(("Invalid platforms selection for %s. " % label) +
+             ("%s is not an available platform. " % platform) +
+             ("Should be one of %s" % ALL_PLATFORMS))
+
   transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps, transitive_archives, platforms_intersection = (
       _collect_files(srcs, dart_srcs, data, deps, archive, platforms))
 
-  if len(platforms_intersection) == 0:
+  if len(platforms_intersection) == 0 or (explicit_platforms and platforms != platforms_intersection):
     dep_platforms = ""
     for dep in deps:
       dep_platforms += ("%s : %s\n" % (dep.dart.label, dep.dart.platforms))
