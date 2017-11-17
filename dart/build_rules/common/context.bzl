@@ -56,6 +56,7 @@ def make_dart_context(
     data = None,
     deps = None,
     platforms = None,
+    force_platforms = False,
     license_files = []):
   """Creates a dart context for a target.
 
@@ -74,6 +75,8 @@ def make_dart_context(
     deps: Dart library dependencies.
     platforms: List of platforms this dart context supports. Defaults to the intersection of
       all dependency platforms or ["web", "flutter", "vm"] if no dependencies are provided.
+    force_platforms: Forces the supported platforms to be equal to the supplied platforms.
+      This is risky and should rarely be used.
     license_files: License files associated with the target.
 
   Returns:
@@ -116,6 +119,9 @@ def make_dart_context(
   transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps, transitive_archives, platforms_intersection = (
       _collect_files(srcs, dart_srcs, data, deps, archive, platforms))
 
+  if force_platforms:
+    platforms_intersection = platforms
+
   if len(platforms_intersection) == 0 or (explicit_platforms and platforms != platforms_intersection):
     dep_platforms = ""
     for dep in deps:
@@ -153,7 +159,8 @@ def make_dart_context(
       transitive_deps = transitive_deps,
       archive=archive,
       transitive_archives=transitive_archives,
-      platforms=platforms_intersection
+      platforms=platforms_intersection,
+      explicit_platforms=explicit_platforms,
   )
 
 def _collect_files(srcs, dart_srcs, data, deps, archive, platforms):
