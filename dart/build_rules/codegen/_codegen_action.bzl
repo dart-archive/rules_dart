@@ -51,7 +51,7 @@ def _inputs_tmp_file(ctx, file_sequence, file_suffix):
   paths = [_input_path(f) for f in file_sequence]
   return _tmp_file(ctx, file_suffix, paths)
 
-def _package_map_tmp_file(ctx, dart_context, file_suffix = None):
+def _package_map_tmp_file(ctx, dart_context, forced_deps, file_suffix = None):
   """Creates a file containing the path under bazel to each Dart dependency.
 
   Args:
@@ -64,6 +64,7 @@ def _package_map_tmp_file(ctx, dart_context, file_suffix = None):
     <package name>:<path under bazel root>
   """
   labels = [dep.label for dep in dart_context.transitive_deps.values()]
+  labels += [dep.label for dep in forced_deps]
   labels += [ctx.label]
   package_paths = ["%s:%s" % (label_to_dart_package_name(label), label.package)
                    for label in labels]
@@ -194,7 +195,7 @@ def codegen_action(
 
   optional_prefix = ("%s_" % codegen_outline_extension) if outline_only else ""
   package_map = _package_map_tmp_file(
-      ctx, dart_context, optional_prefix)
+      ctx, dart_context, forced_deps, optional_prefix)
   inputs_file = _inputs_tmp_file(
       ctx, generate_for, "%sinputs_file" % optional_prefix)
 
@@ -238,7 +239,13 @@ def codegen_action(
     elif not use_summaries:
       filtered_deps += ctx.files.deps
 
-  filtered_deps += forced_deps
+  for dep in forced_deps:
+    # Avoid transitive files from dart_library targets
+    if hasattr(dep, "dart"):
+      filtered_deps += dep.dart.srcs
+      filtered_deps += dep.dart.data
+    else:
+      filtered_deps += dep.files
 
   if use_summaries:
     if outline_only:

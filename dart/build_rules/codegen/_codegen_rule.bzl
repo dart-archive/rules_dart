@@ -129,7 +129,7 @@ def _codegen_impl(ctx):
       ctx.files.srcs,
       ctx.attr._build_extensions,
       ctx.executable._generator,
-      forced_deps = forced_dep_files,
+      forced_deps = ctx.attr.forced_deps,
       generator_args = generator_args,
       arg_prefix = ctx.attr._arg_prefix,
       input_provider = ctx.attr._input_provider,
