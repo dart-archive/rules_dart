@@ -92,10 +92,10 @@ def dart_codegen_binary(
 
   This rule will create a script that can run one or more Builder instances from
   the specificied builder factories. A builder factory is a top level method
-  from `List<String>` to `Builder` as defined in package:build.
+  from `BuilderOptions` to `Builder` as defined in package:build.
 
   For example, if there is a file 'lib/builder.dart' which has the top level
-  method `Builder myBuilder(List<String> args) => new MyBuilder(args);`
+  method `Builder myBuilder(BuilderOptions options) => new MyBuilder(options);`
 
   dart_codegen_binary(
      name = "my_codegen",
