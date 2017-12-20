@@ -1,6 +1,6 @@
 """Builds custom skylark rules scoped to a specific dart_codegen_binary."""
 
-load(":_codegen_action.bzl", "codegen_action")
+load(":_codegen_action.bzl", "codegen_action", "compute_placeholder_outs")
 load("//dart/build_rules/internal:common.bzl", "SDK_SUMMARIES")
 
 def dart_codegen_rule(
