@@ -15,7 +15,7 @@
 load(":common.bzl", "make_dart_context", "package_spec_action")
 load(":dart_vm_snapshot.bzl", "dart_vm_snapshot_action")
 
-def dart_vm_binary_action(
+def _dart_vm_binary_action(
     ctx,
     script_file,
     srcs,
@@ -97,6 +97,7 @@ _default_binary_attrs = {
     ),
 }
 
-def dart_vm_binary_defaults(attrs):
-  """Adds attributes with defaults necessary to run dart_vm_binary_action."""
-  return dict(_default_binary_attrs.items() + attrs.items())
+internal_dart_vm = struct(
+  binary_action=_dart_vm_binary_action,
+  common_attrs=_default_binary_attrs,
+)

@@ -1,5 +1,6 @@
 """Build a dart_vm_binary to run code generation."""
-load( "//dart/build_rules/internal:common.bzl", "SDK_LIB_FILES")
+load("//dart/build_rules/common:dicts.bzl", "dicts")
+load("//dart/build_rules/internal:common.bzl", "SDK_LIB_FILES")
 load("//dart/build_rules:vm.bzl", "dart_vm")
 load(":_labels.bzl", "labels")
 
@@ -44,7 +45,7 @@ def _codegen_binary_impl(ctx):
       )
   )
 
-_codegen_binary_attrs = {
+_codegen_binary_attrs = dicts.add(dart_vm.common_attrs, {
     "srcs": attr.label_list(
         allow_files = True,
         mandatory = True,
@@ -65,10 +66,10 @@ _codegen_binary_attrs = {
         default = Label(SDK_LIB_FILES),
         allow_files = True,
     ),
-}
+})
 
 _codegen_binary = rule(
-    attrs = dart_vm.binary_action_defaults(_codegen_binary_attrs),
+    attrs = _codegen_binary_attrs,
     executable = True,
     outputs = {"script_file": "bin/%{name}_generate.dart"},
     implementation = _codegen_binary_impl,

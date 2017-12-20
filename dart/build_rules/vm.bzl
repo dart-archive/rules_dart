@@ -15,9 +15,12 @@
 """Dart rules targeting the Dart VM."""
 
 load(
+    "//dart/build_rules/common:dicts.bzl",
+    "dicts",
+)
+load(
     "//dart/build_rules/internal:dart_vm_binary.bzl",
-    "dart_vm_binary_action",
-    "dart_vm_binary_defaults",
+    "internal_dart_vm",
 )
 load(
     "//dart/build_rules/internal:dart_vm_snapshot.bzl",
@@ -26,7 +29,7 @@ load(
 )
 load("//dart/build_rules/internal:dart_vm_test.bzl", "dart_vm_test_impl")
 
-_dart_vm_binary_attrs = dart_vm_binary_defaults({
+_dart_vm_binary_attrs = dicts.add(internal_dart_vm.common_attrs, {
     "script_file": attr.label(
         allow_files = True,
         single_file = True,
@@ -49,7 +52,7 @@ _dart_vm_binary_attrs = dart_vm_binary_defaults({
 
 def _dart_vm_binary_impl(ctx):
   """Implements the dart_vm_binary() rule."""
-  runfiles = dart_vm_binary_action(
+  runfiles = internal_dart_vm.binary_action(
       ctx,
       script_file = ctx.file.script_file,
       srcs = ctx.files.srcs,
@@ -113,6 +116,6 @@ dart_vm_test = rule(
 )
 
 dart_vm = struct(
-    binary_action = dart_vm_binary_action,
-    binary_action_defaults = dart_vm_binary_defaults,
+    binary_action = internal_dart_vm.binary_action,
+    common_attrs = internal_dart_vm.common_attrs,
 )
