@@ -15,6 +15,13 @@ load(
     "codegen_outline_extension",
 )
 
+# Synthetic placeholder files that exist in all packages
+placeholders = [
+    "lib/$lib$",
+    "test/$test$",
+    "web/$web$",
+]
+
 def _tmp_file(ctx, file_suffix, lines):
   """Creates a file named after the ctx label containing lines.
 
@@ -36,7 +43,7 @@ def _tmp_file(ctx, file_suffix, lines):
 def _input_path(file):
   return file.short_path.replace("../", "external/", 1)
 
-def _inputs_tmp_file(ctx, file_sequence, file_suffix):
+def _inputs_tmp_file(ctx, file_sequence, file_suffix, extra_paths=[]):
   """Creates a file containing path information for files in file_sequence.
 
   Args:
@@ -44,11 +51,13 @@ def _inputs_tmp_file(ctx, file_sequence, file_suffix):
     file_sequence: A sequence of File objects.
     file_suffix: The suffix to use when naming the temporary file. The file will
         be prefixed with the build label name and an underscore.
+    extra_paths: Extra paths to append to the end of the file.
 
   Returns:
     A File with the paths of each file in file_sequence.
   """
   paths = [_input_path(f) for f in file_sequence]
+  paths += extra_paths
   return _tmp_file(ctx, file_suffix, paths)
 
 def _package_map_tmp_file(ctx, dart_context, forced_deps, file_suffix = None):
@@ -131,6 +140,18 @@ def _collect_summaries(deps):
       if dep.dart.strong_summary and dep.dart.dart_srcs
   ]
 
+def compute_placeholder_outs(build_extensions):
+  outs = {}
+  for in_extension in build_extensions:
+    for placeholder in placeholders:
+      if placeholder.endswith(in_extension):
+        for out_extension in build_extensions[in_extension]:
+          out_name = "%s%s" % (
+              placeholder[:-1 * len(in_extension)], out_extension
+          )
+          outs[out_name] = out_name
+  return outs
+
 def codegen_action(
     ctx,
     srcs,
@@ -183,6 +204,9 @@ def codegen_action(
       ]
 
   outs = _declare_outs(ctx, generate_for, build_extensions)
+  outs += [
+      ctx.new_file(path) for path in compute_placeholder_outs(build_extensions)]
+
   if not outs:
     return depset()
 
@@ -197,7 +221,10 @@ def codegen_action(
   package_map = _package_map_tmp_file(
       ctx, dart_context, forced_deps, optional_prefix)
   inputs_file = _inputs_tmp_file(
-      ctx, generate_for, "%sinputs_file" % optional_prefix)
+      ctx, generate_for, "%sinputs_file" % optional_prefix,
+      extra_paths = [
+          "%s/%s" % (ctx.label.package, placeholder)
+          for placeholder in placeholders])
 
   # Extra inputs required for the main action.
   extra_inputs = [inputs_file, package_map]

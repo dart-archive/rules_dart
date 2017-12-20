@@ -86,15 +86,17 @@ def dart_codegen_rule(
   )
 
 def _compute_outs(_build_extensions, srcs, generate_for):
-  if not srcs and not generate_for:
-    fail("either `srcs` or `generate_for` must not be empty")
   if not _build_extensions:
     fail("must not be empty", attr="_build_extensions")
+
+  outs = compute_placeholder_outs(_build_extensions)
+
+  if not srcs and not generate_for and not outs:
+    fail("either `srcs` or `generate_for` must not be empty")
 
   if not generate_for:
     generate_for = srcs
 
-  outs = {}
   for label in generate_for:
     for in_extension in _build_extensions:
       if label.name.endswith(in_extension):
@@ -106,7 +108,9 @@ def _compute_outs(_build_extensions, srcs, generate_for):
   return outs
 
 def _codegen_impl(ctx):
-  if not ctx.files.srcs and not ctx.files.generate_for:
+  placeholder_outs = compute_placeholder_outs(ctx.attr._build_extensions)
+
+  if not ctx.files.srcs and not ctx.files.generate_for and not placeholder_outs:
     fail("Must provide either `srcs` or `generate_for`")
 
   config = ctx.attr._generator.dart_codegen_config
