@@ -22,7 +22,7 @@ def dart_library_impl(ctx):
   )
 
   summary_action(ctx, dart_ctx)
-  files_provider = set([dart_ctx.strong_summary])
+  files_provider = depset([dart_ctx.strong_summary])
 
   ddc_output = None
   source_map_output = None

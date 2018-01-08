@@ -3,6 +3,8 @@
 * **Breaking:** Drop deprecated `in_extension` and `out_extensions` arguments in
   favor of `build_extensions`.
 * Add platform support in `make_dart_context`.
+* Update to work with bazel 0.9.0 and stop using the deprecated `set`
+  constructor.
 
 ## 0.4.10
 

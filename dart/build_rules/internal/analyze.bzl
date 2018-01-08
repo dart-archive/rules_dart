@@ -57,7 +57,7 @@ def analyze_action(ctx, dart_ctx, summary=None,
   if (summary != None) and not use_build_mode:
     fail("Generating summaries requires build mode")
 
-  strict_transitive_srcs = set([])
+  strict_transitive_srcs = depset([])
   for dep in dart_ctx.transitive_deps.values():
     strict_transitive_srcs += dep.dart.srcs
 

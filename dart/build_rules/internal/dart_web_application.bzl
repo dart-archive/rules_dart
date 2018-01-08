@@ -50,7 +50,7 @@ def dart_web_application_impl(ctx):
   )
 
   # TODO(cbracken) aggregate, inject licenses
-  return struct(files=set(other_outputs) + [output_js] + packages_files)
+  return struct(files=depset(other_outputs) + [output_js] + packages_files)
 
 def dart_web_application_outputs(output_js, dump_info, emit_tar, script_file):
   """Returns the expected output map for dart_web_application."""
@@ -90,7 +90,7 @@ def _packages_dir_action(ctx, dart_ctx, deploy_dir, output_dir):
   if not output_dir.endswith("/"):
     output_dir += "/"
 
-  srcs = set()
+  srcs = depset()
   for dep in dart_ctx.transitive_deps.values():
     package = dep.dart.package
     for src_file in dep.dart.srcs:

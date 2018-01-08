@@ -50,7 +50,7 @@ def dart2js_action(ctx, dart_ctx, script_file,
       dart_ctx, script_file.path, prefix="bazel-root/")
 
   # Compute action inputs.
-  inputs = set()
+  inputs = depset()
   if extra_inputs:
     inputs += extra_inputs
   inputs += ctx.files._dart2js_support
