@@ -1,6 +1,6 @@
 """Builds custom skylark rules scoped to a specific dart_codegen_binary."""
 
-load(":_codegen_action.bzl", "codegen_action", "compute_placeholder_outs")
+load(":_codegen_action.bzl", "dart_codegen_action", "compute_placeholder_outs")
 load("//dart/build_rules/internal:common.bzl", "SDK_SUMMARIES")
 
 def dart_codegen_rule(
@@ -120,7 +120,7 @@ def _codegen_impl(ctx):
   if "DART_CODEGEN_LOG_LEVEL" in ctx.var:
     log_level = ctx.var["DART_CODEGEN_LOG_LEVEL"]
 
-  full_srcs = codegen_action(
+  full_srcs = dart_codegen_action(
       ctx,
       ctx.files.srcs,
       ctx.attr._build_extensions,
@@ -136,7 +136,7 @@ def _codegen_impl(ctx):
 
   if ctx.attr._supports_outline_codegen:
     outline_summary_deps = ctx.attr.outline_summary_deps
-    outline_srcs = codegen_action(
+    outline_srcs = dart_codegen_action(
         ctx,
         ctx.files.srcs,
         ctx.attr._build_extensions,

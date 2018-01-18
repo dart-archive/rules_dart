@@ -152,7 +152,7 @@ def compute_placeholder_outs(build_extensions):
           outs[out_name] = out_name
   return outs
 
-def codegen_action(
+def dart_codegen_action(
     ctx,
     srcs,
     build_extensions,

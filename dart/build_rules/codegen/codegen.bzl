@@ -55,3 +55,4 @@ Arguments passed using --define have the following restrictions:
 load(":_codegen_binary.bzl", "dart_codegen_binary")
 load(":_codegen_rule.bzl", "dart_codegen_rule")
 load(":_codegen_aspect.bzl", "dart_codegen_aspect")
+load(":_codegen_action.bzl", "dart_codegen_action")
