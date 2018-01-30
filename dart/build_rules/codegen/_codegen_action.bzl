@@ -215,7 +215,8 @@ def dart_codegen_action(
       (".%s" % codegen_outline_extension) if outline_only else "")
 
   dart_deps = [dep for dep in ctx.attr.deps if hasattr(dep, "dart")]
-  dart_context = make_dart_context(ctx, deps = dart_deps)
+  # Platforms only matter for libraries, not for codegen
+  dart_context = make_dart_context(ctx, deps = dart_deps, force_platforms=True)
 
   optional_prefix = ("%s_" % codegen_outline_extension) if outline_only else ""
   package_map = _package_map_tmp_file(

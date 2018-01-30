@@ -5,6 +5,7 @@
 * Add platform support in `make_dart_context`.
 * Update to work with bazel 0.9.0 and stop using the deprecated `set`
   constructor.
+* `dart_codegen_action` now forces support for all platform.
 
 ## 0.4.10
 
