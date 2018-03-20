@@ -33,8 +33,7 @@ def dart2js_action(ctx, dart_ctx, script_file,
 
   # Generate a fake .packages file that uses file:///bazel-root/ as the target
   # location of all packages
-  transitive_ctxts = collect_dart_context(
-      dart_ctx, transitive=True, include_self=True)
+  transitive_ctxts = collect_dart_context(dart_ctx, transitive=True)
   package_spec_lines = []
   for dc in transitive_ctxts.values():
     if dc.package:

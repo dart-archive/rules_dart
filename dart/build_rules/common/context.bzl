@@ -24,17 +24,13 @@ load(
     "create_archive",
 )
 
-def collect_dart_context(dart_ctx, transitive = True, include_self = True):
+def collect_dart_context(dart_ctx, transitive = True):
   """Collect direct or transitive deps in a map, merging contexts as needed."""
   dart_ctxs = [dart_ctx]
   if transitive:
     dart_ctxs += [d.dart for d in dart_ctx.transitive_deps.values()]
   else:
     dart_ctxs += [d.dart for d in dart_ctx.deps]
-
-  # Optionally, exclude all self-packages.
-  if not include_self:
-    dart_ctxs = [c for c in dart_ctxs if c.package != dart_ctx.package]
 
   # Merge Dart context by package.
   ctx_map = {}
