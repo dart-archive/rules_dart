@@ -55,9 +55,9 @@ def _dart_vm_binary_impl(ctx):
   runfiles = internal_dart_vm.binary_action(
       ctx,
       script_file = ctx.file.script_file,
-      srcs = ctx.files.srcs,
+      srcs = ctx.attr.srcs,
       deps = ctx.attr.deps,
-      data = ctx.files.data,
+      data = ctx.attr.data,
       snapshot = ctx.attr.snapshot,
       script_args = ctx.attr.script_args,
       vm_flags = ctx.attr.vm_flags,

@@ -72,7 +72,7 @@ def _package_map_tmp_file(ctx, dart_context, forced_deps, file_suffix = None):
     A File with the package name and path for each transitive dep in the format
     <package name>:<path under bazel root>
   """
-  labels = [dep.label for dep in dart_context.transitive_deps.values()]
+  labels = [dep.label for dep in dart_context.transitive_deps.targets.values()]
   labels += [dep.label for dep in forced_deps]
   labels += [ctx.label]
   package_paths = ["%s:%s" % (label_to_dart_package_name(label), label.package)
@@ -279,15 +279,15 @@ def dart_codegen_action(
     if outline_only:
       summaries = depset(_collect_summaries(outline_summary_deps))
       for dep in outline_summary_deps:
-        summaries += _collect_summaries(dep.dart.transitive_deps.values())
+        summaries += _collect_summaries(dep.dart.transitive_deps.targets.values())
     else:
-      summaries = _collect_summaries(dart_context.transitive_deps.values())
+      summaries = _collect_summaries(dart_context.transitive_deps.targets.values())
     arguments += ["--summary-files=%s" % summary.path for summary in summaries]
     sdk_summary = [f for f in ctx.files._sdk if f.path.endswith("strong.sum")][0]
     arguments += ["--dart-sdk-summary=%s" % sdk_summary.path]
 
     # Files that have a relative import need to be reachable via an 'asset:' uri
-    local_deps = [dep for dep in dart_context.transitive_deps.values()
+    local_deps = [dep for dep in dart_context.transitive_deps.targets.values()
                   if dep.dart.package  == dart_context.package]
     non_lib_srcs = [src for dep in local_deps for src in dep.dart.srcs
                     if not src.short_path.startswith(dep.dart.lib_root)

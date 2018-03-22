@@ -53,7 +53,7 @@ def dart2js_action(ctx, dart_ctx, script_file,
   if extra_inputs:
     inputs += extra_inputs
   inputs += ctx.files._dart2js_support
-  inputs += dart_ctx.transitive_dart_srcs
+  inputs += dart_ctx.transitive_dart_srcs.files
   inputs += [
       package_spec,
       ctx.executable._dart2js,

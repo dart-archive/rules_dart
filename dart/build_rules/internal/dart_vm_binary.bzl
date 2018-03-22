@@ -23,11 +23,13 @@ def _dart_vm_binary_action(
     data = [],
     snapshot = True,
     script_args = [],
+    generated_srcs = [],
     vm_flags = [],
     pub_pkg_name = ""):
   dart_ctx = make_dart_context(
       ctx,
       srcs = srcs,
+      generated_srcs = generated_srcs,
       data = data,
       deps = deps,
       package = pub_pkg_name)
@@ -68,7 +70,7 @@ def _dart_vm_binary_action(
   )
 
   # Compute runfiles.
-  runfiles_files = dart_ctx.transitive_data + [
+  runfiles_files = dart_ctx.transitive_data.files + [
       ctx.executable._dart_vm,
       ctx.outputs.executable,
       package_spec,
@@ -76,7 +78,7 @@ def _dart_vm_binary_action(
   if snapshot:
     runfiles_files += [out_snapshot]
   else:
-    runfiles_files += dart_ctx.transitive_srcs
+    runfiles_files += dart_ctx.transitive_srcs.files
 
   return ctx.runfiles(
       files = list(runfiles_files),

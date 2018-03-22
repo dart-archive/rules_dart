@@ -28,7 +28,7 @@ def collect_dart_context(dart_ctx, transitive = True):
   """Collect direct or transitive deps in a map, merging contexts as needed."""
   dart_ctxs = [dart_ctx]
   if transitive:
-    dart_ctxs += [d.dart for d in dart_ctx.transitive_deps.values()]
+    dart_ctxs += [d.dart for d in dart_ctx.transitive_deps.targets.values()]
   else:
     dart_ctxs += [d.dart for d in dart_ctx.deps]
 
@@ -48,6 +48,7 @@ def make_dart_context(
     enable_analysis = False,
     checks = None,
     srcs = None,
+    generated_srcs = None,
     outline_srcs = None,
     data = None,
     deps = None,
@@ -63,11 +64,14 @@ def make_dart_context(
     enable_summaries: Whether to generate analyzer summaries.
     enable_analysis: Whether to generate analyzer output.
     checks: A file for post-processed analyzer output.
-    srcs: Source files.
+    srcs: List of Target. Source dependencies.
+    generated_srcs: List of File. Source dependencies that exist as files only
+      (with no associated Target), typically because they've been generated from
+      another action.
     outline_srcs: Source files with possibly incomplete implementations but full
       api outlines. These are intended for use when generating summaries only.
       Defaults to `srcs` if not provided.
-    data: Data files.
+    data: Data library dependencies.
     deps: Dart library dependencies.
     platforms: List of platforms this dart context supports. Defaults to the intersection of
       all dependency platforms or ["web", "flutter", "vm"] if no dependencies are provided.
@@ -90,12 +94,15 @@ def make_dart_context(
       lib_root += label.package + "/"
     lib_root += "lib/"
 
-  srcs = depset(srcs or [])
-  outline_srcs = depset(outline_srcs or srcs)
-  dart_srcs = filter_files(dart_filetypes, srcs)
-  data = depset(data or [])
+  srcs = srcs or []
+  srcs_files = depset(generated_srcs or [])
+  srcs_files += [f for t in srcs for f in t.files]
+  outline_srcs = depset(outline_srcs or srcs_files)
+  dart_srcs = filter_files(dart_filetypes, srcs_files)
+  data = data or []
+  data_files = depset([f for t in data for f in t.files])
   deps = deps or []
-  archive_srcs = list(srcs)
+  archive_srcs = list(srcs_files)
 
   archive = None
   if archive_srcs:
@@ -112,8 +119,8 @@ def make_dart_context(
              ("%s is not an available platform. " % platform) +
              ("Should be one of %s" % ALL_PLATFORMS))
 
-  transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps, transitive_archives, platforms_intersection = (
-      _collect_files(srcs, dart_srcs, data, deps, archive, platforms))
+  transitive_srcs_targets, transitive_srcs_files, transitive_dart_srcs_files, transitive_data_targets, transitive_data_files, transitive_deps_targets, transitive_archives_files, platforms_intersection = (
+      _collect_files(srcs, srcs_files, dart_srcs, data, data_files, deps, archive, platforms))
 
   if force_platforms:
     platforms_intersection = platforms
@@ -143,45 +150,79 @@ def make_dart_context(
       strong_summary=strong_summary,
       strong_analysis=strong_analysis,
       checks=checks,
-      srcs=srcs,
+      srcs=srcs_files,
       outline_srcs=outline_srcs,
       dart_srcs=dart_srcs,
-      data=data,
+      data=data_files,
       deps=deps,
       license_files=license_files,
-      transitive_srcs = transitive_srcs,
-      transitive_dart_srcs = transitive_dart_srcs,
-      transitive_data = transitive_data,
-      transitive_deps = transitive_deps,
       archive=archive,
-      transitive_archives=transitive_archives,
       platforms=platforms_intersection,
       explicit_platforms=explicit_platforms,
+      transitive_srcs = struct(
+          targets=transitive_srcs_targets,
+          files=transitive_srcs_files,
+      ),
+      transitive_dart_srcs = struct(
+          files=transitive_dart_srcs_files,
+      ),
+      transitive_data = struct(
+          targets=transitive_data_targets,
+          files=transitive_data_files,
+      ),
+      transitive_deps = struct(
+          targets=transitive_deps_targets,
+      ),
+      transitive_archives=struct(
+          files=transitive_archives_files,
+      ),
   )
 
-def _collect_files(srcs, dart_srcs, data, deps, archive, platforms):
-  transitive_srcs = depset()
-  transitive_dart_srcs = depset()
-  transitive_data = depset()
-  transitive_deps = {}
-  transitive_archives = depset()
+def _collect_files(srcs_attrs,
+                   srcs_files,
+                   dart_srcs_files,
+                   data_attrs,
+                   data_files,
+                   deps_attrs,
+                   archive_file,
+                   platforms):
+  transitive_srcs_targets = {}
+  transitive_srcs_files = depset()
+  transitive_dart_srcs_files = depset()
+  transitive_data_targets = {}
+  transitive_data_files = depset()
+  transitive_deps_targets = {}
+  transitive_archives_files = depset()
   platforms_intersection = list(platforms)
-  for dep in deps:
-    transitive_srcs += dep.dart.transitive_srcs
-    transitive_dart_srcs += dep.dart.transitive_dart_srcs
-    transitive_data += dep.dart.transitive_data
-    transitive_deps += dep.dart.transitive_deps
-    transitive_deps["%s" % dep.dart.label] = dep
-    transitive_archives += dep.dart.transitive_archives
+  for dep in deps_attrs:
+    transitive_srcs_targets.update(dep.dart.transitive_srcs.targets)
+    transitive_srcs_files += dep.dart.transitive_srcs.files
+    transitive_dart_srcs_files += dep.dart.transitive_dart_srcs.files
+    transitive_data_targets.update(dep.dart.transitive_data.targets)
+    transitive_data_files += dep.dart.transitive_data.files
+    transitive_deps_targets.update(dep.dart.transitive_deps.targets)
+    transitive_deps_targets["%s" % dep.dart.label] = dep
+    transitive_archives_files += dep.dart.transitive_archives.files
     for platform in platforms:
       if platform not in dep.dart.platforms and platform in platforms_intersection:
         platforms_intersection.remove(platform)
-  transitive_srcs += srcs
-  transitive_dart_srcs += dart_srcs
-  transitive_data += data
-  if archive:
-    transitive_archives += [archive]
-  return (transitive_srcs, transitive_dart_srcs, transitive_data, transitive_deps, transitive_archives, platforms_intersection)
+  transitive_srcs_targets.update({"%s" % s.label: s for s in srcs_attrs})
+  transitive_srcs_files += srcs_files
+  transitive_dart_srcs_files += dart_srcs_files
+  transitive_data_targets.update({"%s" % d.label: d for d in data_attrs})
+  transitive_data_files += data_files
+  if archive_file:
+    transitive_archives_files += [archive_file]
+  return (
+      transitive_srcs_targets,
+      transitive_srcs_files,
+      transitive_dart_srcs_files,
+      transitive_data_targets,
+      transitive_data_files,
+      transitive_deps_targets,
+      transitive_archives_files,
+      platforms_intersection,
+  )
 
 def _merge_dart_context(dart_ctx1, dart_ctx2):
   """Merges dart contexts, or fails if they are incompatible."""
@@ -208,10 +249,12 @@ def _merge_dart_context(dart_ctx1, dart_ctx2):
       data = dart_ctx1.data + dart_ctx2.data,
       deps = dart_ctx1.deps + dart_ctx2.deps,
       license_files = list(depset(dart_ctx1.license_files + dart_ctx2.license_files)),
-      transitive_srcs = dart_ctx1.transitive_srcs + dart_ctx2.transitive_srcs,
-      transitive_dart_srcs = dart_ctx1.transitive_dart_srcs + dart_ctx2.transitive_dart_srcs,
-      transitive_data = dart_ctx1.transitive_data + dart_ctx2.transitive_data,
-      transitive_deps = dart_ctx1.transitive_deps + dart_ctx2.transitive_deps,
+      transitive_srcs_targets = dict(dart_ctx1.transitive_srcs.targets.items() + dart_ctx2.transitive_srcs.targets.items()),
+      transitive_srcs_files = dart_ctx1.transitive_srcs.files + dart_ctx2.transitive_srcs.files,
+      transitive_dart_srcs_files = dart_ctx1.transitive_dart_srcs.files + dart_ctx2.transitive_dart_srcs.files,
+      transitive_data_targets = dict(dart_ctx1.transitive_data.targets.items() + dart_ctx2.transitive_data.targets.items()),
+      transitive_data_files = dart_ctx1.transitive_data.files + dart_ctx2.transitive_data.files,
+      transitive_deps_targets = dict(dart_ctx1.transitive_deps.targets.items() + dart_ctx2.transitive_deps.targets.items()),
   )
 
 def _new_dart_context(
@@ -226,10 +269,12 @@ def _new_dart_context(
     data = None,
     deps = None,
     license_files = [],
-    transitive_srcs = None,
-    transitive_dart_srcs = None,
-    transitive_data = None,
-    transitive_deps = None):
+    transitive_srcs_targets = None,
+    transitive_srcs_files = None,
+    transitive_dart_srcs_files = None,
+    transitive_data_targets = None,
+    transitive_data_files = None,
+    transitive_deps_targets = None):
   return struct(
       label = label,
       package = package,
@@ -242,8 +287,18 @@ def _new_dart_context(
       data = depset(data or []),
       deps = deps or [],
       license_files = license_files,
-      transitive_srcs = depset(transitive_srcs or []),
-      transitive_dart_srcs = depset(transitive_dart_srcs or []),
-      transitive_data = depset(transitive_data or []),
-      transitive_deps = dict(transitive_deps or {}),
+      transitive_srcs = struct(
+          targets = dict(transitive_srcs_targets or {}),
+          files = depset(transitive_srcs_files or []),
+      ),
+      transitive_dart_srcs = struct(
+          files = depset(transitive_dart_srcs_files or []),
+      ),
+      transitive_data = struct(
+          targets = dict(transitive_data_targets or {}),
+          files = depset(transitive_data_files or []),
+      ),
+      transitive_deps = struct(
+          targets = dict(transitive_deps_targets or {}),
+      ),
   )

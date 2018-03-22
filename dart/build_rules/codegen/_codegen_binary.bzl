@@ -25,15 +25,16 @@ def _codegen_binary_impl(ctx):
   if not ctx.attr.use_resolver:
     use_summaries = False
 
-  data = depset()
+  data = []
   if ctx.attr.use_resolver and not use_summaries:
-    data = ctx.files._sdk_lib_files
+    data = [ctx.attr._sdk_lib_files]
 
   runfiles = dart_vm.binary_action(
       ctx,
       ctx.outputs.script_file,
-      ctx.files.srcs + [ctx.outputs.script_file],
+      ctx.attr.srcs,
       ctx.attr.deps + [ctx.attr._codegen_dep],
+      generated_srcs = [ctx.outputs.script_file],
       data = data,
   )
 

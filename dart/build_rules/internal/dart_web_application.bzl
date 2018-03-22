@@ -5,8 +5,8 @@ def dart_web_application_impl(ctx):
   """Implements the dart_web_application build rule."""
   dart_ctx = make_dart_context(
       ctx,
-      srcs = ctx.files.srcs,
-      data = ctx.files.data,
+      srcs = ctx.attr.srcs,
+      data = ctx.attr.data,
       deps = ctx.attr.deps,
   )
 
@@ -91,7 +91,7 @@ def _packages_dir_action(ctx, dart_ctx, deploy_dir, output_dir):
     output_dir += "/"
 
   srcs = depset()
-  for dep in dart_ctx.transitive_deps.values():
+  for dep in dart_ctx.transitive_deps.targets.values():
     package = dep.dart.package
     for src_file in dep.dart.srcs:
       if src_file in srcs:

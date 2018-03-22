@@ -6,6 +6,29 @@
 * Update to work with bazel 0.9.0 and stop using the deprecated `set`
   constructor.
 * `dart_codegen_action` now forces support for all platform.
+* **Breaking:** In `make_dart_context`, `srcs` and `data` are now list of `Target` instead of list of `File`. A new `generated_srcs` parameter exists for source files that are generated and thus have no associated target. The resulting struct now has its `transitive_*` fields defined like so:
+  ```python
+  struct(
+      ...
+      transitive_srcs = struct(
+          targets = {<label_name>: <target>},
+          files = <depset>,
+      ),
+      transitive_dart_srcs = struct(
+          files = <depset>,
+      ),
+      transitive_data = struct(
+          targets = {<label_name>: <target>},
+          files = <depset>,
+      ),
+      transitive_deps = struct(
+          targets = {<label_name>: <target>},
+      ),
+      transitive_archives = struct(
+          files = <depset>,
+      ),
+  )
+  ```
 
 ## 0.4.10
 

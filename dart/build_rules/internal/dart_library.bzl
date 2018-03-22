@@ -14,8 +14,8 @@ def dart_library_impl(ctx):
 
   dart_ctx = make_dart_context(
       ctx,
-      srcs = ctx.files.srcs,
-      data = ctx.files.data,
+      srcs = ctx.attr.srcs,
+      data = ctx.attr.data,
       deps = ctx.attr.deps,
       enable_summaries = ctx.attr.enable_summaries,
       package = ctx.attr.pub_pkg_name,

@@ -4,8 +4,8 @@ def dart_vm_test_impl(ctx):
   """Implements the dart_vm_test() rule."""
   dart_ctx = make_dart_context(
       ctx,
-      srcs = ctx.files.srcs,
-      data = ctx.files.data,
+      srcs = ctx.attr.srcs,
+      data = ctx.attr.data,
       deps = ctx.attr.deps,
       package = ctx.attr.pub_pkg_name,
   )
@@ -34,11 +34,11 @@ def dart_vm_test_impl(ctx):
   )
 
   # Compute runfiles.
-  runfiles_files = dart_ctx.transitive_data + [
+  runfiles_files = dart_ctx.transitive_data.files + [
       ctx.executable._dart_vm,
       ctx.outputs.executable,
   ]
-  runfiles_files += dart_ctx.transitive_srcs
+  runfiles_files += dart_ctx.transitive_srcs.files
   runfiles_files += [package_spec]
   runfiles = ctx.runfiles(
       files=list(runfiles_files),

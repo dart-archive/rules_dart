@@ -58,14 +58,14 @@ def analyze_action(ctx, dart_ctx, summary=None,
     fail("Generating summaries requires build mode")
 
   strict_transitive_srcs = depset([])
-  for dep in dart_ctx.transitive_deps.values():
+  for dep in dart_ctx.transitive_deps.targets.values():
     strict_transitive_srcs += dep.dart.srcs
 
   # Figure out which files should be analyzed.
   if use_summaries:
     analysis_srcs = [f for f in dart_ctx.srcs if f not in strict_transitive_srcs]
   else:
-    analysis_srcs = dart_ctx.transitive_srcs
+    analysis_srcs = dart_ctx.transitive_srcs.files
   if use_build_mode:
     # We can analyze the source files in place.
     analyze_dir_files = compute_layout(analysis_srcs)
@@ -101,7 +101,7 @@ def analyze_action(ctx, dart_ctx, summary=None,
 
   # Find dependent contexts, filtering out those with no sources.
   dependent_ctxs = [
-      dep.dart for dep in dart_ctx.transitive_deps.values() if has_dart_sources(dep.dart.srcs)
+      dep.dart for dep in dart_ctx.transitive_deps.targets.values() if has_dart_sources(dep.dart.srcs)
   ]
 
   # Compute action inputs

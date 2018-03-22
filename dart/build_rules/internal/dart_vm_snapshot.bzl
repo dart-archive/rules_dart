@@ -23,7 +23,7 @@ def dart_vm_snapshot_action(ctx, dart_ctx, output, vm_flags, script_file, script
   # src tree, genfiles, and bin.
   build_dir_files = layout_action(
       ctx=ctx,
-      srcs=dart_ctx.transitive_srcs,
+      srcs=dart_ctx.transitive_srcs.files,
       output_dir=build_dir,
   )
   out_script = build_dir_files[script_file.short_path]
@@ -50,8 +50,8 @@ def dart_vm_snapshot_impl(ctx):
   """Implements the dart_vm_snapshot build rule."""
   dart_ctx = make_dart_context(
       ctx,
-      srcs = ctx.files.srcs,
-      data = ctx.files.data,
+      srcs = ctx.attr.srcs,
+      data = ctx.attr.data,
       deps = ctx.attr.deps,
       package = ctx.attr.pub_pkg_name,
   )
