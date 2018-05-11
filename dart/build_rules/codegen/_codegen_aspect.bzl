@@ -16,10 +16,12 @@ def _codegen_aspect_impl(target, ctx):
   """Collects files from `srcs` that match provided extensions."""
   srcs = {}
   aspect_name = ctx.attr._name
+  transitive = ctx.attr._transitive
+
   if hasattr(target, "dart_codegen"):
     srcs.update(target.dart_codegen.srcs)
 
-  matching_files = depset()
+  matching_files = []
   extensions = ctx.attr._extensions
   if hasattr(target, "dart"):
     matching_files += _filter_by_extensions(target.dart.srcs, extensions)
@@ -27,16 +29,27 @@ def _codegen_aspect_impl(target, ctx):
     matching_files += _filter_by_extensions(
         _collect_files_for_attribute(ctx.rule.attr.data), extensions)
 
-  srcs[aspect_name] = matching_files
-  return struct(dart_codegen = struct(srcs = srcs))
+  # Add transitive srcs
+  transitive_deps = []
+  if transitive and hasattr(ctx.rule.attr, "deps"):
+    for dep in ctx.rule.attr.deps:
+      if hasattr(dep, "dart_codegen"):
+        meta_srcs = dep.dart_codegen.srcs.get(aspect_name)
+        if meta_srcs:
+          transitive_deps.append(meta_srcs)
 
-def dart_codegen_aspect(aspect_name, extensions):
+  srcs[aspect_name] = depset(direct=matching_files, transitive=transitive_deps)
+  return struct(dart_codegen=struct(srcs=srcs))
+
+
+def dart_codegen_aspect(aspect_name, extensions, transitive=False):
   """Create an Aspect to gather files from `srcs` and `data` by extension."""
   return aspect(
-      implementation = _codegen_aspect_impl,
-      attr_aspects = ["deps"],
-      attrs = {
-          "_extensions": attr.string_list(default = extensions),
-          "_name": attr.string(default = aspect_name),
+      implementation=_codegen_aspect_impl,
+      attr_aspects=["deps"],
+      attrs={
+          "_extensions": attr.string_list(default=extensions),
+          "_name": attr.string(default=aspect_name),
+          "_transitive": attr.bool(default=transitive),
       },
   )
