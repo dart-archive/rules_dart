@@ -1,5 +1,5 @@
 """Build a dart_vm_binary to run code generation."""
-load("//dart/build_rules/common:dicts.bzl", "dicts")
+load("@bazel_skylib//:lib.bzl", "dicts")
 load("//dart/build_rules/internal:common.bzl", "SDK_LIB_FILES")
 load("//dart/build_rules:vm.bzl", "dart_vm")
 load(":_labels.bzl", "labels")
