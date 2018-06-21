@@ -15,7 +15,7 @@
 """Dart rules targeting the Dart VM."""
 
 load(
-    "//dart/build_rules/common:dicts.bzl",
+    "@bazel_skylib//:lib.bzl",
     "dicts",
 )
 load(

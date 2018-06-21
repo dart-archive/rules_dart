@@ -1,3 +1,4 @@
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("//dart/build_rules/internal:pub.bzl", "pub_repository")
 load("//dart/build_rules/internal:sdk.bzl", "sdk_repository", "SDK_BUILD_FILE")
 
@@ -14,6 +15,11 @@ def dart_repositories(local_sdk = None):
     sdk_repository(
         name = "dart_sdk",
     )
+  git_repository(
+      name = "bazel_skylib",
+      remote = "https://github.com/bazelbuild/bazel-skylib.git",
+      tag = "0.5.0",
+  )
   _pub_repositories()
 
 def _pub_repositories():
