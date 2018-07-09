@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-_pub_uri = "https://storage.googleapis.com/pub.dartlang.org/packages"
+_pub_uri = "https://storage.googleapis.com/pub-packages/packages"
 
 """A set of BUILD rules that facilitate using or building on "pub"."""
 
