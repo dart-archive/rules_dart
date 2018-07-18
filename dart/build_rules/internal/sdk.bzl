@@ -93,9 +93,9 @@ _hosted_prefix = "https://storage.googleapis.com/dart-archive/channels/dev/relea
 _linux_file = "dartsdk-linux-x64-release.zip"
 _mac_file = "dartsdk-macos-x64-release.zip"
 
-_version = "1.23.0-dev.9.0"
-_linux_sha = "a0a3a066c112743bd4aba4b3f2637dc341fcc551050f1751bb36674605ebe97e"
-_mac_sha = "786f9fad414d9ea0e595748bd958e16f87541f5e739b10108a0a9e8cfcab64d7"
+_version = "2.0.0-dev.69.0"
+_linux_sha = "4e23c5f9a7a1fa854aa099dc5c285249b146a89bd244ef6b6bceb4ee6568edc3"
+_mac_sha = "b376957f9cd4069443c5880066ff5b5d117f3450393de7ad57f06148e7a6b92c"
 
 
 def _sdk_repository_impl(repository_ctx):

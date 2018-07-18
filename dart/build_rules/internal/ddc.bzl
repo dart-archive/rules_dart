@@ -18,9 +18,6 @@ def ddc_action(ctx, dart_ctx, ddc_output, source_map_output):
           + " not strong clean, doesn't it?")
     flags.append("--unsafe-force-compile")
 
-  # TODO: workaround for ng2/templates until they are better typed
-  flags.append("--unsafe-angular2-whitelist")
-
   # Specify the extension used for API summaries in Google3
   flags.append("--summary-extension=%s" % api_summary_extension)
 

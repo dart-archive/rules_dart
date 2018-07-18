@@ -27,7 +27,7 @@ def _pub_repositories():
       name = "vendor_args",
       output = ".",
       package = "args",
-      version = "0.13.6",
+      version = "1.4.3",
       pub_deps = [],
   )
 
@@ -35,7 +35,7 @@ def _pub_repositories():
       name = "vendor_async",
       output = ".",
       package = "async",
-      version = "1.11.2",
+      version = "2.0.7",
       pub_deps = ["collection"],
   )
 
@@ -43,7 +43,7 @@ def _pub_repositories():
       name = "vendor_charcode",
       output = ".",
       package = "charcode",
-      version = "1.1.0",
+      version = "1.1.2",
       pub_deps = [],
   )
 
@@ -51,7 +51,7 @@ def _pub_repositories():
       name = "vendor_collection",
       output = ".",
       package = "collection",
-      version = "1.9.1",
+      version = "1.14.10",
       pub_deps = [],
   )
 
@@ -67,7 +67,7 @@ def _pub_repositories():
       name = "vendor_csslib",
       output = ".",
       package = "csslib",
-      version = "0.13.2",
+      version = "0.14.4+1",
       pub_deps = [
           "args",
           "logging",
@@ -80,7 +80,7 @@ def _pub_repositories():
       name = "vendor_html",
       output = ".",
       package = "html",
-      version = "0.13.0",
+      version = "0.13.3+1",
       pub_deps = [
           "csslib",
           "source_span",
@@ -92,11 +92,13 @@ def _pub_repositories():
       name = "vendor_http_parser",
       output = ".",
       package = "http_parser",
-      version = "3.0.3",
+      version = "3.1.2",
       pub_deps = [
+          "charcode",
           "collection",
           "source_span",
           "string_scanner",
+          "typed_data",
       ],
   )
 
@@ -120,7 +122,7 @@ def _pub_repositories():
       name = "vendor_mime",
       output = ".",
       package = "mime",
-      version = "0.9.3",
+      version = "0.9.6+1",
       pub_deps = [],
   )
 
@@ -128,7 +130,7 @@ def _pub_repositories():
       name = "vendor_path",
       output = ".",
       package = "path",
-      version = "1.4.0",
+      version = "1.6.1",
       pub_deps = [],
   )
 
@@ -136,9 +138,10 @@ def _pub_repositories():
       name = "vendor_shelf",
       output = ".",
       package = "shelf",
-      version = "0.6.5+3",
+      version = "0.7.3+3",
       pub_deps = [
           "async",
+          "collection",
           "http_parser",
           "path",
           "stack_trace",
@@ -150,7 +153,7 @@ def _pub_repositories():
       name = "vendor_shelf_static",
       output = ".",
       package = "shelf_static",
-      version = "0.2.4",
+      version = "0.2.8",
       pub_deps = [
           "convert",
           "http_parser",
@@ -164,15 +167,15 @@ def _pub_repositories():
       name = "vendor_source_span",
       output = ".",
       package = "source_span",
-      version = "1.2.3",
-      pub_deps = ["path"],
+      version = "1.4.0",
+      pub_deps = ["charcode", "path"],
   )
 
   pub_repository(
       name = "vendor_stack_trace",
       output = ".",
       package = "stack_trace",
-      version = "1.6.8",
+      version = "1.9.2",
       pub_deps = ["path"],
   )
 
@@ -180,15 +183,15 @@ def _pub_repositories():
       name = "vendor_stream_channel",
       output = ".",
       package = "stream_channel",
-      version = "1.5.0",
-      pub_deps = ["async", "stack_trace"],
+      version = "1.6.7+1",
+      pub_deps = ["async"],
   )
 
   pub_repository(
       name = "vendor_string_scanner",
       output = ".",
       package = "string_scanner",
-      version = "1.0.0",
+      version = "1.0.2",
       pub_deps = ["charcode", "source_span"],
   )
 
@@ -196,7 +199,7 @@ def _pub_repositories():
       name = "vendor_typed_data",
       output = ".",
       package = "typed_data",
-      version = "1.1.3",
+      version = "1.1.5",
       pub_deps = [],
   )
 
@@ -204,7 +207,7 @@ def _pub_repositories():
       name = "vendor_utf",
       output = ".",
       package = "utf",
-      version = "0.9.0+3",
+      version = "0.9.0+5",
       pub_deps = [],
   )
 
@@ -212,10 +215,9 @@ def _pub_repositories():
       name = "vendor_watcher",
       output = ".",
       package = "watcher",
-      version = "0.9.7+3",
+      version = "0.9.7+9",
       pub_deps = [
           "async",
-          "collection",
           "path",
       ],
   )
