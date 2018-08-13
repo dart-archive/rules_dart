@@ -29,6 +29,7 @@
       ),
   )
   ```
+* Add kernel infrastructure in `kernel.bzl`
 
 ## 0.4.10
 

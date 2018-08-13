@@ -113,8 +113,6 @@ def _transitive_kernel_files(deps, kernel_type):
 def _kernel_vm_aspect_impl(target, ctx):
     """The kernel vm action for targets with the dart provider."""
 
-    full_label = "//%s:%s" % (target.label.package, target.label.name)
-
     if not hasattr(target, "dart"):
         return struct()
     dart_ctx = target.dart
