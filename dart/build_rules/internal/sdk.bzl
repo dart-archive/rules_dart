@@ -70,6 +70,16 @@ filegroup(
 )
 
 filegroup(
+  name = "sdk_summary_dill",
+  srcs = ["lib/_internal/vm_platform_strong.dill"],
+)
+
+filegroup(
+  name = "kernel_worker_snapshot",
+  srcs = ["bin/snapshots/kernel_worker.dart.snapshot"],
+)
+
+filegroup(
     name = "lib_files_no_summaries",
     srcs = glob([
         "lib/**/*.dart",
@@ -97,29 +107,28 @@ _version = "2.0.0-dev.69.0"
 _linux_sha = "4e23c5f9a7a1fa854aa099dc5c285249b146a89bd244ef6b6bceb4ee6568edc3"
 _mac_sha = "b376957f9cd4069443c5880066ff5b5d117f3450393de7ad57f06148e7a6b92c"
 
-
 def _sdk_repository_impl(repository_ctx):
-  """Downloads the appropriate SDK for the current OS."""
-  os_name = repository_ctx.os.name
+    """Downloads the appropriate SDK for the current OS."""
+    os_name = repository_ctx.os.name
 
-  file_name = False
+    file_name = False
 
-  if "linux" in os_name:
-    file_name = _linux_file
-    sha = _linux_sha
-  elif "mac os" in os_name:
-    file_name = _mac_file
-    sha = _mac_sha
+    if "linux" in os_name:
+        file_name = _linux_file
+        sha = _linux_sha
+    elif "mac os" in os_name:
+        file_name = _mac_file
+        sha = _mac_sha
 
-  if not file_name:
-    fail('Cannot find SDK for OS: %s' % os_name)
+    if not file_name:
+        fail("Cannot find SDK for OS: %s" % os_name)
 
-  repository_ctx.download_and_extract(
-      url = "%s/%s/sdk/%s" % (_hosted_prefix, _version, file_name),
-      sha256 = sha,
-      stripPrefix = "dart-sdk/",
-  )
-  repository_ctx.file("BUILD", SDK_BUILD_FILE)
+    repository_ctx.download_and_extract(
+        url = "%s/%s/sdk/%s" % (_hosted_prefix, _version, file_name),
+        sha256 = sha,
+        stripPrefix = "dart-sdk/",
+    )
+    repository_ctx.file("BUILD", SDK_BUILD_FILE)
 
 sdk_repository = repository_rule(
     implementation = _sdk_repository_impl,
