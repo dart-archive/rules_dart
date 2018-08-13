@@ -29,7 +29,8 @@
       ),
   )
   ```
-* Add kernel infrastructure in `kernel.bzl`
+* Add infrastructure for creating package specs in `package_spec.bzl`
+* Add kernel infrastructure in `kernel.bzl
 
 ## 0.4.10
 

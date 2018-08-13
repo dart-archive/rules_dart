@@ -1,7 +1,7 @@
 """Dart rules for creating Kernel (.dill) files."""
 
 load(
-    "//dart/build_defs:package_spec.bzl",
+    "//dart/build_rules/common:package_spec.bzl",
     _package_spec_action = "package_spec_action",
 )
 load(
