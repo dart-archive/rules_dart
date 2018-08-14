@@ -9,6 +9,7 @@ bazel-*
 **/build/
 **/packages/
 pubspec.lock
+.dart_tool/
 
 .pubspec/packages.bzl
 .pubspec/.bazelify

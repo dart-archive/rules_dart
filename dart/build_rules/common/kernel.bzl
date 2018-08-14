@@ -77,18 +77,34 @@ def _make_kernel_file(
         progress_message = "Building kernel file %s" % (ctx.label),
     )
 
-def concat_kernel_files(ctx, kernel_type, output = None):
+def concat_kernel_files(ctx, dart_ctx, kernel_type, output = None):
     """Concatenates all transitive kernel files for a target."""
 
-    transitive_files = _transitive_kernel_files(ctx.attr.deps, kernel_type)
+    transitive_kernel_files = _transitive_kernel_files(dart_ctx.deps, kernel_type)
+    if dart_ctx.srcs:
+        kernel_vm_output = ctx.actions.declare_file("%s.vm.dill" % ctx.label.name)
+        _make_kernel_file(
+            ctx,
+            dart_ctx,
+            transitive_kernel_files,
+            kernel_vm_output,
+            dart_ctx.srcs,
+        )
+
+        # Add the kernel output to the transitive kernel files
+        transitive_kernel_files = depset(
+            [kernel_vm_output],
+            transitive = [transitive_kernel_files],
+            order = "topological",
+        )
     ctx.actions.run_shell(
         outputs = [output],
-        inputs = transitive_files,
+        inputs = transitive_kernel_files,
         # TODO(grouma) - Use ctx.args here. This pattern
         # has performance implications.
         arguments = [output.path] + [
             file.path
-            for file in transitive_files.to_list()
+            for file in transitive_kernel_files.to_list()
         ],
         command = "cat ${@:2} > $1",
         mnemonic = "DartKernelConcat",
