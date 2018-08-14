@@ -154,6 +154,9 @@ def dart_codegen_binary(
       default_content: Optional. A map from generated file extension to string
         contents for that file. If the builders fail to output a file this value
         will be output instead.
+      run_from_source: Whether the binary will run from source or generated
+        kernel files. Defaults to False.
+      **kwargs: keyword config parameters
     """
     _codegen_binary(
         name = name,
