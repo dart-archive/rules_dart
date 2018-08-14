@@ -34,6 +34,25 @@ skylark_library(
     srcs = ["label.bzl"],
 )
 
+bzl_library(
+    name = "package_spec",
+    srcs = ["package_spec.bzl"],
+    deps = [
+        ":context",
+        ":path",
+    ],
+)
+
+bzl_library(
+    name = "kernel",
+    srcs = ["kernel.bzl"],
+    deps = [
+        ":package_spec",
+        ":path",
+        "//dart/build_rules/internal:common",
+    ],
+)
+
 # TODO(@Capstan): path -> @bazel_skylib//:lib.bzl paths
 skylark_library(
     name = "path",
