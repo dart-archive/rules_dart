@@ -14,8 +14,16 @@
 
 """Dart rules targeting web clients."""
 
-load("//dart/build_rules/internal:dart_web_application.bzl", "dart_web_application_outputs", "dart_web_application_impl")
-load("//dart/build_rules/internal:ddc.bzl", "dart_ddc_bundle_impl", "dart_ddc_bundle_outputs")
+load(
+    "//dart/build_rules/internal:dart_web_application.bzl",
+    "dart_web_application_impl",
+    "dart_web_application_outputs",
+)
+load(
+    "//dart/build_rules/internal:ddc.bzl",
+    "dart_ddc_bundle_impl",
+    "dart_ddc_bundle_outputs",
+)
 load(":vm.bzl", "dart_vm_binary")
 
 dart_web_application = rule(
@@ -71,38 +79,38 @@ dart_web_application = rule(
 )
 
 dart_ddc_bundle = rule(
-  attrs = {
-      "check_duplicate_srcs": attr.bool(default = False),
-      "entry_library": attr.string(),
-      "entry_module": attr.label(providers = ["ddc"]),
-      "input_html": attr.label(allow_files = True),
-      "include_test": attr.bool(default = False),
-      "output_dir": attr.string(default = ""),
-      "output_html": attr.string(default = ""),
-      "_ddc_concat": attr.label(
-          single_file = True,
-          executable = True,
-          cfg = "host",
-          default = Label("//dart/build_rules/tools:ddc_concat"),
-      ),
-      "_ddc_html_generator": attr.label(
-          single_file = True,
-          executable = True,
-          cfg = "host",
-          default = Label("//dart/tools/ddc_html_generator"),
-      ),
-      "_ddc_support": attr.label(
-          default = Label("@dart_sdk//:ddc_support"),
-      ),
-      "_sdk_summaries": attr.label(
-          default = Label("@dart_sdk//:sdk_summaries"),
-      ),
-      "_js_pkg": attr.label(
-          default = Label("@vendor_js//:js"),
-      ),
-  },
-  outputs = dart_ddc_bundle_outputs,
-  implementation = dart_ddc_bundle_impl,
+    attrs = {
+        "check_duplicate_srcs": attr.bool(default = False),
+        "entry_library": attr.string(),
+        "entry_module": attr.label(providers = ["ddc"]),
+        "input_html": attr.label(allow_files = True),
+        "include_test": attr.bool(default = False),
+        "output_dir": attr.string(default = ""),
+        "output_html": attr.string(default = ""),
+        "_ddc_concat": attr.label(
+            single_file = True,
+            executable = True,
+            cfg = "host",
+            default = Label("//dart/build_rules/tools:ddc_concat"),
+        ),
+        "_ddc_html_generator": attr.label(
+            single_file = True,
+            executable = True,
+            cfg = "host",
+            default = Label("//dart/tools/ddc_html_generator"),
+        ),
+        "_ddc_support": attr.label(
+            default = Label("@dart_sdk//:ddc_support"),
+        ),
+        "_sdk_summaries": attr.label(
+            default = Label("@dart_sdk//:sdk_summaries"),
+        ),
+        "_js_pkg": attr.label(
+            default = Label("@vendor_js//:js"),
+        ),
+    },
+    outputs = dart_ddc_bundle_outputs,
+    implementation = dart_ddc_bundle_impl,
 )
 
 # Skylark macro for creating a development server to serve an application.
@@ -113,11 +121,12 @@ dart_ddc_bundle = rule(
 #
 # If you have renamed the rules_dart_repo, you will need to provide that name
 # via the `rules_dart_repo_name` argument.
-def dev_server(rules_dart_repo_name = "@io_bazel_rules_dart",
-               **kwargs):
-  dart_vm_binary(
-      srcs = [rules_dart_repo_name + "//dart/tools/dev_server:bin/server.dart"],
-      script_file = rules_dart_repo_name + "//dart/tools/dev_server:bin/server.dart",
-      deps = [rules_dart_repo_name + "//dart/tools/dev_server:server"],
-      **kwargs
-  )
+def dev_server(
+        rules_dart_repo_name = "@io_bazel_rules_dart",
+        **kwargs):
+    dart_vm_binary(
+        srcs = [rules_dart_repo_name + "//dart/tools/dev_server:bin/server.dart"],
+        script_file = rules_dart_repo_name + "//dart/tools/dev_server:bin/server.dart",
+        deps = [rules_dart_repo_name + "//dart/tools/dev_server:server"],
+        **kwargs
+    )

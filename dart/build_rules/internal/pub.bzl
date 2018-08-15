@@ -17,22 +17,21 @@ _pub_uri = "https://storage.googleapis.com/pub-packages/packages"
 """A set of BUILD rules that facilitate using or building on "pub"."""
 
 def _pub_repository_impl(repository_ctx):
-  package = repository_ctx.attr.package
-  version = repository_ctx.attr.version
+    package = repository_ctx.attr.package
+    version = repository_ctx.attr.version
 
-  repository_ctx.download_and_extract(
-      "%s/%s-%s.tar.gz" % (_pub_uri, package, version),
-      repository_ctx.attr.output,
-  )
+    repository_ctx.download_and_extract(
+        "%s/%s-%s.tar.gz" % (_pub_uri, package, version),
+        repository_ctx.attr.output,
+    )
 
+    pub_deps = repository_ctx.attr.pub_deps
+    bazel_deps = ["\"@vendor_%s//:%s\"" % (dep, dep) for dep in pub_deps]
+    deps = ",\n".join(bazel_deps)
 
-  pub_deps = repository_ctx.attr.pub_deps
-  bazel_deps = ["\"@vendor_%s//:%s\"" % (dep, dep) for dep in pub_deps]
-  deps = ",\n".join(bazel_deps)
-
-  repository_ctx.file(
-      "%s/BUILD" % (repository_ctx.attr.output),
-"""
+    repository_ctx.file(
+        "%s/BUILD" % (repository_ctx.attr.output),
+        """
 load("@io_bazel_rules_dart//dart/build_rules:core.bzl", "dart_library")
 
 package(default_visibility = ["//visibility:public"])
@@ -50,7 +49,7 @@ dart_library(
 )
 
 """ % (package, package, deps),
-  )
+    )
 
 pub_repository = repository_rule(
     attrs = {

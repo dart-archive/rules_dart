@@ -16,74 +16,75 @@ load(":common.bzl", "make_dart_context", "package_spec_action")
 load(":dart_vm_snapshot.bzl", "dart_vm_snapshot_action")
 
 def _dart_vm_binary_action(
-    ctx,
-    script_file,
-    srcs,
-    deps,
-    data = [],
-    snapshot = True,
-    script_args = [],
-    generated_srcs = [],
-    vm_flags = [],
-    pub_pkg_name = ""):
-  dart_ctx = make_dart_context(
-      ctx,
-      srcs = srcs,
-      generated_srcs = generated_srcs,
-      data = data,
-      deps = deps,
-      package = pub_pkg_name)
+        ctx,
+        script_file,
+        srcs,
+        deps,
+        data = [],
+        snapshot = True,
+        script_args = [],
+        generated_srcs = [],
+        vm_flags = [],
+        pub_pkg_name = ""):
+    dart_ctx = make_dart_context(
+        ctx,
+        srcs = srcs,
+        generated_srcs = generated_srcs,
+        data = data,
+        deps = deps,
+        package = pub_pkg_name,
+    )
 
-  if snapshot:
-    out_snapshot = ctx.new_file(ctx.label.name + ".snapshot")
-    dart_vm_snapshot_action(
+    if snapshot:
+        out_snapshot = ctx.new_file(ctx.label.name + ".snapshot")
+        dart_vm_snapshot_action(
+            ctx = ctx,
+            dart_ctx = dart_ctx,
+            output = out_snapshot,
+            vm_flags = vm_flags,
+            script_file = script_file,
+            script_args = script_args,
+        )
+        script_file = out_snapshot
+
+    # Emit package spec.
+    package_spec = ctx.new_file(ctx.label.name + ".packages")
+    package_spec_action(
         ctx = ctx,
         dart_ctx = dart_ctx,
-        output = out_snapshot,
-        vm_flags = vm_flags,
-        script_file = script_file,
-        script_args = script_args,
+        output = package_spec,
     )
-    script_file = out_snapshot
 
-  # Emit package spec.
-  package_spec = ctx.new_file(ctx.label.name + ".packages")
-  package_spec_action(
-      ctx = ctx,
-      dart_ctx = dart_ctx,
-      output = package_spec,
-  )
+    # Emit entrypoint script.
+    ctx.template_action(
+        output = ctx.outputs.executable,
+        template = ctx.file._entrypoint_template,
+        executable = True,
+        substitutions = {
+            "%workspace%": ctx.workspace_name,
+            "%dart_vm%": ctx.executable._dart_vm.short_path,
+            "%package_spec%": package_spec.short_path,
+            "%vm_flags%": " ".join(vm_flags),
+            "%script_file%": script_file.short_path,
+            "%script_args%": " ".join(script_args),
+        },
+    )
 
-  # Emit entrypoint script.
-  ctx.template_action(
-      output = ctx.outputs.executable,
-      template = ctx.file._entrypoint_template,
-      executable = True,
-      substitutions = {
-          "%workspace%": ctx.workspace_name,
-          "%dart_vm%": ctx.executable._dart_vm.short_path,
-          "%package_spec%": package_spec.short_path,
-          "%vm_flags%": " ".join(vm_flags),
-          "%script_file%": script_file.short_path,
-          "%script_args%": " ".join(script_args),
-      },
-  )
+    # Compute runfiles.
+    runfiles_files = dart_ctx.transitive_data.files + [
+        ctx.executable._dart_vm,
+        ctx.outputs.executable,
+        package_spec,
+    ]
+    if snapshot:
+        runfiles_files += [out_snapshot]
+    else:
+        runfiles_files += dart_ctx.transitive_srcs.files
 
-  # Compute runfiles.
-  runfiles_files = dart_ctx.transitive_data.files + [
-      ctx.executable._dart_vm,
-      ctx.outputs.executable,
-      package_spec,
-  ]
-  if snapshot:
-    runfiles_files += [out_snapshot]
-  else:
-    runfiles_files += dart_ctx.transitive_srcs.files
-
-  return ctx.runfiles(
-      files = list(runfiles_files),
-      collect_data = True,
-  )
+    return ctx.runfiles(
+        files = list(runfiles_files),
+        collect_data = True,
+    )
 
 _default_binary_attrs = {
     "_dart_vm": attr.label(
@@ -100,6 +101,6 @@ _default_binary_attrs = {
 }
 
 internal_dart_vm = struct(
-  binary_action=_dart_vm_binary_action,
-  common_attrs=_default_binary_attrs,
+    binary_action = _dart_vm_binary_action,
+    common_attrs = _default_binary_attrs,
 )

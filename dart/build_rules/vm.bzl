@@ -51,21 +51,21 @@ _dart_vm_binary_attrs = dicts.add(internal_dart_vm.common_attrs, {
 })
 
 def _dart_vm_binary_impl(ctx):
-  """Implements the dart_vm_binary() rule."""
-  runfiles = internal_dart_vm.binary_action(
-      ctx,
-      script_file = ctx.file.script_file,
-      srcs = ctx.attr.srcs,
-      deps = ctx.attr.deps,
-      data = ctx.attr.data,
-      snapshot = ctx.attr.snapshot,
-      script_args = ctx.attr.script_args,
-      vm_flags = ctx.attr.vm_flags,
-      pub_pkg_name = ctx.attr.pub_pkg_name,
-  )
-  return struct(
-      runfiles=runfiles,
-  )
+    """Implements the dart_vm_binary() rule."""
+    runfiles = internal_dart_vm.binary_action(
+        ctx,
+        script_file = ctx.file.script_file,
+        srcs = ctx.attr.srcs,
+        deps = ctx.attr.deps,
+        data = ctx.attr.data,
+        snapshot = ctx.attr.snapshot,
+        script_args = ctx.attr.script_args,
+        vm_flags = ctx.attr.vm_flags,
+        pub_pkg_name = ctx.attr.pub_pkg_name,
+    )
+    return struct(
+        runfiles = runfiles,
+    )
 
 dart_vm_binary = rule(
     attrs = _dart_vm_binary_attrs,
@@ -107,7 +107,9 @@ dart_vm_test = rule(
         ),
         "_entrypoint_template": attr.label(
             single_file = True,
-            default = Label("//dart/build_rules/templates:dart_vm_test_template"),
+            default = Label(
+                "//dart/build_rules/templates:dart_vm_test_template",
+            ),
         ),
     },
     executable = True,
