@@ -301,7 +301,8 @@ def dart_codegen_action(
                     if dep_srcs:
                         filtered_deps += dep_srcs
         elif not use_summaries:
-            filtered_deps += ctx.files.deps
+            filtered_deps += dart_context.transitive_srcs.files
+            filtered_deps += dart_context.transitive_data.files
 
     for dep in forced_deps:
         # Avoid transitive files from dart_library targets
