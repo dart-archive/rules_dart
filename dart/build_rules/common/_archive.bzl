@@ -24,10 +24,10 @@ def create_archive(ctx, srcs, name):
     if not hasattr(native, "js_library"):
         # The above options are not available on Exoblaze
         tar_command = "tar -chf temp_tar.tar *"
-    tmp_file = ctx.new_file(name + ".archive_inputs")
-    ctx.file_action(output = tmp_file, content = "\n".join(commands))
-    tar_file = ctx.new_file(name + ".dart_archive.tar")
-    ctx.action(
+    tmp_file = ctx.actions.declare_file(name + ".archive_inputs")
+    ctx.actions.write(output = tmp_file, content = "\n".join(commands))
+    tar_file = ctx.actions.declare_file(name + ".dart_archive.tar")
+    ctx.actions.run_shell(
         inputs = srcs + [tmp_file],
         outputs = [tar_file],
         mnemonic = "DartArchive",

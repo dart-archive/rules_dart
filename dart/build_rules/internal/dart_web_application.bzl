@@ -105,12 +105,14 @@ def _packages_dir_action(ctx, dart_ctx, deploy_dir, output_dir):
 
             if root_relative_path.startswith(dep.dart.lib_root):
                 lib_path = root_relative_path[len(dep.dart.lib_root):]
-                dest_file = ctx.new_file(
+                dest_file = ctx.actions.declare_file(
                     deploy_dir + output_dir + "packages/" +
                     package + "/" + lib_path,
                 )
             elif dart_ctx.label.package == dep.dart.label.package:
-                dest_file = ctx.new_file(deploy_dir + src_file.short_path)
+                dest_file = ctx.actions.declare_file(
+                    deploy_dir + src_file.short_path,
+                )
             else:
                 continue
 
@@ -125,17 +127,17 @@ def _packages_dir_action(ctx, dart_ctx, deploy_dir, output_dir):
 
     # Emit packages dir script.
     suffix = output_dir[:-1].replace("/", "_")
-    packages_action_out = ctx.new_file(
+    packages_action_out = ctx.actions.declare_file(
         "%s_%s_packages.sh" % (suffix, ctx.label.name),
     )
-    ctx.file_action(
+    ctx.actions.write(
         output = packages_action_out,
         content = "#!/bin/bash\n" + "\n".join(commands),
-        executable = True,
+        is_executable = True,
     )
 
     # Invoke the packages dir action.
-    ctx.action(
+    ctx.actions.run(
         inputs = list(srcs),
         outputs = output_files,
         executable = packages_action_out,

@@ -35,11 +35,11 @@ def _tmp_file(ctx, file_suffix, lines):
 
       See [File documentation](https://goo.gl/fYvlcT) for more information.
     """
-    tmp_file = ctx.new_file(
+    tmp_file = ctx.actions.declare_file(
         ctx.configuration.bin_dir,
         "%s_%s" % (ctx.label.name, file_suffix),
     )
-    ctx.file_action(output = tmp_file, content = "\n".join(lines))
+    ctx.actions.write(output = tmp_file, content = "\n".join(lines))
     return tmp_file
 
 def _input_path(file):
@@ -124,7 +124,7 @@ def _declare_outs(ctx, generate_for, build_extensions):
                         src.basename[:-1 * len(extension)],
                         out_extension,
                     )
-                    output = ctx.new_file(src, out_name)
+                    output = ctx.actions.declare_file(src, out_name)
                     outs.append(output)
     return outs
 
@@ -219,7 +219,7 @@ def dart_codegen_action(
 
     outs = _declare_outs(ctx, generate_for, build_extensions)
     outs += [
-        ctx.new_file(path)
+        ctx.actions.declare_file(path)
         for path in compute_placeholder_outs(build_extensions)
     ]
 
@@ -400,7 +400,7 @@ def dart_codegen_action(
         for extensions in build_extensions.values()
         for ext in extensions
     ]
-    ctx.action(
+    ctx.actions.run(
         inputs = list(inputs),
         outputs = outs,
         executable = generator_binary,

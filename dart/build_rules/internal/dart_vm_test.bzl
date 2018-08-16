@@ -11,7 +11,7 @@ def dart_vm_test_impl(ctx):
     )
 
     # Emit package spec.
-    package_spec = ctx.new_file(ctx.label.name + ".packages")
+    package_spec = ctx.actions.declare_file(ctx.label.name + ".packages")
     package_spec_action(
         ctx = ctx,
         dart_ctx = dart_ctx,

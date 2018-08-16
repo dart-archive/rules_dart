@@ -92,7 +92,7 @@ def analyze_action(
     # Build a package spec if needed.
     if not use_build_mode:
         package_spec_path = ctx.label.package + "/" + ctx.label.name + ".packages"
-        package_spec = ctx.new_file(analyze_dir + package_spec_path)
+        package_spec = ctx.actions.declare_file(analyze_dir + package_spec_path)
         package_spec_action(ctx, dart_ctx, package_spec)
 
     # Emit the script to run analyzer, if necessary.
@@ -105,8 +105,8 @@ def analyze_action(
         content += "\n"
         if ignore_exit_code and not use_build_mode:
             content += "exit 0\n"
-        executable = ctx.new_file(ctx.label.name + "_analyze.sh")
-        ctx.file_action(
+        executable = ctx.actions.declare_file(ctx.label.name + "_analyze.sh")
+        ctx.actions.write(
             output = executable,
             content = content,
             executable = True,
@@ -211,8 +211,10 @@ def analyze_action(
         mnemonic = "DartSummary"
         if use_build_mode:
             # All arguments go into a file for worker mode support.
-            args_file = ctx.new_file(ctx.label.name + "_worker_args")
-            ctx.file_action(
+            args_file = ctx.actions.declare_file(
+                ctx.label.name + "_worker_args",
+            )
+            ctx.actions.write(
                 output = args_file,
                 content = "\n".join(analyzer_args),
             )
@@ -232,7 +234,7 @@ def analyze_action(
     else:
         mode = "spec"
 
-    ctx.action(
+    ctx.actions.run(
         inputs = inputs,
         outputs = outputs,
         executable = executable,
@@ -249,7 +251,7 @@ def summary_action(ctx, dart_ctx):
     # If a strong_summary is declared, we assume summaries are enabled.
     if dart_ctx.strong_summary:
         if not dart_ctx.dart_srcs:
-            ctx.file_action(
+            ctx.actions.write(
                 output = dart_ctx.strong_summary,
                 content = (
                     "// empty summary, package %s has no dart sources\n" %

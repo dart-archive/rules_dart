@@ -18,7 +18,7 @@ def dart_vm_snapshot_action(
     # Emit package spec.
     package_spec_path = ctx.label.package + "/" + ctx.label.name + ".packages"
 
-    package_spec = ctx.new_file(build_dir + package_spec_path)
+    package_spec = ctx.actions.declare_file(build_dir + package_spec_path)
     package_spec_action(
         ctx = ctx,
         output = package_spec,
@@ -43,7 +43,7 @@ def dart_vm_snapshot_action(
     arguments += vm_flags
     arguments += [out_script.path]
     arguments += script_args
-    ctx.action(
+    ctx.actions.run(
         inputs = build_dir_files.values() + [package_spec],
         outputs = [output],
         executable = ctx.executable._dart_vm,

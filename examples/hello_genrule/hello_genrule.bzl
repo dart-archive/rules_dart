@@ -1,6 +1,6 @@
 def _hello_gen_impl(ctx):
     output_file_path = ctx.outputs.output_file.path
-    ctx.action(
+    ctx.actions.run(
         inputs = [ctx.file.input_file],
         outputs = [ctx.outputs.output_file],
         arguments = [

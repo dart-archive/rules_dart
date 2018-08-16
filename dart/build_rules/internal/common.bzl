@@ -74,7 +74,7 @@ def package_spec_action(ctx, dart_ctx, output):
             content += "%s:%s\n" % (dc.package, relative_lib_root)
 
     # Emit the package spec.
-    ctx.file_action(
+    ctx.actions.write(
         output = output,
         content = content,
     )
@@ -88,7 +88,7 @@ def layout_action(ctx, srcs, output_dir):
     Args:
       ctx: the build context.
       srcs: the set of input srcs to be flattened.
-      output_dir: the full output directory path into which the files are emitted.
+      output_dir: the full directory path into which the files are emitted.
 
     Returns:
       A map from input file short_path to File in output_dir.
@@ -102,24 +102,28 @@ def layout_action(ctx, srcs, output_dir):
     for src_file in srcs:
         short_better_path = src_file.short_path
         if short_better_path.startswith("../"):
-            dest_file = ctx.new_file(output_dir + short_better_path.replace("../", ""))
+            dest_file = ctx.actions.declare_file(
+                output_dir + short_better_path.replace("../", ""),
+            )
         else:
-            dest_file = ctx.new_file(output_dir + short_better_path)
+            dest_file = ctx.actions.declare_file(
+                output_dir + short_better_path,
+            )
         dest_dir = dest_file.path[:dest_file.path.rfind("/")]
         link_target = relative_path(dest_dir, src_file.path)
         commands += ["ln -s '%s' '%s'" % (link_target, dest_file.path)]
         output_files[src_file.short_path] = dest_file
 
     # Emit layout script.
-    layout_cmd = ctx.new_file(ctx.label.name + "_layout.sh")
-    ctx.file_action(
+    layout_cmd = ctx.actions.declare_file(ctx.label.name + "_layout.sh")
+    ctx.actions.write(
         output = layout_cmd,
         content = "#!/bin/bash\n" + "\n".join(commands),
-        executable = True,
+        is_executable = True,
     )
 
     # Invoke the layout action.
-    ctx.action(
+    ctx.actions.run(
         inputs = list(srcs),
         outputs = output_files.values(),
         executable = layout_cmd,

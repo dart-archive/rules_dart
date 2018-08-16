@@ -142,14 +142,14 @@ def make_dart_context(
              ("\n\nImmediate deps and inferred platforms\n" + dep_platforms))
     strong_analysis = None
     if enable_analysis:
-        strong_analysis = ctx.new_file("%s%s.%s" % (
+        strong_analysis = ctx.actions.declare_file("%s%s.%s" % (
             compute_ddc_output_dir(label, dart_srcs),
             label.name,
             analysis_extension,
         ))
     strong_summary = None
     if enable_summaries:
-        strong_summary = ctx.new_file("%s%s.%s" % (
+        strong_summary = ctx.actions.declare_file("%s%s.%s" % (
             compute_ddc_output_dir(label, dart_srcs),
             label.name,
             api_summary_extension,

@@ -36,7 +36,7 @@ def _dart_vm_binary_action(
     )
 
     if snapshot:
-        out_snapshot = ctx.new_file(ctx.label.name + ".snapshot")
+        out_snapshot = ctx.actions.declare_file(ctx.label.name + ".snapshot")
         dart_vm_snapshot_action(
             ctx = ctx,
             dart_ctx = dart_ctx,
@@ -48,7 +48,7 @@ def _dart_vm_binary_action(
         script_file = out_snapshot
 
     # Emit package spec.
-    package_spec = ctx.new_file(ctx.label.name + ".packages")
+    package_spec = ctx.actions.declare_file(ctx.label.name + ".packages")
     package_spec_action(
         ctx = ctx,
         dart_ctx = dart_ctx,

@@ -32,21 +32,23 @@ def dart_library_impl(ctx):
         # per dart_library, and that is where we output the js file.
         output_dir = compute_ddc_output_dir(ctx.label, dart_ctx.dart_srcs)
 
-        ddc_output = ctx.new_file("%s%s.js" % (output_dir, ctx.label.name))
-        source_map_output = ctx.new_file(
+        ddc_output = ctx.actions.declare_file(
+            "%s%s.js" % (output_dir, ctx.label.name),
+        )
+        source_map_output = ctx.actions.declare_file(
             "%s%s.js.map" % (output_dir, ctx.label.name),
         )
         files_provider += [ddc_output, source_map_output]
 
         if not has_dart_sources(ctx.files.srcs):
-            ctx.file_action(
+            ctx.actions.write(
                 output = ddc_output,
                 content = (
                     "// intentionally empty: package %s has no dart sources" %
                     ctx.label.name
                 ),
             )
-            ctx.file_action(
+            ctx.actions.write(
                 output = source_map_output,
                 content = (
                     "// intentionally empty: package %s has no dart sources" %

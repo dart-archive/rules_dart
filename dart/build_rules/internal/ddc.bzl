@@ -80,12 +80,12 @@ def ddc_action(ctx, dart_ctx, ddc_output, source_map_output):
     flags += input_paths
 
     # Sends all the flags to an output file, for worker support
-    flags_file = ctx.new_file(ctx.label.name + "_ddc_args")
-    ctx.file_action(output = flags_file, content = "\n".join(flags))
+    flags_file = ctx.actions.declare_file(ctx.label.name + "_ddc_args")
+    ctx.actions.write(output = flags_file, content = "\n".join(flags))
     inputs += [flags_file]
     flags = ["@%s" % flags_file.path]
 
-    ctx.action(
+    ctx.actions.run(
         inputs = inputs,
         executable = ctx.executable._dev_compiler,
         arguments = flags,
@@ -171,7 +171,7 @@ def dart_ddc_bundle_impl(ctx):
                 print("%s found in multiple libraries %s" %
                       (src, dart_srcs_to_pkgs[src]))
 
-    ctx.action(
+    ctx.actions.run(
         inputs = inputs,
         executable = ctx.file._ddc_concat,
         arguments = [ctx.outputs.app.path] + [f.path for f in inputs],
@@ -214,7 +214,7 @@ def dart_ddc_bundle_impl(ctx):
     if ctx.attr.include_test:
         html_gen_flags.append("--include_test")
 
-    ctx.action(
+    ctx.actions.run(
         inputs = html_gen_inputs,
         outputs = [ctx.outputs.html],
         executable = ctx.file._ddc_html_generator,
@@ -313,7 +313,7 @@ def _ddc_package_spec_action(ctx, dart_ctx, output):
         content += "%s:%s\n" % (dc.dart.package, lib_root)
 
     # Emit the package spec.
-    ctx.file_action(
+    ctx.actions.write(
         output = output,
         content = content,
     )
