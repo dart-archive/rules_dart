@@ -252,13 +252,7 @@ def dart_ddc_bundle_impl(ctx):
         runfiles += dep.dart.data
         runfiles += [dep.dart.strong_summary]
 
-    # Find the strong_summary file for the sdk
-    for f in ctx.files._sdk_summaries:
-        if f.path.endswith("strong.sum"):
-            sdk_strong_summary = f
-            break
-    if not sdk_strong_summary:
-        fail("unable to find sdk strong summary")
+    sdk_summary = ctx.file._sdk_summary
 
     for f in ctx.files._js_pkg:
         if f.path.endswith("js.api.ds"):
@@ -274,7 +268,7 @@ def dart_ddc_bundle_impl(ctx):
             root_symlinks = {
                 "%sdart_library.js" % ddc_runtime_output_prefix: ddc_dart_library,
                 "%sdart_sdk.js" % ddc_runtime_output_prefix: ddc_dart_sdk,
-                "%s/third_party/dart_lang/trunk/sdk/lib/_internal/strong.sum" % ctx.workspace_name: sdk_strong_summary,
+                "%s/third_party/dart_lang/trunk/sdk/lib/_internal/strong.sum" % ctx.workspace_name: sdk_summary,
                 "%s/third_party/dart/js/js.api.ds" % ctx.workspace_name: pkg_js_summary,
             },
         ),

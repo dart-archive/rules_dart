@@ -40,7 +40,6 @@ load(
     "strip_extension",
 )
 
-SDK_SUMMARIES = "@dart_sdk//:sdk_summaries"
 SDK_LIB_FILES = "@dart_sdk//:lib_files"
 
 def dartvm_target():
@@ -51,6 +50,14 @@ def kernel_worker_snapshot():
 
 def sdk_summary_dill():
     return "@dart_sdk//:sdk_summary_dill"
+
+def platform_summary(platforms):
+    """A label for the SDK summary file.
+
+    Today this is always the DDC SDK summary, in the future more platforms may
+    be supported.
+    """
+    return Label("@dart_sdk//:sdk_summary")
 
 def package_spec_action(ctx, dart_ctx, output):
     """Creates an action that generates a Dart package spec.

@@ -102,8 +102,9 @@ dart_ddc_bundle = rule(
         "_ddc_support": attr.label(
             default = Label("@dart_sdk//:ddc_support"),
         ),
-        "_sdk_summaries": attr.label(
-            default = Label("@dart_sdk//:sdk_summaries"),
+        "_sdk_summary": attr.label(
+            default = Label("@dart_sdk//:sdk_summary"),
+            allow_single_file = True,
         ),
         "_js_pkg": attr.label(
             default = Label("@vendor_js//:js"),

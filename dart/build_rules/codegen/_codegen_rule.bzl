@@ -1,7 +1,7 @@
 """Builds custom skylark rules scoped to a specific dart_codegen_binary."""
 
 load(":_codegen_action.bzl", "compute_placeholder_outs", "dart_codegen_action")
-load("//dart/build_rules/internal:common.bzl", "SDK_SUMMARIES")
+load("//dart/build_rules/internal:common.bzl", "platform_summary")
 
 def dart_codegen_rule(
         codegen_binary,
@@ -62,6 +62,7 @@ def dart_codegen_rule(
                 default = outline_summary_deps,
                 providers = ["dart"],
             ),
+            "platforms": attr.string_list(),
             "_build_extensions": attr.string_list_dict(
                 default = build_extensions,
             ),
@@ -76,9 +77,9 @@ def dart_codegen_rule(
                 default = generator_args,
             ),
             "_arg_prefix": attr.string(default = arg_prefix),
-            "_sdk": attr.label(
-                default = Label(SDK_SUMMARIES),
-                allow_files = True,
+            "_sdk_summary": attr.label(
+                default = platform_summary,
+                allow_single_file = True,
             ),
             "_supports_outline_codegen": attr.bool(
                 default = supports_outline_codegen,
@@ -128,6 +129,7 @@ def _codegen_impl(ctx):
         ctx.files.srcs,
         ctx.attr._build_extensions,
         ctx.executable._generator,
+        sdk_summary = ctx.file._sdk_summary,
         forced_deps = ctx.attr.forced_deps,
         generator_args = generator_args,
         arg_prefix = ctx.attr._arg_prefix,
@@ -144,6 +146,7 @@ def _codegen_impl(ctx):
             ctx.files.srcs,
             ctx.attr._build_extensions,
             ctx.executable._generator,
+            sdk_summary = ctx.file._sdk_summary,
             forced_deps = ctx.attr.forced_deps,
             generator_args = generator_args,
             arg_prefix = ctx.attr._arg_prefix,

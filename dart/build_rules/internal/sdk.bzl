@@ -65,7 +65,7 @@ filegroup(
 )
 
 filegroup(
-  name = "sdk_summaries",
+  name = "sdk_summary",
   srcs = ["lib/_internal/strong.sum"],
 )
 

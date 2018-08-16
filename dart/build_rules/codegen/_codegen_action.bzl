@@ -171,6 +171,7 @@ def dart_codegen_action(
         srcs,
         build_extensions,
         generator_binary,
+        sdk_summary,
         forced_deps = None,
         generator_args = None,
         arg_prefix = None,
@@ -187,6 +188,7 @@ def dart_codegen_action(
       srcs: The srcs for this action.
       build_extensions: Dictionary from input extension to output extensions.
       generator_binary: The binary to invoke which will perform codegen.
+      sdk_summary: The analyzer summary for the SDK.
       forced_deps: Extra deps which will always be provided to this action.
       generator_args: Extra arguments to pass on to the code generator.
       arg_prefix: Prefix to match for --define=%arg_prefix%_CODEGEN_ARGS=%value%
@@ -324,11 +326,6 @@ def dart_codegen_action(
             "--summary-files=%s" % summary.path
             for summary in summaries
         ]
-        sdk_summary = [
-            sdk_file
-            for sdk_file in ctx.files._sdk
-            if sdk_file.path.endswith("strong.sum")
-        ][0]
         arguments += ["--dart-sdk-summary=%s" % sdk_summary.path]
 
         # Files with a relative import need to be reachable via an 'asset:' uri
