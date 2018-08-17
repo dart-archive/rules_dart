@@ -36,7 +36,6 @@ def _tmp_file(ctx, file_suffix, lines):
       See [File documentation](https://goo.gl/fYvlcT) for more information.
     """
     tmp_file = ctx.actions.declare_file(
-        ctx.configuration.bin_dir,
         "%s_%s" % (ctx.label.name, file_suffix),
     )
     ctx.actions.write(output = tmp_file, content = "\n".join(lines))
@@ -125,7 +124,7 @@ def _declare_outs(ctx, generate_for, build_extensions):
                         src.basename[:-1 * len(extension)],
                         out_extension,
                     )
-                    output = ctx.actions.declare_file(src, out_name)
+                    output = ctx.actions.declare_file(out_name, sibling = src)
                     outs.append(output)
     return outs
 
