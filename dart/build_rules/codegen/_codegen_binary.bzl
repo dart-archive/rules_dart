@@ -147,13 +147,13 @@ def dart_codegen_binary(
         the builder factories.
       builder_factories: The names of the top level builder factories. These must
         be public.
+      default_content: Optional. A map from generated file extension to string
+        contents for that file. If the builders fail to output a file this value
+        will be output instead.
       use_summaries: Whether the Builders are compatible with summarie resolvers.
         Defaults to True.
       use_resolver: Whether the Builders need analyser resolution of Dart code.
         Defaults to True.
-      default_content: Optional. A map from generated file extension to string
-        contents for that file. If the builders fail to output a file this value
-        will be output instead.
       run_from_source: Whether the binary will run from source or generated
         kernel files. Defaults to False.
       **kwargs: keyword config parameters

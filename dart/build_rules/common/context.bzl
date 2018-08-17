@@ -59,6 +59,7 @@ def make_dart_context(
       enable_summaries: Whether to generate analyzer summaries.
       enable_analysis: Whether to generate analyzer output.
       checks: A file for post-processed analyzer output.
+      strict_deps: The file with the results of a strict dependencies check.
       srcs: List of Target. Source dependencies.
       generated_srcs: List of File. Source dependencies that exist as files only
         (with no associated Target), typically because they've been generated

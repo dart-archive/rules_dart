@@ -6,7 +6,7 @@ def filter_files(filetypes, files):
     for file_to_filter in files:
         filename = file_to_filter
         if type(file_to_filter) != "string":
-          filename = file_to_filter.basename
+            filename = file_to_filter.basename
         for filetype in filetypes:
             if filename.endswith(filetype):
                 filtered_files.append(file_to_filter)

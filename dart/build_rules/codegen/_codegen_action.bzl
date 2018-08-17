@@ -69,6 +69,7 @@ def _package_map_tmp_file(ctx, dart_context, forced_deps, file_suffix = None):
       ctx: The skylark rule context.
       dart_context: The Dart build context.
       file_suffix: The suffix to append to the ctx label for the file name.
+      forced_deps: Extra deps which will always be included.
 
     Returns:
       A File with the package name and path for each transitive dep in the
@@ -312,6 +313,7 @@ def dart_codegen_action(
         else:
             filtered_deps += dep.files
 
+    summaries = None
     if use_summaries:
         if outline_only:
             summaries = depset(_collect_summaries(outline_summary_deps))

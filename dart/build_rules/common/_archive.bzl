@@ -7,9 +7,9 @@ def create_archive(ctx, srcs, name):
       ctx: The target context.
       srcs: the srcs for the current target
       name: the name for the current target
-    Returns:
-      - A tar file which contains the supplied srcs.
 
+    Returns:
+       A tar file which contains the supplied srcs.
     """
     commands = []
     for src in srcs:
