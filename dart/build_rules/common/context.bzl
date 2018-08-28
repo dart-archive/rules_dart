@@ -172,6 +172,7 @@ def make_dart_context(
         archive = archive,
         platforms = platforms_intersection,
         explicit_platforms = explicit_platforms,
+        force_platforms = force_platforms,
         transitive_srcs = struct(
             targets = transitive_srcs_targets,
             files = transitive_srcs_files,
