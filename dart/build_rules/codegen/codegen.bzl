@@ -52,7 +52,19 @@ Arguments passed using --define have the following restrictions:
     --argument --value
 """
 
-load(":_codegen_binary.bzl", "dart_codegen_binary")
-load(":_codegen_rule.bzl", "dart_codegen_rule")
-load(":_codegen_aspect.bzl", "dart_codegen_aspect")
-load(":_codegen_action.bzl", "dart_codegen_action")
+load(
+    ":_codegen_binary.bzl",
+    _codegen_binary = "codegen_binary"
+)
+load(
+    ":_codegen_rule.bzl",
+    _codegen_rule = "codegen_rule"
+)
+load(
+    ":_codegen_aspect.bzl",
+    _codegen_aspect = "codegen_aspect"
+)
+
+dart_codegen_binary = _codegen_binary
+dart_codegen_rule = _codegen_rule
+dart_codegen_aspect = _codegen_aspect

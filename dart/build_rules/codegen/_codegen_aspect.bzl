@@ -46,7 +46,7 @@ def _codegen_aspect_impl(target, ctx):
     )
     return struct(dart_codegen = struct(srcs = srcs))
 
-def dart_codegen_aspect(aspect_name, extensions, transitive = False):
+def codegen_aspect(aspect_name, extensions, transitive = False):
     """Create an Aspect to gather files from `srcs` and `data` by extension."""
     return aspect(
         implementation = _codegen_aspect_impl,

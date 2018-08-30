@@ -107,7 +107,7 @@ _codegen_binary = rule(
     implementation = _codegen_binary_impl,
 )
 
-def dart_codegen_binary(
+def codegen_binary(
         name,
         srcs,
         deps,
