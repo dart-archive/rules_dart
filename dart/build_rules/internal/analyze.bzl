@@ -16,8 +16,7 @@ def analyze_action(
         use_summaries = True,
         analysis = None,
         fail_on_error = True,
-        x_perf_report = None,
-        strong = False):
+        x_perf_report = None):
     """Runs the analyzer.
 
     Arguments:
@@ -34,8 +33,6 @@ def analyze_action(
       x_perf_report: Output file to which a performance report should be
           written, or `None` if no performance report should be output.
           Defaults to `None`.
-      strong: `True` if analysis should be done in strong mode.
-          Defaults to `False`.
 
     Temporary files and directories used by this action are:
     - $LABEL.analyze: directory in which analysis occurs
@@ -182,8 +179,6 @@ def analyze_action(
         analyzer_args += ["--packages=%s" % package_spec.path]
     if x_perf_report:
         analyzer_args += ["--x-perf-report=%s" % x_perf_report.path]
-    if strong:
-        analyzer_args += ["--strong"]
     short_paths_to_analyze = [
         f.short_path
         for f in filter_files(dart_filetypes, dart_ctx.srcs)
@@ -229,17 +224,13 @@ def analyze_action(
     else:
         verb = "Analyzing"
         mnemonic = "DartAnalysis"
-    if strong:
-        mode = "strong"
-    else:
-        mode = "spec"
 
     ctx.actions.run(
         inputs = inputs,
         outputs = outputs,
         executable = executable,
         arguments = analyzer_args,
-        progress_message = "%s Dart library %s (%s mode)" % (verb, ctx, mode),
+        progress_message = "%s Dart library %s" % (verb, ctx),
         mnemonic = mnemonic,
         execution_requirements = execution_requirements,
         input_manifests = input_manifests,
@@ -264,5 +255,4 @@ def summary_action(ctx, dart_ctx):
                 dart_ctx,
                 summary = dart_ctx.strong_summary,
                 fail_on_error = False,
-                strong = True,
             )
