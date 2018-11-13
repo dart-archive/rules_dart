@@ -16,7 +16,7 @@ skylark_library(
     deps = [
         "//dart/build_rules/internal:dart_vm_binary",
         "//dart/build_rules/internal:dart_vm_snapshot",
-        "@bazel_skylib//:lib",
+        "@bazel_skylib//lib:dicts",
     ],
 )
 

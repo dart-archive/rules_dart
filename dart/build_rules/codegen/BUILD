@@ -28,7 +28,7 @@ skylark_library(
         ":_labels",
         "//dart/build_rules:vm",
         "//dart/build_rules/internal:common",
-        "@bazel_skylib//:lib",
+        "@bazel_skylib//lib:dicts",
     ],
 )
 
