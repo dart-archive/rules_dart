@@ -99,7 +99,7 @@ def make_dart_context(
     data = data or []
     data_files = depset([f for t in data for f in t.files])
     deps = deps or []
-    archive_srcs = list(srcs_files)
+    archive_srcs = srcs_files.to_list()
 
     archive = None
     if archive_srcs:
@@ -266,7 +266,7 @@ def _merge_dart_context(dart_ctx1, dart_ctx2):
         dart_srcs = dart_ctx1.dart_srcs + dart_ctx2.dart_srcs,
         data = dart_ctx1.data + dart_ctx2.data,
         deps = dart_ctx1.deps + dart_ctx2.deps,
-        license_files = list(depset(dart_ctx1.license_files + dart_ctx2.license_files)),
+        license_files = depset(dart_ctx1.license_files + dart_ctx2.license_files).to_list(),
         transitive_srcs_targets = dict(dart_ctx1.transitive_srcs.targets.items() + dart_ctx2.transitive_srcs.targets.items()),
         transitive_srcs_files = dart_ctx1.transitive_srcs.files + dart_ctx2.transitive_srcs.files,
         transitive_dart_srcs_files = dart_ctx1.transitive_dart_srcs.files + dart_ctx2.transitive_dart_srcs.files,

@@ -326,7 +326,7 @@ def codegen_action(
             )
         arguments += [
             "--summary-files=%s" % summary.path
-            for summary in summaries
+            for summary in summaries.to_list()
         ]
         arguments += ["--dart-sdk-summary=%s" % sdk_summary.path]
 
@@ -400,7 +400,7 @@ def codegen_action(
         for ext in extensions
     ]
     ctx.actions.run(
-        inputs = list(inputs),
+        inputs = inputs.to_list(),
         outputs = outs,
         executable = generator_binary,
         progress_message = "Generating %s files %s " % (
