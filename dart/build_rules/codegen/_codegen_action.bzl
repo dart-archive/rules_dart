@@ -315,18 +315,20 @@ def codegen_action(
     summaries = None
     if use_summaries:
         if outline_only:
-            summaries = depset(_collect_summaries(outline_summary_deps))
+            transitive_outline_deps = {
+                "%s" % dep.dart.label: dep
+                for dep in outline_summary_deps
+            }
             for dep in outline_summary_deps:
-                summaries += _collect_summaries(
-                    dep.dart.transitive_deps.targets.values(),
-                )
+                transitive_outline_deps.update(dep.dart.transitive_deps.targets)
+            summaries = _collect_summaries(transitive_outline_deps.values())
         else:
             summaries = _collect_summaries(
                 dart_context.transitive_deps.targets.values(),
             )
         arguments += [
             "--summary-files=%s" % summary.path
-            for summary in summaries.to_list()
+            for summary in summaries
         ]
         arguments += ["--dart-sdk-summary=%s" % sdk_summary.path]
 
